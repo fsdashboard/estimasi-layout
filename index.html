@@ -4,52 +4,55 @@
 <head>
 
   <meta charset="UTF-8" />
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>Dashboard Estimasi</title>
-
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 </head>
 <body class="flex h-screen">
 
   <!-- Sidebar -->
 
   <aside class="w-64 bg-gray-800 text-white p-4 space-y-4">
-
     <h2 class="text-xl font-bold mb-4">Dashboard</h2>
-
     <nav>
-
-      <ul class="space-y-2">
-
-        <li><button onclick="showSection('layout-a3')" class="hover:underline">Layout A3+</button></li>
-
-        <li><button onclick="showSection('buku')" class="hover:underline">Buku</button></li>
-
-        <li><button onclick="showSection('spanduk')" class="hover:underline">Spanduk</button></li>
-        <li><button onclick="showSection('adjust-size')" class="hover:underline">Adjust Size</button></li>
-        <li><button onclick="showSection('shuffle-pages')" class="hover:underline">Shuffle Pages</button></li>
-        <li><button onclick="showSection('penawaran-harga')" class="hover:underline">Penawaran Harga</button></li>
-        <li><button onclick="showSection('pengiriman')" class="hover:underline">Pengiriman</button></li>
+  
+    <ul class="text-white text-sm space-y-2">
+        <li><button onclick="showSection('layout-a3')"class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 cursor-pointer">
+            <i class="fas fa-layer-group text-white"></i>
+            <span>Layout A3+</span></li>
+        <li><button onclick="showSection('buku')"class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 cursor-pointer">
+            <i class="fas fa-book text-white"></i>
+            <span>Buku</span></li>
+        <li><button onclick="showSection('spanduk')"class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 cursor-pointer">
+            <i class="fas fa-image text-white"></i>
+            <span>Spanduk</span></li>
+        <li><button onclick="showSection('adjust-size')"class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 cursor-pointer">
+            <i class="fas fa-expand-arrows-alt text-white"></i>
+            <span>Adjust Size</span></li>
+        <li><button onclick="showSection('shuffle-pages')"class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 cursor-pointer">
+            <i class="fas fa-random text-white"></i>
+            <span>Shuffle Pages</span></li>
+        <li><button onclick="showSection('penawaran-harga')"class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 cursor-pointer">
+            <i class="fas fa-file-invoice-dollar text-white"></i>
+            <span>Penawaran Harga</span></li>
+        <li><button onclick="showSection('pengiriman')"class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700 cursor-pointer">
+            <i class="fas fa-truck text-white"></i>
+            <span>Pengiriman</span></li>
       </ul>
-
     </nav>
-
   </aside>
-
-
 
   <!-- Layout A3+ -->
 
-<main class="flex-1 p-6 overflow-auto">
-  
+<main class="flex-1 p-6 overflow-auto"> 
 <div id="layout-a3" class="section hidden">
   <h1 class="text-2xl font-semibold mb-4">Estimasi Layout A3+</h1>
-
   <table class="mb-4">
     <tr>
-  <td class="pr-2">Ukuran Jadi (cm):</td>
+
+  <td class="pr-2 py-3">Ukuran Jadi (cm):</td>
   <td>
     <div class="flex ml-2 w-64">
       <input type="number" placeholder="Panjang" id="panjang" class="p-1 border rounded w-[7.25rem] mr-1" />
@@ -59,14 +62,13 @@
   </td>
 </tr>
 
-
     <tr>
-      <td class="pr-2">Kebutuhan Cetak (pcs):</td>
+      <td class="pr-2 py-3">Kebutuhan Cetak (pcs):</td>
       <td><input type="number" id="kebutuhan" class="ml-2 p-1 border rounded w-64" /></td>
     </tr>
 
     <tr>
-      <td class="pr-2">Finishing:</td>
+      <td class="pr-2 py-3">Finishing:</td>
       <td>
         <select id="finishing" class="ml-2 p-1 border rounded w-64">
           <option value="">-- Pilih Finishing --</option>
@@ -79,17 +81,17 @@
     </tr>
 
     <tr>
-      <td class="pr-2">Total dalam 1 A3:</td>
+      <td class="pr-2 py-3">Total dalam 1 A3:</td>
       <td><input type="text" id="hasilTotalA3" class="ml-2 p-1 border rounded w-64 bg-gray-100" readonly /></td>
     </tr>
 
     <tr>
-      <td class="pr-2">Kebutuhan Cetak A3+:</td>
+      <td class="pr-2 py-3">Kebutuhan Cetak A3+:</td>
       <td><input type="text" id="hasilA3plus" class="ml-2 p-1 border rounded w-64 bg-gray-100" readonly /></td>
     </tr>
 
     <tr>
-      <td class="pr-2">Total Biaya Finishing:</td>
+      <td class="pr-2 py-3">Total Biaya Finishing:</td>
       <td><input type="text" id="totalFinishing" class="ml-2 p-1 border rounded w-64 bg-gray-100" readonly /></td>
     </tr>
   </table>
@@ -99,43 +101,37 @@
     <button onclick="resetForm()" class="ml-2 px-4 py-2 bg-gray-500 text-white rounded">Reset</button>
   </div>
 </div>
-
     </div> <!-- penutup layout-a3 -->
 
     <!-- Buku -->
-    <!-- Soft Cover -->
 
   <main class="flex-1 p-6 overflow-auto">
-
     <div id="buku" class="section hidden">
-
       <h2 class="text-2xl font-bold mb-4">Estimasi Buku</h2>
-
-
       <label for="jenis-buku" class="block mb-2 font-semibold">Pilih Jenis Buku:</label>
-
       <select id="jenis-buku" onchange="tampilkanFormBuku()" class="mb-4 p-2 border rounded text-black">
-
         <option value="softcover">Soft Cover</option>
-
         <option value="booklet">Booklet</option>
-
         <option value="spiral">Spiral</option>
-
       </select>
 
-
+   <!-- Soft Cover -->
       <div id="form-softcover" class="form-buku">
-
         <h3 class="font-bold mb-2">Estimasi Buku - Soft Cover</h3>
 
 <table class="mb-4 w-[400px]">
   <tr>
-    <td class="pr-2 whitespace-nowrap">Jumlah Halaman:</td>
+    <td class="pr-2 py-2 whitespace-nowrap">Jumlah Halaman:</td>
     <td><input type="number" id="softcover-halaman" class="ml-2 p-1 border rounded w-full" /></td>
   </tr>
   <tr>
-    <td class="pr-2 whitespace-nowrap">Ukuran Jadi (cm):</td>
+
+    <td class="pr-2 py-2 whitespace-nowrap">Jumlah Cetak:</td>
+    <td><input type="number" id="softcover-cetak" class="ml-2 p-1 border rounded w-full" /></td>
+  </tr>
+  <tr>
+
+    <td class="pr-2 py-2 whitespace-nowrap">Ukuran Jadi (cm):</td>
     <td>
       <div class="flex ml-2 w-full">
         <input type="number" placeholder="Panjang" id="softcover-panjang" class="p-1 border rounded w-1/2 mr-1" />
@@ -145,11 +141,8 @@
     </td>
   </tr>
   <tr>
-    <td class="pr-2 whitespace-nowrap">Jumlah Cetak:</td>
-    <td><input type="number" id="softcover-cetak" class="ml-2 p-1 border rounded w-full" /></td>
-  </tr>
-  <tr>
-    <td class="pr-2 whitespace-nowrap">Jenis Kertas Isi:</td>
+
+    <td class="pr-2 py-2 whitespace-nowrap">Sided Print-Isi:</td>
     <td>
       <select id="softcover-sisi-isi" class="ml-2 p-1 border rounded w-full">
         <option value="">-- slide --</option>
@@ -159,7 +152,7 @@
     </td>
   </tr>
   <tr>
-    <td class="pr-2 whitespace-nowrap">Jenis Kertas Cover:</td>
+    <td class="pr-2 py-2 whitespace-nowrap">Sided Print-Cover:</td>
     <td>
       <select id="softcover-sisi-cover" class="ml-2 p-1 border rounded w-full">
         <option value="">-- slide --</option>
@@ -169,7 +162,7 @@
     </td>
   </tr>
   <tr>
-    <td class="pr-2 whitespace-nowrap">Bahan Kertas Isi:</td>
+    <td class="pr-2 py-2 whitespace-nowrap">Bahan Kertas Isi:</td>
     <td>
       <select id="softcover-bahan-isi" class="ml-2 p-1 border rounded w-full">
         <option value="">-- Pilih Kertas --</option>
@@ -191,15 +184,15 @@
   </tr>
   <tr>
     
-    <td class="pr-2 whitespace-nowrap">Total dalam 1 A3+:</td>
+    <td class="pr-2 py-2 whitespace-nowrap">Total dalam 1 A3+:</td>
     <td><input type="text" id="softcover-totalA3" class="ml-2 p-1 border rounded w-full bg-gray-100" readonly /></td>
   </tr>
   <tr>
-    <td class="pr-2 whitespace-nowrap">Jumlah Lembar Cetak Isi:</td>
+    <td class="pr-2 py-2 whitespace-nowrap">Jumlah Lembar Cetak Isi:</td>
     <td><input type="text" id="softcover-lembar-isi" class="ml-2 p-1 border rounded w-full bg-gray-100" readonly /></td>
   </tr>
   <tr>
-    <td class="pr-2 whitespace-nowrap">Ukuran Ketebalan Punggung:</td>
+    <td class="pr-2 py-2 whitespace-nowrap">Ketebalan Punggung:</td>
     <td><input type="text" id="softcover-punggung" class="ml-2 p-1 border rounded w-full bg-gray-100" readonly /></td>
   </tr>
 </table>
@@ -209,22 +202,203 @@
    <button onclick="resetSoftcoverForm()" class="ml-2 px-4 py-2 bg-gray-500 text-white rounded">Reset</button>
   </div>
       </div>
-    </div>
+
+ <!-- Booklet -->
+
+<div id="form-booklet" class="form-buku hidden">
+  <h3 class="font-bold mb-2">Estimasi Buku - Booklet</h3>
+  <table class="mb-4 w-[400px]">
+    <tr>
+
+      <td class="pr-2 py-2 whitespace-nowrap">Jumlah Halaman:</td>
+      <td><input type="number" id="booklet-halaman" class="ml-2 p-1 border rounded w-full" /></td>
+    </tr>
+    <tr>
+
+      <td class="pr-2 py-2 whitespace-nowrap">Jumlah Cetak:</td>
+      <td><input type="number" id="booklet-cetak" class="ml-2 p-1 border rounded w-full" /></td>
+    </tr>
+
+      <td class="pr-2 py-2 whitespace-nowrap">Ukuran Jadi (cm):</td>
+      <td>
+
+        <div class="flex ml-2 w-full">
+          <input type="number" placeholder="Panjang" id="booklet-panjang" class="p-1 border rounded w-1/2 mr-1" />
+          <span class="flex items-center px-1">x</span>
+          <input type="number" placeholder="Lebar" id="booklet-lebar" class="p-1 border rounded w-1/2 ml-1" />
+        </div>
+      </td>
+    </tr>
+    <tr>
+
+    <td class="pr-2 py-2 whitespace-nowrap">Orientation:</td>
+    <td>
+      <select id="booklet-orientation" class="ml-2 p-1 border rounded w-full">
+        <option value="">-- None --</option>
+        <option value="1">Portrait</option>
+        <option value="2">Landscape</option>
+      </select>
+    </td>
+  </tr>
+  <tr>
+
+    <td class="pr-2 py-2 whitespace-nowrap">Sided Print-Isi:</td>
+    <td>
+      <select id="booklet-sisi-isi" class="ml-2 p-1 border rounded w-full">
+        <option value="">-- slide --</option>
+        <option value="1">1 Sisi</option>
+        <option value="2">2 Sisi</option>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td class="pr-2 py-2 whitespace-nowrap">Sided Print-Cover:</td>
+    <td>
+      <select id="booklet-sisi-cover" class="ml-2 p-1 border rounded w-full">
+        <option value="">-- slide --</option>
+        <option value="1">1 Sisi</option>
+        <option value="2">2 Sisi</option>
+      </select>
+    </td>
+  </tr>
+  <tr>
+
+    <td class="pr-2 py-2 whitespace-nowrap">Total dalam 1 A3+:</td>
+    <td><input type="text" id="booklet-totalA3" class="ml-2 p-1 border rounded w-full bg-gray-100" readonly /></td>
+  </tr>
+  <tr>
+
+    <td class="pr-2 py-2 whitespace-nowrap">Jumlah Lembar Cetak Isi:</td>
+    <td><input type="text" id="booklet-lembar-isi" class="ml-2 p-1 border rounded w-full bg-gray-100" readonly /></td>
+  </tr>
+  <tr>
+
+    <td class="pr-2 py-2 whitespace-nowrap">Jumlah Lembar Cetak Cover:</td>
+    <td><input type="text" id="booklet-lembar-cover" class="ml-2 p-1 border rounded w-full bg-gray-100" readonly /></td>
+  </tr>
+  <tr>
   </table>
 
-    <!-- Booklet -->
-    </table>
+  <div class="mt-4">
+    <button onclick="alert('Perhitungan Booklet belum diimplementasikan.');" class="px-4 py-2 bg-blue-600 text-white rounded">Hitung</button>
+    <button onclick="resetBookletForm()" class="ml-2 px-4 py-2 bg-gray-500 text-white rounded">Reset</button>
   </div>
+</div>
 
-    <!-- Spiral -->
-    </table>
+<!-- Spiral -->
+
+<div id="form-spiral" class="form-buku hidden">
+  <h3 class="font-bold mb-2">Estimasi Buku - Spiral</h3>
+  <table class="mb-4 w-[400px]">
+    <tr>
+
+      <td class="pr-2 py-2 whitespace-nowrap">Jumlah Halaman:</td>
+      <td><input type="number" id="spiral-halaman" class="ml-2 p-1 border rounded w-full" /></td>
+    </tr>
+    <tr>
+
+      <td class="pr-2 py-2 whitespace-nowrap">Jumlah Cetak:</td>
+      <td><input type="number" id="spiral-cetak" class="ml-2 p-1 border rounded w-full" /></td>
+    </tr>
+    
+      <td class="pr-2 py-2 whitespace-nowrap">Ukuran Jadi (cm):</td>
+      <td>
+
+        <div class="flex ml-2 w-full">
+          <input type="number" placeholder="Panjang" id="spiral-panjang" class="p-1 border rounded w-1/2 mr-1" />
+          <span class="flex items-center px-1">x</span>
+          <input type="number" placeholder="Lebar" id="spiral-lebar" class="p-1 border rounded w-1/2 ml-1" />
+        </div>
+      </td>
+    </tr>
+    <tr>
+<tr>
+  <td class="pr-2 py-2 whitespace-nowrap">Sided Print-Isi:</td>
+  <td>
+    <div class="flex ml-2 w-full">
+      <select id="spiral-sisi-isi" class="p-1 border rounded w-1/2 mr-1" />
+        <option value="">-- slide --</option>
+        <option value="1">1 Sisi</option>
+        <option value="2">2 Sisi</option>
+      </select>
+      <select id="spiral-bahan-isi" class="p-1 border rounded w-1/2 ml-1" />
+        <option value="">- Pilih Kertas -</option>
+        <option value="BOOK PAPER">BOOK PAPER</option>
+        <option value="HVS 75 gsm">HVS 75 gsm</option>
+        <option value="HVS 80 gsm">HVS 80 gsm</option>
+        <option value="HVS 100 gsm">HVS 100 gsm</option>
+        <option value="AP 120 gsm">AP 120 gsm</option>
+        <option value="AP 150 gsm">AP 150 gsm</option>
+        <option value="MP 120 gsm">MP 120 gsm</option>
+        <option value="MP 150 gsm">MP 150 gsm</option>
+        <option value="AC 210 gsm">AC 210 gsm</option>
+        <option value="AC 230 gsm">AC 230 gsm</option>
+        <option value="AC 260 gsm">AC 260 gsm</option>
+        <option value="AC 310 gsm">AC 310 gsm</option>
+        <option value="AC 400 gsm">AC 400 gsm</option>
+      </select>
+    </div>
+  </td>
+</tr>
+
+<tr>
+  <td class="pr-2 py-2 whitespace-nowrap">Sided Print-Cover:</td>
+  <td>
+    <div class="flex ml-2 w-full">
+      <select id="spiral-sisi-cover" class="p-1 border rounded w-full mr-1" />
+        <option value="">-- slide --</option>
+        <option value="1">1 Sisi</option>
+        <option value="2">2 Sisi</option>
+      </select>
+      <select id="spiral-bahan-cover" class="p-1 border rounded w-60 ml-1" />
+        <option value="">- Pilih Kertas -</option>
+        <option value="BOOK PAPER">BOOK PAPER</option>
+        <option value="HVS 75 gsm">HVS 75 gsm</option>
+        <option value="HVS 80 gsm">HVS 80 gsm</option>
+        <option value="HVS 100 gsm">HVS 100 gsm</option>
+        <option value="AP 120 gsm">AP 120 gsm</option>
+        <option value="AP 150 gsm">AP 150 gsm</option>
+        <option value="MP 120 gsm">MP 120 gsm</option>
+        <option value="MP 150 gsm">MP 150 gsm</option>
+        <option value="AC 210 gsm">AC 210 gsm</option>
+        <option value="AC 230 gsm">AC 230 gsm</option>
+        <option value="AC 260 gsm">AC 260 gsm</option>
+        <option value="AC 310 gsm">AC 310 gsm</option>
+        <option value="AC 400 gsm">AC 400 gsm</option>
+      </select>
+    </div>
+  </td>
+</tr>
+
+    <td class="pr-2 py-2 whitespace-nowrap">Total dalam 1 A3+:</td>
+    <td><input type="text" id="spiral-totalA3" class="ml-2 p-1 border rounded w-full bg-gray-100" readonly /></td>
+  </tr>
+  <tr>
+
+    <td class="pr-2 py-2 whitespace-nowrap">Jumlah Lembar Cetak Isi:</td>
+    <td><input type="text" id="spiral-lembar-isi" class="ml-2 p-1 border rounded w-full bg-gray-100" readonly /></td>
+  </tr>
+  <tr>
+
+    <td class="pr-2 py-2 whitespace-nowrap">Jumlah Lembar Cetak Cover:</td>
+    <td><input type="text" id="spiral-lembar-cover" class="ml-2 p-1 border rounded w-full bg-gray-100" readonly /></td>
+  </tr>
+  <tr>
+
+    <td class="pr-2 py-2 whitespace-nowrap">Nomor Spiral:</td>
+    <td><input type="text" id="spiral-nomor-spiral" class="ml-2 p-1 border rounded w-full bg-gray-100" readonly /></td>
+  </tr>
+  <tr>
+  </table>
+
+  <div class="mt-4">
+    <button onclick="alert('Perhitungan Spiral belum diimplementasikan.');" class="px-4 py-2 bg-blue-600 text-white rounded">Hitung</button>
+    <button onclick="resetSpiralForm()" class="ml-2 px-4 py-2 bg-gray-500 text-white rounded">Reset</button>
   </div>
- </div>
-   </main>
+</div>
+<script>
 
-
-   <script>
-
+<!-- Rumus + Tombol -->
 
   function getHargaPotongKress(kebutuhan, totalA3) {
   const data = [
@@ -288,25 +462,15 @@
     function hitungTotal() {
 
       let panjang = parseFloat(document.getElementById('panjang').value);
-
       let lebar = parseFloat(document.getElementById('lebar').value);
-
       const kebutuhan = parseFloat(document.getElementById('kebutuhan').value);
-
       const finishing = document.getElementById('finishing').value;
 
-
-
       let panjangAcuan = 47;
-
       let lebarAcuan = 31;
 
-
-
       if (isNaN(panjang) || isNaN(lebar) || panjang <= 0 || lebar <= 0) {
-
         alert('Isi panjang dan lebar dengan benar.');
-
         return;
 
       }
@@ -316,22 +480,16 @@
       if (finishing === "Potong Kotak Kress 2") {
 
         panjang += 0.4;
-
         lebar += 0.4;
-
         panjangAcuan = 47.4;
-
         lebarAcuan = 31.4;
       }
 
       if (finishing === "Kiss Cut") {
 
         panjang += 0.2;
-
         lebar += 0.2;
-
         panjangAcuan = 45.2;
-
         lebarAcuan = 30.7;
 
       }
@@ -339,25 +497,18 @@
       if (finishing === "Die Cut") {
 
         panjang += 0.4;
-
         lebar += 0.4;
 
         const mode1 = Math.floor(44 / panjang) * Math.floor(30.8 / lebar);
-
         const mode2 = Math.floor(44 / lebar) * Math.floor(30.8 / panjang);
-
         const mode3 = Math.floor(46.5 / panjang) * Math.floor(29 / lebar);
-
         const mode4 = Math.floor(46.5 / lebar) * Math.floor(29 / panjang);
-
         var totalA3 = Math.max(mode1, mode2, mode3, mode4);
 
       } else {
 
         const mode1 = Math.floor(panjangAcuan / panjang) * Math.floor(lebarAcuan / lebar);
-
         const mode2 = Math.floor(panjangAcuan / lebar) * Math.floor(lebarAcuan / panjang);
-
         var totalA3 = Math.max(mode1, mode2);
 
       }
@@ -381,12 +532,8 @@
 
       const total = harga;
 
-
-
       document.getElementById('hasilTotalA3').value = totalA3 > 0 ? totalA3 + ' pcs' : '-';
-
       document.getElementById('hasilA3plus').value = a3plus > 0 ? a3plus + ' Lembar' : '-';
-
       document.getElementById('totalFinishing').value = total > 0 ? 'Rp' + total.toLocaleString() : 'FREE';
 
     }
@@ -395,30 +542,19 @@
     function resetForm() {
 
       document.getElementById('panjang').value = '';
-
       document.getElementById('lebar').value = '';
-
       document.getElementById('kebutuhan').value = '';
-
       document.getElementById('finishing').value = '';
-
       document.getElementById('hasilTotalA3').value = '';
-
       document.getElementById('hasilA3plus').value = '';
-
       document.getElementById('totalFinishing').value = '';
     }
-
   </script>
-
 
 <script>
   function showSection(id) {
-
     document.querySelectorAll('.section').forEach(section => {
-
       section.classList.add('hidden');
-
     });
     document.getElementById(id).classList.remove('hidden');
    }
@@ -520,7 +656,5 @@ function resetSoftcoverForm() {
   });
 }
 </script>
-
 </body>
-
 </html>
