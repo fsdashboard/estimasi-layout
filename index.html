@@ -595,19 +595,19 @@ function hitungSoftCover() {
 
   // Ketebalan bahan berdasarkan referensi
   const ketebalanBahan = {
-    "BOOK PAPER": 0.0125,
+    "BOOK PAPER": 0.0120,
     "HVS 75 gsm": 0.0093,
-    "HVS 80 gsm": 0.01041,
-    "HVS 100 gsm": 0.01234,
-    "AP 120 gsm": 0.013,
+    "HVS 80 gsm": 0.0104,
+    "HVS 100 gsm": 0.0123,
+    "AP 120 gsm": 0.0131,
     "AP 150 gsm": 0.0142,
     "MP 120 gsm": 0.0131,
     "MP 150 gsm": 0.0142,
-    "AC 210 gsm": 0.023,
-    "AC 230 gsm": 0.025,
-    "AC 260 gsm": 0.03125,
-    "AC 310 gsm": 0.036,
-    "AC 400 gsm": 0.05
+    "AC 210 gsm": 0.0230,
+    "AC 230 gsm": 0.0250,
+    "AC 260 gsm": 0.0313,
+    "AC 310 gsm": 0.0360,
+    "AC 400 gsm": 0.0500
   };
 
   const ketebalan = ketebalanBahan[bahanIsi] || 0;
@@ -713,19 +713,19 @@ function hitungKetebalanSpiral() {
   }
 
   const ketebalanBahan = {
-    "BOOK PAPER": 0.0125,
+    "BOOK PAPER": 0.0120,
     "HVS 75 gsm": 0.0093,
-    "HVS 80 gsm": 0.01041,
-    "HVS 100 gsm": 0.01234,
-    "AP 120 gsm": 0.013,
+    "HVS 80 gsm": 0.0104,
+    "HVS 100 gsm": 0.0123,
+    "AP 120 gsm": 0.0131,
     "AP 150 gsm": 0.0142,
     "MP 120 gsm": 0.0131,
     "MP 150 gsm": 0.0142,
-    "AC 210 gsm": 0.023,
-    "AC 230 gsm": 0.025,
-    "AC 260 gsm": 0.03125,
-    "AC 310 gsm": 0.036,
-    "AC 400 gsm": 0.05
+    "AC 210 gsm": 0.0230,
+    "AC 230 gsm": 0.0250,
+    "AC 260 gsm": 0.0313,
+    "AC 310 gsm": 0.0360,
+    "AC 400 gsm": 0.0500
   };
 
   const ketebalanIsi = ketebalanBahan[bahanIsi] || 0;
