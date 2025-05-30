@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
@@ -109,8 +109,30 @@
 
       let hasilGabung = [];
 
+     if (isNaN(isiHalaman) || isiHalaman <= 0) {
+        alert('Isi jumlah halaman dengan benar.');
+        return;
+      }
+     if (posisi === '-- Auto --' || posisi.trim() === '') {
+        alert('Pilih posisi terlebih dahulu.');
+        return;
+      }
+     if (isNaN(baris) || baris <= 0) {
+        alert('Isi baris dengan benar.');
+        return;
+      }
+     if (isNaN(kolom) || kolom <= 0) {
+        alert('Isi kolom dengan benar.');
+        return;
+      }
+     if (slide === '-- Sided --' || slide.trim() === '') {
+        alert('Pilih slide terlebih dahulu.');
+        return;
+      }
+
       if (slide === "1 Sisi") {
         const { matrix } = buatMatrix(angkaList, baris, kolom, posisi);
+        if (showSlide) output.appendChild(buatTabel(matrix, "Slide 1"));
         matrix.forEach(row => hasilGabung.push(...row));
       } else {
         const ganjilList = angkaList.filter(n => n % 2 === 1);
@@ -167,10 +189,10 @@
 
     function resetForm() {
       document.getElementById("isiHalaman").value = "";
-      document.getElementById("posisi").value = "Portrait";
+      document.getElementById("posisi").value = "-- Auto --";
       document.getElementById("baris").value = "";
       document.getElementById("kolom").value = "";
-      document.getElementById("slide").value = "1 Sisi";
+      document.getElementById("slide").value = "-- Sided --";
       document.getElementById("toggleSlide").checked = false;
       document.getElementById("output").innerHTML = "";
     }

@@ -156,6 +156,14 @@
         alert('Isi panjang dan lebar dengan benar.');
         return;
       }
+      if (isNaN(kebutuhan) || kebutuhan <= 0) {
+        alert('Isi kebutuhan cetak dengan benar.');
+        return;
+      }
+      if (finishing === '-- pilih finishing --' || finishing.trim() === '') {
+        alert('Pilih jenis finishing terlebih dahulu.');
+        return;
+      }
 
       if (finishing === "Potong Kotak Kress 2") {
         panjang += 0.4;
