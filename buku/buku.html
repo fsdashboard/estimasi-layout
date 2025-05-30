@@ -45,24 +45,41 @@
     </main>
   </div>
 
-  <script>
-    function loadForm(file) {
-      if (!file) {
-        document.getElementById('form-container').innerHTML = '<p>Pilih jenis buku terlebih dahulu.</p>';
-        return;
-      }
-      fetch(file)
-        .then(res => {
-          if (!res.ok) throw new Error('HTTP error');
-          return res.text();
-        })
-        .then(html => {
-          document.getElementById('form-container').innerHTML = html;
-        })
-        .catch(() => {
-          document.getElementById('form-container').innerHTML = '<p class="text-red-500">Gagal memuat form.</p>';
-        });
+<script>
+  function loadForm(file) {
+    if (!file) {
+      document.getElementById('form-container').innerHTML = '<p>Pilih jenis buku terlebih dahulu.</p>';
+      return;
     }
-  </script>
+
+    fetch(file)
+      .then(res => {
+        if (!res.ok) throw new Error('Gagal fetch');
+        return res.text();
+      })
+      .then(html => {
+        document.getElementById('form-container').innerHTML = html;
+
+        // 🔽 Tambahan: load JS kalau form softcover
+        if (file === 'soft-cover.html') {
+          const script = document.createElement('script');
+          script.src = 'soft-cover.js';
+          document.body.appendChild(script);
+        }
+
+        // bisa ditambahkan juga:
+        else if (file === 'booklet.html') {
+          const script = document.createElement('script');
+          script.src = 'booklet.js';
+          document.body.appendChild(script);
+        }
+      })
+      .catch(() => {
+        document.getElementById('form-container').innerHTML =
+          '<p class="text-red-500">Gagal memuat form.</p>';
+      });
+  }
+</script>
+
 </body>
 </html>
