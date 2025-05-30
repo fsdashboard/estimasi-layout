@@ -5,26 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Adjust Size</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  .modal-enter {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .modal-show {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .modal-hide {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+</style>
 </head>
 <body class="bg-gray-100 text-gray-800">
   <div class="flex h-screen">
     <aside class="w-64 bg-gray-800 text-white flex flex-col">
       <div class="p-4 text-xl font-bold border-b border-gray-700">Estimasi Online</div>
       <nav class="flex-1 p-4 space-y-2 text-sm">
-        <a href="index.html" class="block p-2 rounded hover:bg-gray-700">🏠 Halaman Utama</a>
-        <a href="layout-a3.html" class="block p-2 rounded hover:bg-gray-700">📐 Layout A3+</a>
-        <a href="buku/buku.html" class="block p-2 rounded hover:bg-gray-700">📘 Buku</a>
-        <a href="spanduk.html" class="block p-2 rounded hover:bg-gray-700">🖼️ Spanduk</a>
-        <a href="adjust-size.html" class="block p-2 rounded hover:bg-gray-700">🔧 Adjust Size</a>
-        <a href="shuffle.html" class="block p-2 rounded hover:bg-gray-700">📄 Shuffle Pages</a>
-        <a href="penawaran.html" class="block p-2 rounded hover:bg-gray-700">💰 Penawaran</a>
-        <a href="pengiriman.html" class="block p-2 rounded hover:bg-gray-700">🚚 Pengiriman</a>
+        <a href="index.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🏠 Halaman Utama</a>
+        <a href="layout-a3.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📐 Layout A3+</a>
+        <a href="buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📘 Buku</a>
+        <a href="spanduk.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🖼️ Spanduk</a>
+        <a href="adjust-size.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🔧 Adjust Size</a>
+        <a href="shuffle.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📄 Shuffle Pages</a>
+        <a href="penawaran.html" class="block p-2 font-semibold rounded hover:bg-gray-700">💰 Penawaran</a>
+        <a href="pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🚚 Pengiriman</a>
       </nav>
     </aside>
+
+<!-- adjust size -->
     <main class="flex-1 p-6 overflow-y-auto">
       <h1 class="text-2xl font-bold mb-4 text-blue-700">Adjust Size</h1>
       <p class="text-sm text-gray-600 mb-4">Silakan tambahkan form penyesuaian ukuran file atau dokumen di sini</p>
-      <div class="bg-white rounded-xl shadow p-6">
+      <div class="bg-white rounded-lg shadow p-6 w-fit mx-auto">
 
     <div class="mb-4">
       <label class="block font-medium mb-1">Ukuran Awal (cm):</label>
@@ -34,7 +54,6 @@
       </div>
     </div>
 
-<!-- adjust size -->
     <div class="mb-4">
       <label class="block font-medium mb-1">Ukuran Baru (cm):</label>
       <div class="flex space-x-2">
@@ -54,16 +73,39 @@
   </div>
 </div>
 
-<!-- Rumus + Tombol -->
-
+<!-- Modal Alert -->
+<div id="customAlert" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+  <div id="alertBox" class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full modal-enter">
+    <h2 class="text-lg font-bold text-red-600 mb-2">PERINGATAN!</h2>
+    <p id="alertMessage" class="text-gray-700 mb-4"></p>
+    <div class="text-right">
+      <button onclick="tutupAlert()" class="px-4 py-2 bg-blue-600 text-white rounded">Oke</button>
+    </div>
+  </div>
+</div>
 
 <script>
-  function showSection(id) {
-    document.querySelectorAll('.section').forEach(section => {
-      section.classList.add('hidden');
-    });
-    document.getElementById(id).classList.remove('hidden');
-   }
+  window.onload = function () {
+    const modal = document.getElementById("customAlert");
+    const alertBox = document.getElementById("alertBox");
+
+    function showAlert(pesan) {
+      document.getElementById("alertMessage").textContent = pesan;
+      modal.classList.remove("hidden");
+      requestAnimationFrame(() => {
+        alertBox.classList.add("modal-show");
+      });
+    }
+
+    function tutupAlert() {
+      alertBox.classList.remove("modal-show");
+      alertBox.classList.add("modal-hide");
+
+      setTimeout(() => {
+        modal.classList.add("hidden");
+        alertBox.classList.remove("modal-hide");
+      }, 300);
+    }
 
 function hitungAdjustSize() {
   const awalPanjang = parseFloat(document.getElementById('awal-panjang').value);
@@ -72,12 +114,11 @@ function hitungAdjustSize() {
   const baruLebar = parseFloat(document.getElementById('baru-lebar').value);
 
   if (!awalPanjang || !awalLebar || !baruPanjang || !baruLebar) {
-    alert('Lengkapi semua input ukuran!');
+    showAlert('Mohon lengkapi semua input ukuran!');
     return;
   }
 
   const rasio = awalPanjang / awalLebar;
-
   const fitLebarPanjang = baruLebar * rasio;
   const fitTinggiLebar = baruPanjang / rasio;
 
@@ -93,9 +134,19 @@ function resetAdjustSize() {
   });
   document.getElementById('adjust-result').classList.add('hidden');
 }
-</script>
 
-</body>
-</html>
+    document.addEventListener('keydown', function (e) {
+      if (!modal.classList.contains('hidden') && e.key === 'Enter') {
+        tutupAlert();
+      }
+    });
+
+    // Buat bisa dipanggil onclick
+window.hitungAdjustSize = hitungAdjustSize;
+window.resetAdjustSize = resetAdjustSize;
+window.tutupAlert = tutupAlert;
+  };
+  </script>
+
 </body>
 </html>
