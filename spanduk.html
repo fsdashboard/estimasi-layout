@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estimasi Spanduk</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="flex h-screen">
+    <aside class="w-64 bg-gray-800 text-white flex flex-col">
+      <div class="p-4 text-xl font-bold border-b border-gray-700">Estimasi Online</div>
+      <nav class="flex-1 p-4 space-y-2 text-sm">
+        <a href="index.html" class="block p-2 rounded hover:bg-gray-700">🏠 Halaman Utama</a>
+        <a href="layout-a3.html" class="block p-2 rounded hover:bg-gray-700">📐 Layout A3+</a>
+        <a href="buku/buku.html" class="block p-2 rounded hover:bg-gray-700">📘 Buku</a>
+        <a href="spanduk.html" class="block p-2 rounded hover:bg-gray-700">🖼️ Spanduk</a>
+        <a href="adjust-size.html" class="block p-2 rounded hover:bg-gray-700">🔧 Adjust Size</a>
+        <a href="shuffle.html" class="block p-2 rounded hover:bg-gray-700">📄 Shuffle Pages</a>
+        <a href="penawaran.html" class="block p-2 rounded hover:bg-gray-700">💰 Penawaran</a>
+        <a href="pengiriman.html" class="block p-2 rounded hover:bg-gray-700">🚚 Pengiriman</a>
+      </nav>
+    </aside>
+
+<!-- Spanduk -->
+    <main class="flex-1 p-6 overflow-y-auto">
+      <h1 class="text-2xl font-bold mb-4 text-blue-700">Estimasi Spanduk</h1>
+      <p class="text-sm text-gray-600 mb-4">Silakan tambahkan form input ukuran spanduk di sini</p>
+      <div class="bg-white rounded-xl shadow p-6">
+
+    <table class="mb-4">
+      <tr>
+        <td class="pr-4 py-3">Ukuran Jadi (cm):</td>
+        <td>
+          <div class="flex w-[300px]">
+            <input type="number" id="spanduk-panjang" placeholder="Panjang" class="p-1 border rounded w-1/2 mr-1" />
+            <span class="flex items-center px-1">x</span>
+            <input type="number" id="spanduk-lebar" placeholder="Lebar" class="p-1 border rounded w-1/2 ml-1" />
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="pr-4 py-3">Jumlah Cetak:</td>
+        <td><input type="number" id="spanduk-jumlah" class="p-1 border rounded w-[300px]" /></td>
+      </tr>
+      <tr>
+        <td class="pr-4 py-3">Fins-M/A Keliling (CM):</td>
+        <td><input type="number" id="spanduk-fins" class="p-1 border rounded w-[300px]" /></td>
+      </tr>
+      <tr>
+        <td class="pr-4 py-3">Tambahan M/A:</td>
+        <td><input type="text" id="spanduk-totalma" class="p-1 border rounded w-[300px] bg-gray-100" readonly /></td>
+      </tr>
+    </table>
+
+    <div class="mt-4">
+      <button onclick="hitungSpanduk()" class="px-4 py-2 bg-blue-600 text-white rounded">Hitung</button>
+      <button onclick="resetSpandukForm()" class="ml-2 px-4 py-2 bg-gray-500 text-white rounded">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- Rumus + Tombol -->
+
+
+<script>
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(section => {
+      section.classList.add('hidden');
+    });
+    document.getElementById(id).classList.remove('hidden');
+   }
+
+  function hitungSpanduk() {
+    const panjang = parseFloat(document.getElementById('spanduk-panjang').value);
+    const lebar = parseFloat(document.getElementById('spanduk-lebar').value);
+    const fins = parseFloat(document.getElementById('spanduk-fins').value);
+    const jumlahCetak = parseInt(document.getElementById('spanduk-jumlah').value);
+
+    if (!panjang || !lebar || !fins || !jumlahCetak) {
+      alert("Mohon lengkapi semua input spanduk.");
+      return;
+    }
+
+    const sisiPanjang = Math.round((panjang / fins) + 1 - 2) * 2;
+    const sisiLebar = Math.round((lebar / fins) + 1) * 2;
+    const totalMA = (sisiPanjang + sisiLebar - 4) * jumlahCetak;
+
+    document.getElementById('spanduk-totalma').value = `${totalMA} PCS`;
+  }
+
+  function resetSpandukForm() {
+    const ids = ['spanduk-panjang', 'spanduk-lebar', 'spanduk-jumlah', 'spanduk-fins', 'spanduk-totalma'];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  }
+</script>
+
+</body>
+</html>
