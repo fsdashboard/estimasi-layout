@@ -99,7 +99,7 @@
       if (existingScript) existingScript.remove();
 
       const script = document.createElement('script');
-      script.src = `buku/${baseName}.js`;
+      script.src = `${baseName}.js`;
       script.id = 'form-script';
       script.defer = true;
       document.body.appendChild(script);
