@@ -1,36 +1,32 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Layout A3+</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-  .modal-enter {
-    opacity: 0;
-    transform: scale(0.95);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-  }
-
-  .modal-show {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  .modal-hide {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-</style>
-
+  <style>
+    .modal-enter {
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .modal-show {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .modal-hide {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+  </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
   <div class="flex h-screen">
     <aside class="w-64 bg-gray-800 text-white flex flex-col">
       <div class="p-4 text-xl font-bold border-b border-gray-700">Estimasi Online</div>
       <nav class="flex-1 p-4 space-y-2 text-sm">
-        <a href="index.html" class="block p-2 font-semibold drounded hover:bg-gray-700">🏠 Halaman Utama</a>
+        <a href="index.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🏠 Halaman Utama</a>
         <a href="layout-a3.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📐 Layout A3+</a>
         <a href="buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📘 Buku</a>
         <a href="spanduk.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🖼️ Spanduk</a>
@@ -39,77 +35,69 @@
         <a href="penawaran.html" class="block p-2 font-semibold rounded hover:bg-gray-700">💰 Penawaran</a>
         <a href="pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🚚 Pengiriman</a>
       </nav>
-
     </aside>
     <main class="flex-1 p-6 overflow-y-auto">
       <h1 class="text-2xl font-bold mb-4 text-blue-700">Layout A3+</h1>
       <p class="text-sm text-gray-600 mb-4">Halaman perhitungan dan penyusunan layout cetak A3+</p>
       <div class="bg-white rounded-lg shadow p-6 w-fit mx-auto">
-
-<table class="mb-4">
-<tr>
-
-  <td class="pr-2 py-3 font-semibold">Ukuran Jadi (cm):</td>
-  <td>
-    <div class="flex ml-2 w-64">
-      <input type="number" placeholder="Panjang" id="panjang" class="p-1 border rounded w-[7.25rem] mr-1" />
-      <span class="flex items-center px-1">x</span>
-      <input type="number" placeholder="Lebar" id="lebar" class="p-1 border rounded w-[7.25rem] ml-1" />
-    </div>
-  </td>
-</tr>
-
-    <tr>
-      <td class="pr-2 py-3 font-semibold">Kebutuhan Cetak (pcs):</td>
-      <td><input type="number" id="kebutuhan" class="ml-2 p-1 border rounded w-64" /></td>
-    </tr>
-
-    <tr>
-      <td class="pr-2 py-3 font-semibold">Finishing:</td>
-      <td>
-        <select id="finishing" class="ml-2 p-1 border rounded w-64">
-          <option value="">-- Pilih Finishing --</option>
-          <option value="Potong Kotak Kress 1">Potong Kotak Kress 1</option>
-          <option value="Potong Kotak Kress 2">Potong Kotak Kress 2</option>
-          <option value="Kiss Cut">Kiss Cut</option>
-          <option value="Die Cut">Die Cut</option>
-        </select>
-      </td>
-    </tr>
-
-    <tr>
-      <td class="pr-2 py-3 font-semibold">Total dalam 1 A3:</td>
-      <td><input type="text" id="hasilTotalA3" class="ml-2 p-1 border rounded w-64 bg-gray-100" readonly /></td>
-    </tr>
-
-    <tr>
-      <td class="pr-2 py-3 font-semibold">Kebutuhan Cetak A3+:</td>
-      <td><input type="text" id="hasilA3plus" class="ml-2 p-1 border rounded w-64 bg-gray-100" readonly /></td>
-    </tr>
-
-    <tr>
-      <td class="pr-2 py-3 font-semibold">Total Biaya Finishing:</td>
-      <td><input type="text" id="totalFinishing" class="ml-2 p-1 border rounded w-64 bg-gray-100" readonly /></td>
-    </tr>
-  </table>
-
-  <div class="mt-4">
-    <button onclick="hitungTotal()" class="px-4 py-2 bg-blue-600 text-white rounded">Hitung</button>
-    <button onclick="resetForm()" class="ml-2 px-4 py-2 bg-gray-500 text-white rounded">Reset</button>
+        <table class="mb-4">
+          <tr>
+            <td class="pr-2 py-3 font-semibold">Ukuran Jadi (cm):</td>
+            <td>
+              <div class="flex ml-2 w-64">
+                <input type="number" placeholder="Panjang" id="panjang" class="p-1 border rounded w-[7.25rem] mr-1" />
+                <span class="flex items-center px-1">x</span>
+                <input type="number" placeholder="Lebar" id="lebar" class="p-1 border rounded w-[7.25rem] ml-1" />
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="pr-2 py-3 font-semibold">Kebutuhan Cetak (pcs):</td>
+            <td><input type="number" id="kebutuhan" class="ml-2 p-1 border rounded w-64" /></td>
+          </tr>
+          <tr>
+            <td class="pr-2 py-3 font-semibold">Finishing:</td>
+            <td>
+              <select id="finishing" class="ml-2 p-1 border rounded w-64">
+                <option value="">-- Pilih Finishing --</option>
+                <option value="Potong Kotak Kress 1">Potong Kotak Kress 1</option>
+                <option value="Potong Kotak Kress 2">Potong Kotak Kress 2</option>
+                <option value="Kiss Cut">Kiss Cut</option>
+                <option value="Die Cut">Die Cut</option>
+              </select>
+            </td>
+          </tr>
+          <tr id="rowTotalA3" class="hidden">
+            <td class="pr-2 py-3 font-semibold">Total dalam 1 A3:</td>
+            <td><input type="text" id="hasilTotalA3" class="ml-2 p-1 border rounded w-64 bg-gray-100" readonly /></td>
+          </tr>
+          <tr id="rowA3Plus" class="hidden">
+            <td class="pr-2 py-3 font-semibold">Kebutuhan Cetak A3+:</td>
+            <td><input type="text" id="hasilA3plus" class="ml-2 p-1 border rounded w-64 bg-gray-100" readonly /></td>
+          </tr>
+          <tr id="rowFinishing" class="hidden">
+            <td class="pr-2 py-3 font-semibold">Total Biaya Finishing:</td>
+            <td><input type="text" id="totalFinishing" class="ml-2 p-1 border rounded w-64 bg-gray-100" readonly /></td>
+          </tr>
+        </table>
+        <div class="mt-4">
+          <button onclick="hitungTotal()" class="px-4 py-2 bg-blue-600 text-white rounded">Hitung</button>
+          <button onclick="resetForm()" class="ml-2 px-4 py-2 bg-gray-500 text-white rounded">Reset</button>
+        </div>
+      </div>
+    </main>
   </div>
- </div>
-</div> <!-- penutup layout-a3 -->
 
-<!-- Modal Alert -->
-<div id="customAlert" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-  <div id="alertBox" class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full modal-enter">
-    <h2 class="text-lg font-bold text-red-600 mb-2">PERINGATAN!</h2>
-    <p id="alertMessage" class="text-gray-700 mb-4"></p>
-    <div class="text-right">
-      <button onclick="tutupAlert()" class="px-4 py-2 bg-blue-600 text-white rounded">Oke</button>
+  <!-- Modal Alert -->
+  <div id="customAlert" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+    <div id="alertBox" class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full modal-enter">
+      <h2 class="text-lg font-bold text-red-600 mb-2">PERINGATAN!</h2>
+      <p id="alertMessage" class="text-gray-700 mb-4"></p>
+      <div class="text-right">
+        <button onclick="tutupAlert()" class="px-4 py-2 bg-blue-600 text-white rounded">Oke</button>
+      </div>
     </div>
   </div>
-</div>
 
 <script>
   window.onload = function () {
@@ -119,142 +107,85 @@
     function showAlert(pesan) {
       document.getElementById("alertMessage").textContent = pesan;
       modal.classList.remove("hidden");
-      requestAnimationFrame(() => {
-        alertBox.classList.add("modal-show");
-      });
+      requestAnimationFrame(() => alertBox.classList.add("modal-show"));
     }
 
     function tutupAlert() {
       alertBox.classList.remove("modal-show");
       alertBox.classList.add("modal-hide");
-
       setTimeout(() => {
         modal.classList.add("hidden");
         alertBox.classList.remove("modal-hide");
       }, 300);
     }
 
-  function getHargaPotongKress(kebutuhan, totalA3) {
-  const data = [
-    { maxA3: 2, ranges: [  // total dalam 1 A3: 1–2
-      { maxK: 5, harga: 0 },
-      { maxK: 10, harga: 5000 },
-      { maxK: 50, harga: 10000 },
-      { maxK: 100, harga: 15000 },
-      { maxK: 200, harga: 20000 },
-      { maxK: 300, harga: 25000 },
-      { maxK: Infinity, harga: 30000 }
-    ]},
-    { maxA3: 8, ranges: [  // total dalam 1 A3: 3–8
-      { maxK: 5, harga: 0 },
-      { maxK: 10, harga: 5000 },
-      { maxK: 30, harga: 10000 },
-      { maxK: 50, harga: 15000 },
-      { maxK: 100, harga: 20000 },
-      { maxK: 200, harga: 25000 },
-      { maxK: 300, harga: 30000 },
-      { maxK: Infinity, harga: 35000 }
-    ]},
-    { maxA3: 15, ranges: [  // total dalam 1 A3: 9–15
-      { maxK: 5, harga: "1000/LEMBAR" },
-      { maxK: 10, harga: 10000 },
-      { maxK: 30, harga: 20000 },
-      { maxK: 50, harga: 35000 },
-      { maxK: 100, harga: 40000 },
-      { maxK: 200, harga: 50000 },
-      { maxK: 300, harga: 60000 },
-      { maxK: Infinity, harga: 70000 }
-    ]},
-    { maxA3: 25, ranges: [  // total dalam 1 A3: 16–25
-      { maxK: 5, harga: "3000/LEMBAR" },
-      { maxK: 10, harga: 15000 },
-      { maxK: 30, harga: 25000 },
-      { maxK: 50, harga: 35000 },
-      { maxK: 100, harga: 45000 },
-      { maxK: 200, harga: 55000 },
-      { maxK: 300, harga: 65000 },
-      { maxK: Infinity, harga: 75000 }
-    ]},
-    { maxA3: Infinity, ranges: [  // total dalam 1 A3: 26+
-      { maxK: 5, harga: "4000/LEMBAR" },
-      { maxK: 10, harga: 20000 },
-      { maxK: 30, harga: 30000 },
-      { maxK: 50, harga: 40000 },
-      { maxK: 100, harga: 50000 },
-      { maxK: 200, harga: 60000 },
-      { maxK: 300, harga: 70000 },
-      { maxK: Infinity, harga: 80000 }
-    ]}
-  ];
-
-  const baris = data.find(d => totalA3 <= d.maxA3);
-  if (!baris) return 0;
-  const kolom = baris.ranges.find(r => kebutuhan <= r.maxK);
-  return kolom ? kolom.harga : 0;
-}
+    function getHargaPotongKress(kebutuhan, totalA3) {
+      const data = [
+        { maxA3: 2, ranges: [{ maxK: 5, harga: 0 }, { maxK: 10, harga: 5000 }, { maxK: 50, harga: 10000 }, { maxK: 100, harga: 15000 }, { maxK: 200, harga: 20000 }, { maxK: 300, harga: 25000 }, { maxK: Infinity, harga: 30000 }]},
+        { maxA3: 8, ranges: [{ maxK: 5, harga: 0 }, { maxK: 10, harga: 5000 }, { maxK: 30, harga: 10000 }, { maxK: 50, harga: 15000 }, { maxK: 100, harga: 20000 }, { maxK: 200, harga: 25000 }, { maxK: 300, harga: 30000 }, { maxK: Infinity, harga: 35000 }]},
+        { maxA3: 15, ranges: [{ maxK: 5, harga: "1000/LEMBAR" }, { maxK: 10, harga: 10000 }, { maxK: 30, harga: 20000 }, { maxK: 50, harga: 35000 }, { maxK: 100, harga: 40000 }, { maxK: 200, harga: 50000 }, { maxK: 300, harga: 60000 }, { maxK: Infinity, harga: 70000 }]},
+        { maxA3: 25, ranges: [{ maxK: 5, harga: "3000/LEMBAR" }, { maxK: 10, harga: 15000 }, { maxK: 30, harga: 25000 }, { maxK: 50, harga: 35000 }, { maxK: 100, harga: 45000 }, { maxK: 200, harga: 55000 }, { maxK: 300, harga: 65000 }, { maxK: Infinity, harga: 75000 }]},
+        { maxA3: Infinity, ranges: [{ maxK: 5, harga: "4000/LEMBAR" }, { maxK: 10, harga: 20000 }, { maxK: 30, harga: 30000 }, { maxK: 50, harga: 40000 }, { maxK: 100, harga: 50000 }, { maxK: 200, harga: 60000 }, { maxK: 300, harga: 70000 }, { maxK: Infinity, harga: 80000 }]}
+      ];
+      const baris = data.find(d => totalA3 <= d.maxA3);
+      const kolom = baris.ranges.find(r => kebutuhan <= r.maxK);
+      return kolom ? kolom.harga : 0;
+    }
 
     function hitungTotal() {
-
-      let panjang = parseFloat(document.getElementById('panjang').value);
-      let lebar = parseFloat(document.getElementById('lebar').value);
+      const panjang = parseFloat(document.getElementById('panjang').value);
+      const lebar = parseFloat(document.getElementById('lebar').value);
       const kebutuhan = parseFloat(document.getElementById('kebutuhan').value);
       const finishing = document.getElementById('finishing').value;
-
-      let panjangAcuan = 47;
-      let lebarAcuan = 31;
 
       if (!panjang || !lebar || !kebutuhan || !finishing) {
         showAlert("Mohon lengkapi semua input layout A3+");
         return;
       }
 
+      let p = panjang;
+      let l = lebar;
+      let panjangAcuan = 47, lebarAcuan = 31;
+
       if (finishing === "Potong Kotak Kress 2") {
-        panjang += 0.4;
-        lebar += 0.4;
-        panjangAcuan = 47.4;
-        lebarAcuan = 31.4;
+        p += 0.4; l += 0.4;
+        panjangAcuan = 47.4; lebarAcuan = 31.4;
+      } else if (finishing === "Kiss Cut") {
+        p += 0.2; l += 0.2;
+        panjangAcuan = 45.2; lebarAcuan = 30.7;
       }
 
-      if (finishing === "Kiss Cut") {
-        panjang += 0.2;
-        lebar += 0.2;
-        panjangAcuan = 45.2;
-        lebarAcuan = 30.7;
-      }
-
+      let totalA3;
       if (finishing === "Die Cut") {
-        panjang += 0.4;
-        lebar += 0.4;
-        const mode1 = Math.floor(44 / panjang) * Math.floor(30.8 / lebar);
-        const mode2 = Math.floor(44 / lebar) * Math.floor(30.8 / panjang);
-        const mode3 = Math.floor(46.5 / panjang) * Math.floor(29 / lebar);
-        const mode4 = Math.floor(46.5 / lebar) * Math.floor(29 / panjang);
-        var totalA3 = Math.max(mode1, mode2, mode3, mode4);
+        const mode1 = Math.floor(44 / p) * Math.floor(30.8 / l);
+        const mode2 = Math.floor(44 / l) * Math.floor(30.8 / p);
+        const mode3 = Math.floor(46.5 / p) * Math.floor(29 / l);
+        const mode4 = Math.floor(46.5 / l) * Math.floor(29 / p);
+        totalA3 = Math.max(mode1, mode2, mode3, mode4);
       } else {
-        const mode1 = Math.floor(panjangAcuan / panjang) * Math.floor(lebarAcuan / lebar);
-        const mode2 = Math.floor(panjangAcuan / lebar) * Math.floor(lebarAcuan / panjang);
-        var totalA3 = Math.max(mode1, mode2);
+        const mode1 = Math.floor(panjangAcuan / p) * Math.floor(lebarAcuan / l);
+        const mode2 = Math.floor(panjangAcuan / l) * Math.floor(lebarAcuan / p);
+        totalA3 = Math.max(mode1, mode2);
       }
 
-        const a3plus = totalA3 > 0 && kebutuhan > 0 ? Math.ceil(kebutuhan / totalA3) : 0;
-        let harga = 0;
-        if (finishing === "Kiss Cut") {
-        harga = 5500 * a3plus;
-      } else if (finishing === "Die Cut") {
-        harga = 8500 * a3plus;
-      } else if (finishing === "Potong Kotak Kress 1" || finishing === "Potong Kotak Kress 2") {
+      const a3plus = totalA3 > 0 && kebutuhan > 0 ? Math.ceil(kebutuhan / totalA3) : 0;
+      let harga = 0;
+
+      if (finishing === "Kiss Cut") harga = 5500 * a3plus;
+      else if (finishing === "Die Cut") harga = 8500 * a3plus;
+      else {
         const hargaData = getHargaPotongKress(a3plus, totalA3);
-        if (typeof hargaData === "string" && hargaData.includes("/LEMBAR")) {
-        harga = parseInt(hargaData) * a3plus;
-      } else {
-        harga = hargaData;
+        harga = typeof hargaData === "string" ? parseInt(hargaData) * a3plus : hargaData;
       }
-    }
 
-      const total = harga;
-      document.getElementById('hasilTotalA3').value = totalA3 > 0 ? totalA3 + ' pcs' : '-';
-      document.getElementById('hasilA3plus').value = a3plus > 0 ? a3plus + ' Lembar' : '-';
-      document.getElementById('totalFinishing').value = total > 0 ? 'Rp' + total.toLocaleString() : 'FREE';
+      document.getElementById('hasilTotalA3').value = totalA3 + ' pcs';
+      document.getElementById('hasilA3plus').value = a3plus + ' Lembar';
+      document.getElementById('totalFinishing').value = harga > 0 ? 'Rp' + harga.toLocaleString() : 'FREE';
+
+      // Tampilkan hasil
+      document.getElementById('rowTotalA3').classList.remove('hidden');
+      document.getElementById('rowA3Plus').classList.remove('hidden');
+      document.getElementById('rowFinishing').classList.remove('hidden');
     }
 
     function resetForm() {
@@ -265,19 +196,22 @@
       document.getElementById('hasilTotalA3').value = '';
       document.getElementById('hasilA3plus').value = '';
       document.getElementById('totalFinishing').value = '';
+
+      // Sembunyikan hasil
+      document.getElementById('rowTotalA3').classList.add('hidden');
+      document.getElementById('rowA3Plus').classList.add('hidden');
+      document.getElementById('rowFinishing').classList.add('hidden');
     }
-     document.addEventListener('keydown', function (e) {
-      if (!modal.classList.contains('hidden') && e.key === 'Enter') {
-        tutupAlert();
-      }
+
+    document.addEventListener('keydown', function (e) {
+      if (!modal.classList.contains('hidden') && e.key === 'Enter') tutupAlert();
     });
 
-    // Buat bisa dipanggil onclick
+    // Global
     window.hitungTotal = hitungTotal;
     window.resetForm = resetForm;
     window.tutupAlert = tutupAlert;
   };
 </script>
-
 </body>
 </html>
