@@ -16,18 +16,23 @@ document.addEventListener('DOMContentLoaded', () => {
   presetDropdown.addEventListener('change', () => {
     const selected = presetDropdown.value;
     const size = presetUkuran[selected];
+    const panjangInput = document.getElementById('softcover-panjang');
+    const lebarInput = document.getElementById('softcover-lebar');
 
     if (size === "custom") {
       customSizeRow.classList.remove('hidden');
+      panjangInput.value = '';
+      lebarInput.value = '';
+      previewOrientasi.innerText = 'Orientasi: -';
     } else {
       customSizeRow.classList.add('hidden');
       if (size) {
-        document.getElementById('softcover-panjang').value = size.panjang;
-        document.getElementById('softcover-lebar').value = size.lebar;
+        panjangInput.value = size.panjang;
+        lebarInput.value = size.lebar;
         previewOrientasi.innerText = size.panjang >= size.lebar ? 'Orientasi: Portrait' : 'Orientasi: Landscape';
       } else {
-        document.getElementById('softcover-panjang').value = '';
-        document.getElementById('softcover-lebar').value = '';
+        panjangInput.value = '';
+        lebarInput.value = '';
         previewOrientasi.innerText = 'Orientasi: -';
       }
     }
@@ -103,7 +108,6 @@ function hitungSoftCover() {
   const totalPunggung = halamanIsi * ketebalan;
   document.getElementById('softcover-punggung').value = totalPunggung.toFixed(2) + ' cm';
 
-  // Tampilkan output
   document.getElementById('output-softcover').classList.remove('hidden');
 }
 
@@ -126,7 +130,7 @@ function resetSoftcoverForm() {
   document.getElementById('output-softcover').classList.add('hidden');
 }
 
-// Modal global alert, pastikan ada di buku.html
+// Modal global alert
 function showAlert(pesan) {
   const modal = document.getElementById("modal-alert");
   const message = document.getElementById("modal-alert-message");
@@ -138,7 +142,6 @@ document.getElementById('modal-alert-close')?.addEventListener('click', () => {
   document.getElementById("modal-alert").classList.add("hidden");
 });
 
-// Bisa juga tutup modal dengan ESC atau Enter
 document.addEventListener('keydown', (e) => {
   const modal = document.getElementById("modal-alert");
   if (!modal.classList.contains('hidden') && (e.key === 'Enter' || e.key === 'Escape')) {
