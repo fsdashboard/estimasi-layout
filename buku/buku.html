@@ -79,7 +79,7 @@
         return;
       }
 
-      fetch(`buku/${file}`)
+      fetch(file)
         .then(res => {
           if (!res.ok) throw new Error('Gagal memuat form');
           return res.text();
