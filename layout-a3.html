@@ -150,13 +150,13 @@
       if (finishing === "Potong Kotak Kress 2") {
         p += 0.4; l += 0.4;
         panjangAcuan = 47.4; lebarAcuan = 31.4;
-      } else if (finishing === "Kiss Cut") {
+      } else if (finishing === "Die Cut") {
         p += 0.2; l += 0.2;
         panjangAcuan = 45.2; lebarAcuan = 30.7;
       }
 
       let totalA3;
-      if (finishing === "Die Cut") {
+      if (finishing === "Kiss Cut") {
         const mode1 = Math.floor(44 / p) * Math.floor(30.8 / l);
         const mode2 = Math.floor(44 / l) * Math.floor(30.8 / p);
         const mode3 = Math.floor(46.5 / p) * Math.floor(29 / l);
@@ -171,8 +171,8 @@
       const a3plus = totalA3 > 0 && kebutuhan > 0 ? Math.ceil(kebutuhan / totalA3) : 0;
       let harga = 0;
 
-      if (finishing === "Kiss Cut") harga = 5500 * a3plus;
-      else if (finishing === "Die Cut") harga = 8500 * a3plus;
+      if (finishing === "Die Cut") harga = 8500 * a3plus;
+      else if (finishing === "Kiss Cut") harga = 5500 * a3plus;
       else {
         const hargaData = getHargaPotongKress(a3plus, totalA3);
         harga = typeof hargaData === "string" ? parseInt(hargaData) * a3plus : hargaData;
@@ -182,7 +182,6 @@
       document.getElementById('hasilA3plus').value = a3plus + ' Lembar';
       document.getElementById('totalFinishing').value = harga > 0 ? 'Rp' + harga.toLocaleString() : 'FREE';
 
-      // Tampilkan hasil
       document.getElementById('rowTotalA3').classList.remove('hidden');
       document.getElementById('rowA3Plus').classList.remove('hidden');
       document.getElementById('rowFinishing').classList.remove('hidden');
@@ -197,7 +196,6 @@
       document.getElementById('hasilA3plus').value = '';
       document.getElementById('totalFinishing').value = '';
 
-      // Sembunyikan hasil
       document.getElementById('rowTotalA3').classList.add('hidden');
       document.getElementById('rowA3Plus').classList.add('hidden');
       document.getElementById('rowFinishing').classList.add('hidden');
@@ -207,7 +205,6 @@
       if (!modal.classList.contains('hidden') && e.key === 'Enter') tutupAlert();
     });
 
-    // Global
     window.hitungTotal = hitungTotal;
     window.resetForm = resetForm;
     window.tutupAlert = tutupAlert;
