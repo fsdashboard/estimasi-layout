@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Harga Potong (A3+)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="flex h-screen">
+    <aside class="w-64 bg-gray-800 text-white flex flex-col">
+      <div class="p-4 text-xl font-bold border-b border-gray-700">Estimasi Online</div>
+      <nav class="flex-1 p-4 space-y-2 text-sm">
+        <a href="index.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🏠 Halaman Utama</a>
+        <a href="harga-potong.html" class="block p-2 font-semibold rounded hover:bg-gray-700">💰 Harga Potong (A3+)</a>
+        <a href="layout-a3.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📐 Layout A3+</a>
+        <a href="buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📘 Buku</a>
+        <a href="spanduk.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🖼️ Spanduk</a>
+        <a href="adjust-size.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🔧 Adjust Size</a>
+        <a href="shuffle.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📄 Shuffle Pages</a>
+        <a href="penawaran.html" class="block p-2 font-semibold rounded hover:bg-gray-700">💰 Penawaran</a>
+        <a href="pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🚚 Pengiriman</a>
+      </nav>
+    </aside>
+
+    <main class="flex-1 p-6 overflow-y-auto">
+      <h1 class="text-2xl font-bold mb-4 text-blue-700">Harga Potong (A3+)</h1>
+      <p class="text-sm text-gray-600 mb-4">Estimasi biaya potong berdasarkan jumlah cetak dan kategori ukuran</p>
+
+      <div class="bg-white rounded-lg shadow p-6 w-full max-w-3xl mx-auto">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <button onclick="tambahBaris()" class="bg-gray-800 text-white px-3 py-1 rounded">+ Tambah Input</button>
+            <button onclick="resetSemua()" class="bg-red-500 text-white px-3 py-1 rounded ml-2">Reset Semua</button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border">
+            <thead>
+              <tr class="bg-gray-200">
+                <th class="p-2 border">Jumlah Cetak</th>
+                <th class="p-2 border">Kategori</th>
+                <th class="p-2 border">Harga</th>
+                <th class="p-2 border">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tabelInput"></tbody>
+            <tfoot>
+              <tr class="font-semibold">
+                <td colspan="2" class="p-2 text-right border">Total Harga:</td>
+                <td class="p-2 border text-green-700" id="totalHarga">Rp 0</td>
+                <td class="p-2 border"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const kategoriList = {
+      "A3/A4": [
+        { max: 5, harga: 0 },
+        { max: 10, harga: 5000 },
+        { max: 50, harga: 10000 },
+        { max: 100, harga: 15000 },
+        { max: 200, harga: 20000 },
+        { max: 300, harga: 25000 },
+        { max: Infinity, harga: 30000 }
+      ],
+      "A5/A6": [
+        { max: 5, harga: 0 },
+        { max: 10, harga: 5000 },
+        { max: 30, harga: 10000 },
+        { max: 50, harga: 15000 },
+        { max: 100, harga: 20000 },
+        { max: 200, harga: 25000 },
+        { max: 300, harga: 30000 },
+        { max: Infinity, harga: 35000 }
+      ],
+      "1 A3+ = 9 - 15 PCS": [
+        { max: 5, harga: "1000/LBR" },
+        { max: 10, harga: 10000 },
+        { max: 30, harga: 20000 },
+        { max: 50, harga: 35000 },
+        { max: 100, harga: 40000 },
+        { max: 200, harga: 50000 },
+        { max: 300, harga: 60000 },
+        { max: Infinity, harga: 70000 }
+      ],
+      "1 A3+ = 16 - 25 PCS": [
+        { max: 5, harga: "3000/LBR" },
+        { max: 10, harga: 15000 },
+        { max: 30, harga: 25000 },
+        { max: 50, harga: 35000 },
+        { max: 100, harga: 45000 },
+        { max: 200, harga: 55000 },
+        { max: 300, harga: 65000 },
+        { max: Infinity, harga: 75000 }
+      ],
+      "1 A3+ = 26 - 50 PCS": [
+        { max: 5, harga: "4000/LBR" },
+        { max: 10, harga: 20000 },
+        { max: 30, harga: 30000 },
+        { max: 50, harga: 40000 },
+        { max: 100, harga: 50000 },
+        { max: 200, harga: 60000 },
+        { max: 300, harga: 70000 },
+        { max: Infinity, harga: 80000 }
+      ]
+    };
+
+    function tambahBaris() {
+      const tbody = document.getElementById("tabelInput");
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td class="p-2 border"><input type="number" class="jumlah w-full p-1 border rounded" /></td>
+        <td class="p-2 border">
+          <select class="kategori w-full p-1 border rounded">
+            <option value="">-- Pilih --</option>
+            ${Object.keys(kategoriList).map(k => `<option value="${k}">${k}</option>`).join("")}
+          </select>
+        </td>
+        <td class="p-2 border text-green-700 harga">Rp 0</td>
+        <td class="p-2 border text-center">
+          <button onclick="hapusBaris(this)" class="text-red-500 hover:underline">Hapus</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+
+      row.querySelector(".jumlah").addEventListener("input", hitungSemua);
+      row.querySelector(".kategori").addEventListener("change", hitungSemua);
+    }
+
+    function hapusBaris(btn) {
+      btn.closest("tr").remove();
+      hitungSemua();
+    }
+
+    function resetSemua() {
+      document.getElementById("tabelInput").innerHTML = "";
+      document.getElementById("totalHarga").textContent = "Rp 0";
+    }
+
+    function hitungSemua() {
+      const rows = document.querySelectorAll("#tabelInput tr");
+      let total = 0;
+
+      rows.forEach(row => {
+        const jumlah = parseInt(row.querySelector(".jumlah").value);
+        const kategori = row.querySelector(".kategori").value;
+        const cellHarga = row.querySelector(".harga");
+
+        if (!jumlah || !kategori) {
+          cellHarga.textContent = "Rp 0";
+          return;
+        }
+
+        const tarif = kategoriList[kategori].find(item => jumlah <= item.max);
+        let harga = 0;
+
+        if (typeof tarif.harga === "string" && tarif.harga.includes("/LBR")) {
+          const perLembar = parseInt(tarif.harga);
+          harga = perLembar * jumlah;
+        } else {
+          harga = tarif.harga;
+        }
+
+        total += harga;
+        cellHarga.textContent = "Rp " + harga.toLocaleString();
+      });
+
+      document.getElementById("totalHarga").textContent = "Rp " + total.toLocaleString();
+    }
+  </script>
+</body>
+</html>
