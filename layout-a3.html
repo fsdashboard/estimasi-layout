@@ -151,13 +151,14 @@
       if (finishing === "Potong Kotak Kress 2") {
         p += 0.4; l += 0.4;
         panjangAcuan = 47.4; lebarAcuan = 31.4;
-      } else if (finishing === "Die Cut") {
+      } else if (finishing === "Kiss Cut") {
         p += 0.2; l += 0.2;
         panjangAcuan = 45.2; lebarAcuan = 30.7;
       }
 
       let totalA3;
-      if (finishing === "Kiss Cut") {
+      if (finishing === "Die Cut") {
+        p += 0.4; l += 0.4;
         const mode1 = Math.floor(44 / p) * Math.floor(30.8 / l);
         const mode2 = Math.floor(44 / l) * Math.floor(30.8 / p);
         const mode3 = Math.floor(46.5 / p) * Math.floor(29 / l);
