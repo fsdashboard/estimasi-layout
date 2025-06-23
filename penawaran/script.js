@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Inisialisasi awal: format harga pertama dan update subtotal
   formatInputRupiah(document.querySelector('input[name="harga[]"]'));
   updateSubtotal();
-});
+
 
 // ===============================================
 // 🔁 Kirim data ke Google Sheets saat klik Print
