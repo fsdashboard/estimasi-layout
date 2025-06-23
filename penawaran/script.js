@@ -203,37 +203,39 @@ document.addEventListener('DOMContentLoaded', function() {
 // 🔁 Kirim data ke Google Sheets saat klik Print
 // ===============================================
 
-async function kirimKeGoogleSheet(data) {
-  try {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbwFvVPdKGFXU73C_S0HUBKQQpx7mpxONfSYxm_kdjWVW5zIEPPhj6u3ASEyWK_DvL0BxQ/exec", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    });
+  async function kirimKeGoogleSheet(data) {
+    try {
+      const response = await fetch("https://script.google.com/macros/s/AKfycbwFvVPdKGFXU73C_S0HUBKQQpx7mpxONfSYxm_kdjWVW5zIEPPhj6u3ASEyWK_DvL0BxQ/exec", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
 
-    const result = await response.json();
-    return result.noInvoice || "ERROR/AMK/XX/YYYY";
-  } catch (err) {
-    console.error("Gagal kirim ke Google Sheets:", err);
-    return "ERROR/AMK/XX/YYYY";
+      const result = await response.json();
+      return result.noInvoice || "ERROR/AMK/XX/YYYY";
+    } catch (err) {
+      console.error("Gagal kirim ke Google Sheets:", err);
+      return "ERROR/AMK/XX/YYYY";
+    }
   }
-}
 
-// Override tombol Print agar kirim dulu ke Sheets
-document.querySelector('button[onclick="window.print()"]').addEventListener("click", async function (e) {
-  e.preventDefault();
+  const btn = document.querySelector('#btnPrint');
+  if (btn) {
+    btn.addEventListener("click", async function (e) {
+      e.preventDefault();
 
-  const data = {
-    tanggal: document.getElementById("tanggal").value,
-    customer: document.getElementById("customer").value,
-    linkPDF: "", // opsional, bisa diisi jika pakai upload PDF otomatis nanti
-  };
+      const data = {
+        tanggal: document.getElementById("tanggal").value,
+        customer: document.getElementById("customer").value,
+        linkPDF: "" // akan dikembangkan kalau kamu ingin otomatis upload PDF
+      };
 
-  const noInvoiceBaru = await kirimKeGoogleSheet(data);
-  document.getElementById("pv-noSurat").textContent = noInvoiceBaru;
+      const noInvoiceBaru = await kirimKeGoogleSheet(data);
+      document.getElementById("pv-noSurat").textContent = noInvoiceBaru;
 
-  // Setelah nomor masuk, baru print
-  window.print();
+      window.print();
+    });
+  }
 });
