@@ -180,7 +180,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function kirimKeGoogleSheet(data) {
     try {
-      const response = await fetch("https://script.google.com/macros/s/AKfycbwrM1uh0XhpFM2MEtb-0FtBrW5AWTQlF5EnSz0pVNbbFX_K2oYAcl33eEIVQSOWO0EARA/exec", {
+      const response = await fetch("https://script.google.com/macros/s/AKfycbyLPvMRjUY0MBFX-JNYXA-o5M68HGE0U88b5ZKdee0zKPpE4KBkBJVupOB0v3c1352jPQ/exec", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
