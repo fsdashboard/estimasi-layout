@@ -178,41 +178,55 @@ document.addEventListener("DOMContentLoaded", function () {
   if (hargaInputAwal) window.formatInputRupiah(hargaInputAwal);
   window.updateSubtotal();
 
-  async function kirimKeGoogleSheet(data) {
+async function kirimKeGoogleSheet(data) {
     try {
-      const response = await fetch("https://script.google.com/macros/s/AKfycby0Z18OJGpSdF4fV0Uawk3BE5MqISkWk_1xICMS653Zg9Uk5GOpAz5N_7FnU-4_a3MLYw/exec", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      });
+        const response = await fetch("https://script.google.com/macros/s/AKfycbw_60i04eYSLKp_kkTjzB3BmQT5SlQPJz2SF4X4ihcsqEZ5EfUuh3YrCV8oOsRU2M_H/exec", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
 
-      if (!response.ok) throw new Error("Fetch failed: " + response.status);
+        if (!response.ok) {
+            throw new Error('Gagal mengirim data ke Google Sheet');
+        }
 
-      const result = await response.json();
-      return result.noInvoice || "ERROR/AMK/XX/YYYY";
-    } catch (err) {
-      console.error("Gagal kirim ke Google Sheets:", err);
-      return "ERROR/AMK/XX/YYYY";
+        const result = await response.json();
+        return result.noInvoice; // nomor invoice yang di-generate Apps Script
+    } catch (error) {
+        alert("Terjadi kesalahan: " + error.message);
+        return null;
     }
-  }
+}
 
   const btn = document.querySelector('#btnPrint');
   if (btn) {
     btn.addEventListener("click", async function (e) {
       e.preventDefault();
 
-      const data = {
-        tanggal: document.getElementById("tanggal").value,
-        customer: document.getElementById("customer").value,
-        linkPDF: "" // nanti bisa diisi otomatis kalau mau
-      };
+    const data = {
+      tanggal: document.getElementById("tanggal").value,
+      customer: document.getElementById("customer").value,
+      alamat: document.getElementById("alamat").value,
+      pengirim: document.getElementById("pengirim").value,
+      catatan: document.getElementById("catatan").value,
+      ppn: document.getElementById("ppn-option").value,
+      produk: Array.from(document.querySelectorAll('#produkBody tr')).map(row => ({
+        nama: row.querySelector('textarea[name="produk[]"]').value,
+        jumlah: row.querySelector('input[name="jumlah[]"]').value,
+        harga: row.querySelector('input[name="harga[]"]').value
+      })),
+      subtotal: document.getElementById('subtotalHarga').innerText,
+      ppn_nominal: document.getElementById('ppnHarga').innerText,
+      total: document.getElementById('totalHarga').innerText,
+      linkPDF: "" // jika nanti ingin diisi otomatis
+    };
 
-      const noInvoiceBaru = await kirimKeGoogleSheet(data);
-      document.getElementById("pv-noSurat").textContent = noInvoiceBaru;
+    const noInvoiceBaru = await kirimKeGoogleSheet(data);
+    document.getElementById("pv-noSurat").textContent = noInvoiceBaru;
 
-      window.print();
-    });
-  }
+    window.print();
+  });
+}
 });
