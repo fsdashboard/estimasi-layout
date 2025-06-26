@@ -180,7 +180,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 async function kirimKeGoogleSheet(data) {
     try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbw_60i04eYSLKp_kkTjzB3BmQT5SlQPJz2SF4X4ihcsqEZ5EfUuh3YrCV8oOsRU2M_H/exec", {
+        const response = await fetch("https://estimasi-layout-production.up.railway.app/kirim-penawaran", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
