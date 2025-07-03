@@ -1,32 +1,77 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Form Pengiriman</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body, #previewPenawaran {
+      background: #f3f4f6 !important;
+    }
+    @media print {
+      body, #previewPenawaran {
+        background: #fff !important;
+      }
+    }
+  </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
   <div class="flex h-screen">
     <aside class="w-64 bg-gray-800 text-white flex flex-col">
       <div class="p-4 text-xl font-bold border-b border-gray-700">Estimasi Online</div>
       <nav class="flex-1 p-4 space-y-2 text-sm">
-        <a href="/estimasi-layout/index.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🏠 Halaman Utama</a>
-        <a href="/estimasi-layout/harga-potong.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">💰 Harga Potong (A3+)</a>
-        <a href="/estimasi-layout/layout-a3.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📐 Layout A3+</a>
-        <a href="/estimasi-layout/buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📘 Buku</a>
-        <a href="/estimasi-layout/spanduk.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🖼️ Spanduk</a>
-        <a href="/estimasi-layout/adjust-size.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🔧 Adjust Size</a>
-        <a href="/estimasi-layout/shuffle.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📄 Shuffle Pages</a>
-        <a href="/estimasi-layout/penawaran/penawaran.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">💰 Penawaran</a>
+        <a href="/estimasi-layout/index.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🏠 Halaman Utama</a>
+        <a href="/estimasi-layout/harga-potong.html" class="block p-2 font-semibold rounded hover:bg-gray-700">💰 Harga Potong (A3+)</a>
+        <a href="/estimasi-layout/layout-a3.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📐 Layout A3+</a>
+        <a href="/estimasi-layout/buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📘 Buku</a>
+        <a href="/estimasi-layout/spanduk.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🖼️ Spanduk</a>
+        <a href="/estimasi-layout/adjust-size.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🔧 Adjust Size</a>
+        <a href="/estimasi-layout/shuffle.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📄 Shuffle Pages</a>
+        <a href="/estimasi-layout/penawaran/penawaran.html" class="block p-2 font-semibold rounded hover:bg-gray-700">💰 Penawaran</a>
         <a href="/estimasi-layout/pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700 bg-gray-900">🚚 Pengiriman</a>
       </nav>
     </aside>
-    <main class="flex-1 p-6 overflow-y-auto">
-      <h1 class="text-2xl font-bold mb-4 text-blue-700">Form Pengiriman</h1>
-      <p class="text-sm text-gray-600 mb-4">Masukkan informasi pengiriman dan status order di sini</p>
-      <div class="bg-white rounded-xl shadow p-6">
-        <p class="text-gray-700">[Konten utama halaman ini]</p>
+<main class="flex-1 p-6 overflow-y-auto">
+  <h1 class="text-2xl font-bold mb-4 text-blue-700">Form Pengiriman</h1>
+  <p class="text-sm text-gray-600 mb-4">Masukkan informasi pengiriman dan status order di sini</p>
+  <div class="bg-white rounded-lg shadow p-6 max-w-xl mx-auto">
+  <div class="mb-4">
+    <label for="customer" class="font-semibold block mb-1">Nama Customer:</label>
+    <textarea name="customer" id="customer" required class="w-full border rounded p-2"></textarea>
+      </div>
+  <div class="mb-4">
+    <label for="alamat" class="font-semibold block mb-1">Alamat:</label>
+    <textarea name="alamat" id="alamat" required class="w-full border rounded p-2"></textarea>
+      </div>
+
+  <div class="mb-4">
+    <label for="metode-pengiriman" class="font-semibold block mb-1">Pilih Metode Pengiriman:</label>
+    <select id="metode-pengiriman" name="metode-pengiriman" class="w-full border rounded p-2">
+      <option value="jne">JNE</option>
+      <option value="jnt">JNT</option>
+      <option value="wahana">WAHANA</option>
+      <option value="tiki">TIKI</option>
+      <option value="lion">LOIN PARCEL</option>
+      <option value="ninja">NINJA</option>
+      <option value="pos">POS</option>
+        </select>
+        </div>
+
+        <div class="mb-4">
+          <label for="tipe-pelayanan" class="font-semibold block mb-1">Pilih Tipe Pelayanan:</label>
+          <select id="tipe-pelayanan" name="tipe-pelayanan" class="w-full border rounded p-2">
+            <option value="regular">REGULAR</option>
+            <option value="express">EXPRESS</option>
+          </select>
+        </div>
+
+        <div class="flex justify-end">
+          <button type="button" id="savepdf" class="w-full md:w-auto bg-red-600 hover:bg-blue-700 text-white px-4 py-2 font-semibold rounded">
+            Save PDF
+          </button>
+        </div>
+
       </div>
     </main>
   </div>
