@@ -254,7 +254,7 @@
     padding-bottom: 0 !important;
   }
   #halamanPenawaran::after {
-    content: "Halaman " counter(pages);
+    content: "Halaman " counter(page);
     position: fixed;
     bottom: 10mm;
     right: 10mm;
