@@ -253,13 +253,13 @@
     margin-top: 0 !important;
     padding-bottom: 0 !important;
   }
-  #halamanPenawaran::after {
-    content: "Halaman " counter(page);
-    position: fixed;
-    bottom: 10mm;
-    right: 10mm;
-    font-size: 12px;
-    color: #444;
+  #previewPenawaran::after {
+  content: "Halaman " counter(page);
+  position: fixed;
+  bottom: 10mm;
+  right: 10mm;
+  font-size: 12px;
+  color: #444;
   }
 }
 .preview-table .tr-total {
