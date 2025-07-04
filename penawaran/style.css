@@ -253,8 +253,8 @@
     margin-top: 0 !important;
     padding-bottom: 0 !important;
   }
-    body::after {
-    content: "Halaman " counter(page) " dari " counter(pages);
+  #halamanPenawaran::after {
+    content: "Halaman " counter(pages);
     position: fixed;
     bottom: 10mm;
     right: 10mm;
