@@ -257,7 +257,7 @@
     content: "Halaman " counter(page) " dari " counter(pages);
     position: fixed;
     bottom: 10mm;
-    right: 20mm;
+    right: 10mm;
     font-size: 12px;
     color: #444;
   }
