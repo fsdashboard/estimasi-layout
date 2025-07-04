@@ -178,7 +178,7 @@
           <tbody id="pv-produkBody">
             <!-- Produk Preview -->
           </tbody>
-          <tfoot>
+          <tbody id="pv-totalBody">
             <tr id="pv-subtotalRow">
               <td colspan="4" class="total-label border font-semibold text-right pr-4">Subtotal</td>
               <td class="total-cell border font-semibold text-right" id="pv-subtotalHarga"></td>
@@ -187,11 +187,12 @@
               <td colspan="4" class="total-label border font-semibold text-right pr-4">PPN 11%</td>
               <td class="total-cell border font-semibold text-right" id="pv-ppnHarga"></td>
             </tr>
-            <tr>
+            <tr class="tr-total">
               <td colspan="4" class="total-label border font-bold text-right pr-4">Total</td>
               <td class="total-cell border font-bold text-right" id="pv-totalHarga"></td>
             </tr>
-          </tfoot>
+          </tbody>
+
         </table>
       </div>
       <div class="catatan mt-3 text-sm" id="catatanPreview">
