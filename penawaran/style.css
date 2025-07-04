@@ -254,3 +254,9 @@
     padding-bottom: 0 !important;
   }
 }
+.preview-table .tr-total {
+  page-break-inside: avoid;
+}
+.preview-table #pv-totalBody tr {
+  page-break-inside: avoid;
+}
