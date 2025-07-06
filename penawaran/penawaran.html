@@ -49,7 +49,7 @@
             </div>
             <div>
               <label for="tanggal" class="font-semibold block mb-1">Tanggal Penawaran:</label>
-              <input type="date" name="tanggal" id="tanggal" required class="w-full border rounded p-2"/>
+              <input type="text" name="tanggal" id="tanggal" placeholder="dd-mm-yyyy" required class="w-full border rounded p-2"/>
             </div>
             <div>
               <label for="customer" class="font-semibold block mb-1">Nama Customer:</label>
@@ -227,5 +227,17 @@
     </div>
   </div>
   <script src="script.js"></script>
+  <!-- Flatpickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+  flatpickr("#tanggal", {
+    dateFormat: "d-m-Y", // 👉 dd-mm-yyyy
+    defaultDate: "today",
+    allowInput: true
+  });
+</script>
+
 </body>
 </html>
