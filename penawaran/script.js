@@ -235,7 +235,7 @@ document.addEventListener("DOMContentLoaded", function () {
         linkPDF: ""
       };
       const noInvoiceBaru = await kirimKeGoogleSheet(data);
-      document.getElementById("pv-noSurat").textContent = `${noInvoiceBaru || "XXX"}/AMK/${bulanRomawi}/${y}`;
+      document.getElementById("pv-noSurat").textContent = noInvoiceBaru;
       window.print();
     });
   }
