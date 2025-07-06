@@ -8,7 +8,20 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ====================================
-  // Format rupiah helper
+  // Helper Bulan Romawi
+  function getBulanRomawi(bulan) {
+    const romawi = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"];
+    return romawi[bulan - 1];
+  }
+
+  // Format Tanggal Indo
+  function formatTanggalIndo(tgl) {
+    const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+    const [d, m, y] = tgl.split("-");
+    return `${parseInt(d)} ${bulan[parseInt(m)-1]} ${y}`;
+  }
+
+  // Format Rupiah
   function formatRupiah(angka) {
     angka = angka || 0;
     angka = (typeof angka === "string") ? angka.replace(/[^\d]/g, "") : angka;
@@ -58,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ====================================
-  // Tambah baris produk
+  // Tambah/Hapus baris produk
   window.tambahBaris = function() {
     const tbody = document.getElementById('produkBody');
     const row = document.createElement('tr');
@@ -93,33 +106,28 @@ document.addEventListener("DOMContentLoaded", function () {
     window.updateSubtotal();
   };
 
+  // Init event untuk baris awal
   document.querySelectorAll('#produkBody input, #produkBody textarea').forEach(el => {
     el.addEventListener('input', window.updateSubtotal);
   });
   document.querySelectorAll('input[name="harga[]"]').forEach(el => {
     el.addEventListener('input', function() { window.formatInputRupiah(this); });
   });
-
   const ppnOpt = document.getElementById('ppn-option');
   if (ppnOpt) ppnOpt.addEventListener('change', window.updateSubtotal);
 
   // ====================================
-  // Fungsi format Tanggal Preview
-  function formatTanggalIndo(tgl) {
-    const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-    const [d, m, y] = tgl.split("-");
-    return `${parseInt(d)} ${bulan[parseInt(m)-1]} ${y}`;
-  }
-
-  // ====================================
-  // Submit form → tampil preview
+  // Submit form → preview
   const formPenawaran = document.getElementById('formPenawaran');
   if (formPenawaran) {
     formPenawaran.addEventListener('submit', function(e){
       e.preventDefault();
 
       const tgl = document.getElementById('tanggal').value;
+      const [d, m, y] = tgl.split("-");
+      const bulanRomawi = getBulanRomawi(parseInt(m));
       document.getElementById('pv-tanggal').innerText = tgl ? formatTanggalIndo(tgl) : '';
+
       document.getElementById('pv-customer').innerText = document.getElementById('customer').value;
       document.getElementById('pv-alamat').innerHTML = document.getElementById('alamat').value.replace(/\n/g,"<br>");
       let pengirimValue = document.getElementById('pengirim').value.trim();
@@ -172,8 +180,12 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById('pv-ppnHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(ppn)}</span></div>`;
       document.getElementById('pv-totalHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(subtotal + ppn)}</span></div>`;
 
+      // Sembunyikan sidebar, tampilkan preview
       document.querySelectorAll('.sidebar-print-hide').forEach(el => el.style.display = 'none');
       document.getElementById('previewPenawaran').style.display = 'block';
+
+      // Sementara noSurat pakai placeholder
+      document.getElementById("pv-noSurat").textContent = `XXX/AMK/${bulanRomawi}/${y}`;
     });
   }
 
@@ -204,8 +216,12 @@ document.addEventListener("DOMContentLoaded", function () {
   if (btn) {
     btn.addEventListener("click", async function (e) {
       e.preventDefault();
+      const tgl = document.getElementById("tanggal").value;
+      const [d, m, y] = tgl.split("-");
+      const bulanRomawi = getBulanRomawi(parseInt(m));
+
       const data = {
-        tanggal: document.getElementById("tanggal").value,
+        tanggal: tgl,
         customer: document.getElementById("customer").value,
         alamat: document.getElementById("alamat").value,
         pengirim: document.getElementById("pengirim").value,
@@ -222,13 +238,13 @@ document.addEventListener("DOMContentLoaded", function () {
         linkPDF: ""
       };
       const noInvoiceBaru = await kirimKeGoogleSheet(data);
-      document.getElementById("pv-noSurat").textContent = noInvoiceBaru || 'XXX/AMK/V/2025';
+      document.getElementById("pv-noSurat").textContent = `${noInvoiceBaru || "XXX"}/AMK/${bulanRomawi}/${y}`;
       window.print();
     });
   }
 
   // ====================================
-  // Inisialisasi awal
+  // Init awal
   const hargaInputAwal = document.querySelector('input[name="harga[]"]');
   if (hargaInputAwal) window.formatInputRupiah(hargaInputAwal);
   window.updateSubtotal();
