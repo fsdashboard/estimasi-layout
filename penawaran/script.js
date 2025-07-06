@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function formatTanggalIndo(tgl) {
     const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-    const [y, m, d] = tgl.split("-");
+    const [d, m, y] = tgl.split("-");
     return `${parseInt(d)} ${bulan[parseInt(m)-1]} ${y}`;
   }
 
