@@ -1,4 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // ====================================
+  // FLATPICKR untuk input tanggal
+  flatpickr("#tanggal", {
+    dateFormat: "d-m-Y",
+    defaultDate: "today",
+    allowInput: true
+  });
+
+  // ====================================
+  // Format rupiah helper
   function formatRupiah(angka) {
     angka = angka || 0;
     angka = (typeof angka === "string") ? angka.replace(/[^\d]/g, "") : angka;
@@ -6,7 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return angka.toLocaleString('id-ID');
   }
 
-  // Jadikan global agar bisa dipanggil inline/oninput di HTML
   window.formatInputRupiah = function(input) {
     let value = input.value.replace(/[^\d]/g, "");
     if (value === "") value = "0";
@@ -18,7 +27,8 @@ document.addEventListener("DOMContentLoaded", function () {
     return parseInt(input.value.replace(/[^\d]/g, "")) || 0;
   }
 
-  // Jadikan global juga
+  // ====================================
+  // Subtotal hitung otomatis
   window.updateSubtotal = function() {
     let subtotal = 0;
     document.querySelectorAll('#produkBody tr').forEach(function(row, idx) {
@@ -47,6 +57,8 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('totalHarga').innerText = "Rp " + formatRupiah(subtotal + ppn);
   }
 
+  // ====================================
+  // Tambah baris produk
   window.tambahBaris = function() {
     const tbody = document.getElementById('produkBody');
     const row = document.createElement('tr');
@@ -69,7 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
       </td>
     `;
     tbody.appendChild(row);
-    // Event listeners untuk row baru
     row.querySelectorAll('input, textarea').forEach(el => el.addEventListener('input', window.updateSubtotal));
     row.querySelector('input[name="harga[]"]').addEventListener('input', function() {
       window.formatInputRupiah(this);
@@ -82,7 +93,6 @@ document.addEventListener("DOMContentLoaded", function () {
     window.updateSubtotal();
   };
 
-  // Daftarkan event hanya jika elemen ada
   document.querySelectorAll('#produkBody input, #produkBody textarea').forEach(el => {
     el.addEventListener('input', window.updateSubtotal);
   });
@@ -93,16 +103,25 @@ document.addEventListener("DOMContentLoaded", function () {
   const ppnOpt = document.getElementById('ppn-option');
   if (ppnOpt) ppnOpt.addEventListener('change', window.updateSubtotal);
 
+  // ====================================
+  // Fungsi format Tanggal Preview
+  function formatTanggalIndo(tgl) {
+    const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+    const [d, m, y] = tgl.split("-");
+    return `${parseInt(d)} ${bulan[parseInt(m)-1]} ${y}`;
+  }
+
+  // ====================================
+  // Submit form → tampil preview
   const formPenawaran = document.getElementById('formPenawaran');
   if (formPenawaran) {
     formPenawaran.addEventListener('submit', function(e){
       e.preventDefault();
+
       const tgl = document.getElementById('tanggal').value;
       document.getElementById('pv-tanggal').innerText = tgl ? formatTanggalIndo(tgl) : '';
-      const customerVal = document.getElementById('customer').value;
-      const alamatVal = document.getElementById('alamat').value.replace(/\n/g,"<br>");
-      document.getElementById('pv-customer').innerText = customerVal;
-      document.getElementById('pv-alamat').innerHTML = alamatVal;
+      document.getElementById('pv-customer').innerText = document.getElementById('customer').value;
+      document.getElementById('pv-alamat').innerHTML = document.getElementById('alamat').value.replace(/\n/g,"<br>");
       let pengirimValue = document.getElementById('pengirim').value.trim();
       document.getElementById('pv-pengirim').innerText = pengirimValue;
       document.getElementById('pv-pengirim-inline').innerText = pengirimValue ? `(${pengirimValue})` : '';
@@ -124,9 +143,8 @@ document.addEventListener("DOMContentLoaded", function () {
       document.querySelectorAll('#produkBody tr').forEach(function(row, idx) {
         const nama = row.querySelector('textarea[name="produk[]"]').value.replace(/\n/g,"<br>");
         const jumlah = row.querySelector('input[name="jumlah[]"]').value;
-        const hargaInput = row.querySelector('input[name="harga[]"]');
-        const harga = getInputNumber(hargaInput);
-        const rowSubtotal = (jumlah * harga);
+        const harga = getInputNumber(row.querySelector('input[name="harga[]"]'));
+        const rowSubtotal = jumlah * harga;
         subtotal += rowSubtotal;
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -138,6 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
         pvBody.appendChild(tr);
       });
+
       const ppnOption = document.getElementById('ppn-option');
       let ppn = 0;
       if (ppnOption && ppnOption.value === "ppn") {
@@ -149,14 +168,10 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('pv-subtotalRow').style.display = 'none';
       }
 
-      document.getElementById('pv-subtotalHarga').innerHTML =
-        `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(subtotal)}</span></div>`;
-      document.getElementById('pv-ppnHarga').innerHTML =
-        `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(ppn)}</span></div>`;
-      document.getElementById('pv-totalHarga').innerHTML =
-        `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(subtotal+ppn)}</span></div>`;
+      document.getElementById('pv-subtotalHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(subtotal)}</span></div>`;
+      document.getElementById('pv-ppnHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(ppn)}</span></div>`;
+      document.getElementById('pv-totalHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(subtotal + ppn)}</span></div>`;
 
-      // Tampilkan preview
       document.querySelectorAll('.sidebar-print-hide').forEach(el => el.style.display = 'none');
       document.getElementById('previewPenawaran').style.display = 'block';
     });
@@ -167,67 +182,55 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('previewPenawaran').style.display = 'none';
   };
 
-  function formatTanggalIndo(tgl) {
-  const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-  const [d, m, y] = tgl.split("-");
-  return `${parseInt(d)} ${bulan[parseInt(m)-1]} ${y}`;
-}
-  }
-
-  // Inisialisasi awal
-  const hargaInputAwal = document.querySelector('input[name="harga[]"]');
-  if (hargaInputAwal) window.formatInputRupiah(hargaInputAwal);
-  window.updateSubtotal();
-
-async function kirimKeGoogleSheet(data) {
+  // ====================================
+  // Kirim ke Google Sheet & cetak
+  async function kirimKeGoogleSheet(data) {
     try {
-        const response = await fetch("https://estimasi-layout-production.up.railway.app/kirim-penawaran", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        });
-
-        if (!response.ok) {
-            throw new Error('Gagal mengirim data ke Google Sheet');
-        }
-
-        const result = await response.json();
-        return result.noInvoice; // nomor invoice yang di-generate Apps Script
+      const response = await fetch("https://estimasi-layout-production.up.railway.app/kirim-penawaran", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Gagal mengirim data ke Google Sheet');
+      const result = await response.json();
+      return result.noInvoice;
     } catch (error) {
-        alert("Terjadi kesalahan: " + error.message);
-        return null;
+      alert("Terjadi kesalahan: " + error.message);
+      return null;
     }
-}
+  }
 
   const btn = document.querySelector('#btnPrint');
   if (btn) {
     btn.addEventListener("click", async function (e) {
       e.preventDefault();
+      const data = {
+        tanggal: document.getElementById("tanggal").value,
+        customer: document.getElementById("customer").value,
+        alamat: document.getElementById("alamat").value,
+        pengirim: document.getElementById("pengirim").value,
+        catatan: document.getElementById("catatan").value,
+        ppn: document.getElementById("ppn-option").value,
+        produk: Array.from(document.querySelectorAll('#produkBody tr')).map(row => ({
+          nama: row.querySelector('textarea[name="produk[]"]').value,
+          jumlah: row.querySelector('input[name="jumlah[]"]').value,
+          harga: row.querySelector('input[name="harga[]"]').value
+        })),
+        subtotal: document.getElementById('subtotalHarga').innerText,
+        ppn_nominal: document.getElementById('ppnHarga').innerText,
+        total: document.getElementById('totalHarga').innerText,
+        linkPDF: ""
+      };
+      const noInvoiceBaru = await kirimKeGoogleSheet(data);
+      document.getElementById("pv-noSurat").textContent = noInvoiceBaru || 'XXX/AMK/V/2025';
+      window.print();
+    });
+  }
 
-    const data = {
-      tanggal: document.getElementById("tanggal").value,
-      customer: document.getElementById("customer").value,
-      alamat: document.getElementById("alamat").value,
-      pengirim: document.getElementById("pengirim").value,
-      catatan: document.getElementById("catatan").value,
-      ppn: document.getElementById("ppn-option").value,
-      produk: Array.from(document.querySelectorAll('#produkBody tr')).map(row => ({
-        nama: row.querySelector('textarea[name="produk[]"]').value,
-        jumlah: row.querySelector('input[name="jumlah[]"]').value,
-        harga: row.querySelector('input[name="harga[]"]').value
-      })),
-      subtotal: document.getElementById('subtotalHarga').innerText,
-      ppn_nominal: document.getElementById('ppnHarga').innerText,
-      total: document.getElementById('totalHarga').innerText,
-      linkPDF: "" // jika nanti ingin diisi otomatis
-    };
+  // ====================================
+  // Inisialisasi awal
+  const hargaInputAwal = document.querySelector('input[name="harga[]"]');
+  if (hargaInputAwal) window.formatInputRupiah(hargaInputAwal);
+  window.updateSubtotal();
 
-    const noInvoiceBaru = await kirimKeGoogleSheet(data);
-    document.getElementById("pv-noSurat").textContent = noInvoiceBaru;
-
-    window.print();
-  });
-}
 });
