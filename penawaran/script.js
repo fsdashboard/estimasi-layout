@@ -124,8 +124,6 @@ document.addEventListener("DOMContentLoaded", function () {
       e.preventDefault();
 
       const tgl = document.getElementById('tanggal').value;
-      const [d, m, y] = tgl.split("-");
-      const bulanRomawi = getBulanRomawi(parseInt(m));
       document.getElementById('pv-tanggal').innerText = tgl ? formatTanggalIndo(tgl) : '';
 
       document.getElementById('pv-customer').innerText = document.getElementById('customer').value;
@@ -180,12 +178,11 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById('pv-ppnHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(ppn)}</span></div>`;
       document.getElementById('pv-totalHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(subtotal + ppn)}</span></div>`;
 
-      // Sembunyikan sidebar, tampilkan preview
       document.querySelectorAll('.sidebar-print-hide').forEach(el => el.style.display = 'none');
       document.getElementById('previewPenawaran').style.display = 'block';
 
-      // Sementara noSurat pakai placeholder
-      document.getElementById("pv-noSurat").textContent = `XXX/AMK/${bulanRomawi}/${y}`;
+      // placeholder nomor surat awal
+      document.getElementById("pv-noSurat").textContent = `XXX`;
     });
   }
 
