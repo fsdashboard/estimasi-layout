@@ -32,37 +32,38 @@
         <a href="/estimasi-layout/pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700 bg-gray-900">🚚 Pengiriman</a>
       </nav>
     </aside>
-<main class="flex-1 p-6 overflow-y-auto">
-  <h1 class="text-2xl font-bold mb-4 text-blue-700">Form Pengiriman</h1>
-  <p class="text-sm text-gray-600 mb-4">Masukkan informasi pengiriman dan status order di sini</p>
-  <div class="bg-white rounded-lg shadow p-6 max-w-xl mx-auto">
-  <div class="mb-4">
-    <label for="customer" class="font-semibold block mb-1">Nama Customer:</label>
-    <textarea name="customer" id="customer" required class="w-full border rounded p-2"></textarea>
-      </div>
-  <div class="mb-4">
-    <label for="alamat" class="font-semibold block mb-1">Alamat:</label>
-    <textarea name="alamat" id="alamat" required class="w-full border rounded p-2"></textarea>
-      </div>
 
-  <div class="mb-4">
-    <label for="metode-pengiriman" class="font-semibold block mb-1">Pilih Metode Pengiriman:</label>
-    <select id="metode-pengiriman" name="metode-pengiriman" class="w-full border rounded p-2">
-      <option value="jne">JNE</option>
-      <option value="jnt">JNT</option>
-      <option value="wahana">WAHANA</option>
-      <option value="tiki">TIKI</option>
-      <option value="lion">LOIN PARCEL</option>
-      <option value="ninja">NINJA</option>
-      <option value="pos">POS</option>
-        </select>
+    <main class="flex-1 p-6 overflow-y-auto">
+      <h1 class="text-2xl font-bold mb-4 text-blue-700">Form Pengiriman</h1>
+      <p class="text-sm text-gray-600 mb-4">Masukkan informasi pengiriman dan status order di sini</p>
+      <div class="bg-white rounded-lg shadow p-6 max-w-xl mx-auto">
+        <div class="mb-4">
+          <label for="customer" class="font-semibold block mb-1">Nama Customer:</label>
+          <textarea name="customer" id="customer" required class="w-full border rounded p-2"></textarea>
+        </div>
+        <div class="mb-4">
+          <label for="alamat" class="font-semibold block mb-1">Alamat:</label>
+          <textarea name="alamat" id="alamat" required class="w-full border rounded p-2"></textarea>
+        </div>
+
+        <div class="mb-4">
+          <label for="metode-pengiriman" class="font-semibold block mb-1">Pilih Metode Pengiriman:</label>
+          <select id="metode-pengiriman" name="metode-pengiriman" class="w-full border rounded p-2">
+            <option value="jne">JNE</option>
+            <option value="jnt">JNT</option>
+            <option value="wahana">WAHANA</option>
+            <option value="tiki">TIKI</option>
+            <option value="lion">LOIN PARCEL</option>
+            <option value="ninja">NINJA</option>
+            <option value="pos">POS</option>
+          </select>
         </div>
 
         <div class="mb-4">
           <label for="tipe-pelayanan" class="font-semibold block mb-1">Pilih Tipe Pelayanan:</label>
           <select id="tipe-pelayanan" name="tipe-pelayanan" class="w-full border rounded p-2">
-            <option value="regular">REGULAR</option>
-            <option value="express">EXPRESS</option>
+            <option value="regular">Regular</option>
+            <option value="express">Express</option>
           </select>
         </div>
 
@@ -71,9 +72,129 @@
             Save PDF
           </button>
         </div>
-
       </div>
+
+      <!-- Tempat preview -->
+      <div id="previewPenawaran" class="p-6 max-w-xl mx-auto mt-8"></div>
     </main>
   </div>
+
+  <!-- Script PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const { jsPDF } = window.jspdf;
+
+    const saveBtn = document.getElementById('savepdf');
+
+    saveBtn.addEventListener('click', function() {
+      // Data input
+      const customer = document.getElementById('customer').value;
+      const alamat = document.getElementById('alamat').value;
+      const metode = document.getElementById('metode-pengiriman').value;
+      const tipe = document.getElementById('tipe-pelayanan').value;
+
+      // Buat preview
+      let preview = document.getElementById('previewPenawaran');
+      preview.innerHTML = `
+        <div class="bg-white p-6 rounded shadow">
+          <p><strong>Pengirim :</strong><br>
+          Anugerah Printshop Ciputat<br>
+          Ciputat Timur, Kota Tangerang Selatan - Banten<br>
+          15412<br>
+          Telp 0821 2245 0210</p>
+          <br>
+          <p><strong>Penerima :</strong><br>
+          ${customer}<br>
+          ${alamat}</p>
+          <br>
+          <p><strong>Metode Pengiriman :</strong> ${metode.toUpperCase()}</p>
+          <p><strong>Tipe Pelayanan :</strong> ${tipe.charAt(0).toUpperCase() + tipe.slice(1).toLowerCase()}</p>
+        </div>
+      `;
+
+      // Buat PDF
+      const doc = new jsPDF({
+       orientation: 'portrait',
+       unit: 'mm',
+       format: 'a6'
+      });
+
+      const imgUrl = 'img/background-label.png';
+
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.src = imgUrl;
+
+      img.onload = function() {
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        doc.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight);
+
+        doc.setFontSize(11);
+        doc.setTextColor(33, 33, 33);
+
+        let y = 35;
+
+        doc.setFont(undefined, 'bold');
+        doc.text("Pengirim :", 10, y);
+        y += 7;
+        doc.setFont(undefined, 'normal');
+        doc.text("Anugerah Printshop Ciputat", 10, y);
+        y += 6;
+        doc.text("Ciputat Timur, Kota Tangerang Selatan - Banten", 10, y);
+        y += 6;
+        doc.text("15412", 10, y);
+        y += 6;
+        doc.text("Telp 0821 2245 0210", 10, y);
+
+        y += 12;
+
+        doc.setFont(undefined, 'bold');
+        doc.text("Penerima :", 10, y);
+        // Posisi awal Y
+        y += 7;
+
+        doc.setFont(undefined, 'normal');
+
+        let penerimaText = customer + '\n' + alamat;
+        let fontSize = 11;
+        let maxWidth = 85;  // mm
+        let maxHeight = 45; // mm
+        let lineHeight = 5; // mm per baris
+
+        let splitted = [];
+        let totalHeight = 999;
+
+      while (totalHeight > maxHeight && fontSize > 5) {
+        doc.setFontSize(fontSize);
+        splitted = doc.splitTextToSize(penerimaText, maxWidth);
+        totalHeight = splitted.length * lineHeight;
+      if (totalHeight > maxHeight) {
+        fontSize -= 0.5; // Kecilkan bertahap
+       }
+      }
+
+      // Tulis hasil
+      doc.text(splitted, 10, y);
+
+        let yFooter = 128;
+        doc.setFont(undefined, 'bold');
+        doc.text("Metode Pengiriman", 10, yFooter);
+        doc.text(":", 47, yFooter);
+        doc.setFont(undefined, 'bold');
+        doc.text(metode.toUpperCase(), 50, yFooter);
+
+        yFooter += 7;
+        doc.setFont(undefined, 'bold');
+        doc.text("Tipe Pelayanan", 10, yFooter);
+        doc.text(":", 47, yFooter);
+        doc.setFont(undefined, 'bold');
+        doc.text(tipe.charAt(0).toUpperCase() + tipe.slice(1).toLowerCase(), 50, yFooter);
+
+        doc.save('label_pengiriman.pdf');
+      };
+    });
+  </script>
 </body>
 </html>
