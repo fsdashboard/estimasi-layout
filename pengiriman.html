@@ -35,15 +35,24 @@
 
     <main class="flex-1 p-6 overflow-y-auto">
       <h1 class="text-2xl font-bold mb-4 text-blue-700">Form Pengiriman</h1>
+
       <div class="bg-white rounded-lg shadow p-6 max-w-xl mx-auto">
-        <div class="mb-4">
-          <label class="font-semibold block mb-1">Nama Customer:</label>
-          <textarea id="customer" class="w-full border rounded p-2"></textarea>
+        <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="font-semibold block mb-1">Nama Customer:</label>
+            <textarea id="customer" class="w-full border rounded p-2"></textarea>
+          </div>
+          <div>
+            <label class="font-semibold block mb-1">Nomor Customer:</label>
+            <input id="nomor-customer" type="text" class="w-full border rounded p-2" placeholder="0812xxxx">
+          </div>
         </div>
+
         <div class="mb-4">
           <label class="font-semibold block mb-1">Alamat:</label>
           <textarea id="alamat" class="w-full border rounded p-2"></textarea>
         </div>
+
         <div class="mb-4">
           <label class="font-semibold block mb-1">Metode Pengiriman:</label>
           <select id="metode-pengiriman" class="w-full border rounded p-2">
@@ -51,6 +60,7 @@
             <option value="jnt">JNT</option>
           </select>
         </div>
+
         <div class="mb-4">
           <label class="font-semibold block mb-1">Tipe Pelayanan:</label>
           <select id="tipe-pelayanan" class="w-full border rounded p-2">
@@ -58,16 +68,19 @@
             <option value="express">Express</option>
           </select>
         </div>
+
         <div class="flex items-center mb-4">
           <input id="showPreview" type="checkbox" class="mr-2">
           <label for="showPreview" class="font-semibold">Tampilkan Preview</label>
         </div>
+
         <div class="flex justify-end">
           <button id="savepdf" class="bg-red-600 hover:bg-blue-700 text-white px-4 py-2 font-semibold rounded">
             Save PDF
           </button>
         </div>
       </div>
+
       <div id="previewPenawaran" class="p-6 max-w-xl mx-auto mt-8"></div>
     </main>
   </div>
@@ -75,12 +88,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     const { jsPDF } = window.jspdf;
+
     const saveBtn = document.getElementById('savepdf');
     const showPreview = document.getElementById('showPreview');
     const preview = document.getElementById('previewPenawaran');
 
     function updatePreview() {
       const customer = document.getElementById('customer').value;
+      const nomorCustomer = document.getElementById('nomor-customer').value;
       const alamat = document.getElementById('alamat').value;
       const metode = document.getElementById('metode-pengiriman').value;
       const tipe = document.getElementById('tipe-pelayanan').value;
@@ -94,7 +109,9 @@
             15412<br>
             Telp 0821 2245 0210</p>
             <p><strong>Penerima :</strong><br>
-            ${customer}<br>${alamat}</p>
+            ${customer}<br>
+            ${nomorCustomer}<br>
+            ${alamat}</p>
             <p><strong>Metode :</strong> ${metode.toUpperCase()}</p>
             <p><strong>Tipe :</strong> ${tipe.charAt(0).toUpperCase() + tipe.slice(1)}</p>
           </div>`;
@@ -105,12 +122,14 @@
 
     showPreview.addEventListener('change', updatePreview);
     document.getElementById('customer').addEventListener('input', updatePreview);
+    document.getElementById('nomor-customer').addEventListener('input', updatePreview);
     document.getElementById('alamat').addEventListener('input', updatePreview);
     document.getElementById('metode-pengiriman').addEventListener('change', updatePreview);
     document.getElementById('tipe-pelayanan').addEventListener('change', updatePreview);
 
     saveBtn.addEventListener('click', () => {
       const customer = document.getElementById('customer').value;
+      const nomorCustomer = document.getElementById('nomor-customer').value;
       const alamat = document.getElementById('alamat').value;
       const metode = document.getElementById('metode-pengiriman').value;
       const tipe = document.getElementById('tipe-pelayanan').value;
@@ -144,7 +163,7 @@
         y += 7;
 
         doc.setFont(undefined, 'normal');
-        let penerimaText = customer + '\n' + alamat;
+        let penerimaText = customer + '\n' + nomorCustomer + '\n' + alamat;
         let fontSize = 11;
         let maxWidth = 85;
         let maxHeight = 45;
