@@ -161,12 +161,12 @@
         let fontSize = 11;
         let maxWidth = 85;  // mm
         let maxHeight = 45; // mm
-        let lineHeight = 5; // mm per baris
+        let lineHeight = 6; // mm per baris
 
         let splitted = [];
         let totalHeight = 999;
 
-      while (totalHeight > maxHeight && fontSize > 6) {
+      while (totalHeight > maxHeight && fontSize > 5) {
         doc.setFontSize(fontSize);
         splitted = doc.splitTextToSize(penerimaText, maxWidth);
         totalHeight = splitted.length * lineHeight;
