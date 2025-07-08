@@ -174,9 +174,10 @@
         fontSize -= 0.5; // Kecilkan bertahap
        }
       }
-
-      // Tulis hasil
-      doc.text(splitted, 10, y);
+        splitted.forEach(function(line) {
+        doc.text(line, 10, y);
+        y += lineHeight;
+      });
 
         let yFooter = 128;
         doc.setFont(undefined, 'bold');
