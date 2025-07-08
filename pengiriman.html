@@ -166,7 +166,7 @@
         let splitted = [];
         let totalHeight = 999;
 
-      while (totalHeight > maxHeight && fontSize > 5) {
+      while (totalHeight > maxHeight && fontSize > 6) {
         doc.setFontSize(fontSize);
         splitted = doc.splitTextToSize(penerimaText, maxWidth);
         totalHeight = splitted.length * lineHeight;
