@@ -1,5 +1,7 @@
-document.addEventListener('DOMContentLoaded', () => {
+(function initSoftcoverForm() {
   const presetDropdown = document.getElementById('preset-ukuran');
+  if (!presetDropdown) return;
+
   const customSizeRow = document.getElementById('custom-size-row');
   const previewOrientasi = document.getElementById('preview-orientasi');
 
@@ -10,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     "A5": { panjang: 21, lebar: 14.8 },
     "A6": { panjang: 14.8, lebar: 10.5 },
     "A7": { panjang: 10.5, lebar: 7.4 },
-    "Custom Size": "custom"
+    "custom": "custom"
   };
 
   presetDropdown.addEventListener('change', () => {
@@ -49,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
-});
+})();
 
 // Fungsi hitung Soft Cover
 function hitungSoftCover() {
@@ -59,10 +61,35 @@ function hitungSoftCover() {
   const cetak = parseInt(document.getElementById('softcover-cetak').value);
   const sisiIsi = document.getElementById('softcover-sisi-isi').value;
   const bahanIsi = document.getElementById('softcover-bahan-isi').value;
+  const mediaCetak = document.getElementById('softcover-media-cetak').value;
 
   if (!halaman || !panjang || !lebar || !cetak || !sisiIsi || !bahanIsi) {
-    showAlert('Lengkapi semua input Soft Cover.');
+    showAlertModal('Lengkapi semua input Soft Cover.');
     return;
+  }
+
+  let acuanPanjang, acuanLebar;
+  if (mediaCetak === "A3+") {
+    acuanPanjang = 47.5;
+    acuanLebar = 31.5;
+  } else if (mediaCetak === "A3") {
+  acuanPanjang = 42;
+  acuanLebar = 29.7;
+  } else if (mediaCetak === "A4") {
+    acuanPanjang = 29.7;
+    acuanLebar = 21;
+  } else {
+    showAlertModal('Pilih media cetak yang valid.');
+    return;
+  }
+
+  let panjangCetak, lebarCetak;
+  if (mediaCetak === "A3+") {
+    panjangCetak = panjang + 0.4;
+    lebarCetak = lebar + 0.4;
+  } else {
+    panjangCetak = panjang;
+    lebarCetak = lebar;
   }
 
   const ketebalanBahan = {
@@ -82,21 +109,28 @@ function hitungSoftCover() {
   };
 
   if (!(bahanIsi in ketebalanBahan)) {
-    showAlert('Ketebalan bahan isi tidak ditemukan. Mohon pilih bahan yang valid.');
+    showAlertModal('Ketebalan bahan isi tidak ditemukan. Mohon pilih bahan yang valid.');
     return;
   }
 
   const ketebalan = ketebalanBahan[bahanIsi];
 
-  const panjangCetak = panjang + 0.4;
-  const lebarCetak = lebar + 0.4;
-  const acuanPanjang = 47.4;
-  const acuanLebar = 31.4;
+  const muatNormal = acuanPanjang >= panjangCetak && acuanLebar >= lebarCetak;
+  const muatRotasi = acuanPanjang >= lebarCetak && acuanLebar >= panjangCetak;
+
+  if (!muatNormal && !muatRotasi) {
+    showAlertModal('Ukuran jadi melebihi ukuran media cetak. Harap periksa kembali!');
+    return;
+  }
 
   const fit1 = Math.floor(acuanPanjang / panjangCetak) * Math.floor(acuanLebar / lebarCetak);
   const fit2 = Math.floor(acuanPanjang / lebarCetak) * Math.floor(acuanLebar / panjangCetak);
   const totalA3 = Math.max(fit1, fit2);
-  document.getElementById('softcover-totalA3').value = totalA3 > 0 ? totalA3 + ' pcs' : '-';
+  if (totalA3 <= 0) {
+  showAlertModal('Ukuran jadi melebihi ukuran media cetak. Harap periksa kembali!');
+  return;
+  }
+  document.getElementById('softcover-totalA3').value = totalA3 + ' pcs';
 
   let halamanIsi = sisiIsi === "2" ? Math.ceil(halaman / 2) : halaman;
   if (sisiIsi === "2" && halamanIsi % 2 !== 0) halamanIsi += 1;
@@ -111,11 +145,12 @@ function hitungSoftCover() {
   document.getElementById('output-softcover').classList.remove('hidden');
 }
 
+
 // Fungsi reset form Soft Cover
 function resetSoftcoverForm() {
   const ids = [
     'softcover-halaman', 'softcover-panjang', 'softcover-lebar', 'softcover-cetak',
-    'softcover-sisi-isi', 'softcover-bahan-isi',
+    'softcover-sisi-isi', 'softcover-bahan-isi', 'softcover-media-cetak',
     'softcover-totalA3', 'softcover-lembar-isi', 'softcover-punggung'
   ];
 
@@ -131,7 +166,7 @@ function resetSoftcoverForm() {
 }
 
 // Modal global alert
-function showAlert(pesan) {
+function showAlertModal(pesan) {
   const modal = document.getElementById("modal-alert");
   const message = document.getElementById("modal-alert-message");
   modal.classList.remove("hidden");
