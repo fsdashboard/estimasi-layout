@@ -68,20 +68,24 @@ function hitungSoftCover() {
     return;
   }
 
-  let acuanPanjang, acuanLebar;
-  if (mediaCetak === "A3+") {
-    acuanPanjang = 47.5;
-    acuanLebar = 31.5;
-  } else if (mediaCetak === "A3") {
+const labelTotalA3 = document.getElementById('label-totalA3');
+
+if (mediaCetak === "A3+") {
+  acuanPanjang = 47.5;
+  acuanLebar = 31.5;
+  labelTotalA3.innerText = 'Total dalam 1 A3+:';
+} else if (mediaCetak === "A3") {
   acuanPanjang = 42;
   acuanLebar = 29.7;
-  } else if (mediaCetak === "A4") {
-    acuanPanjang = 29.7;
-    acuanLebar = 21;
-  } else {
-    showAlertModal('Pilih media cetak yang valid.');
-    return;
-  }
+  labelTotalA3.innerText = 'Total dalam 1 A3:';
+} else if (mediaCetak === "A4") {
+  acuanPanjang = 29.7;
+  acuanLebar = 21;
+  labelTotalA3.innerText = 'Total dalam 1 A4:';
+} else {
+  showAlertModal('Pilih media cetak yang valid.');
+  return;
+}
 
   let panjangCetak, lebarCetak;
   if (mediaCetak === "A3+") {
@@ -93,13 +97,13 @@ function hitungSoftCover() {
   }
 
   const ketebalanBahan = {
-    "BOOK PAPER": 0.0125,
+    "BOOK PAPER": 0.0120,
     "HVS 75 gsm": 0.0093,
     "HVS 80 gsm": 0.01041,
-    "HVS 100 gsm": 0.01234,
-    "AP 120 gsm": 0.013,
+    "HVS 100 gsm": 0.01266,
+    "AP 120 gsm": 0.01052,
     "AP 150 gsm": 0.0142,
-    "MP 120 gsm": 0.0131,
+    "MP 120 gsm": 0.01052,
     "MP 150 gsm": 0.0142,
     "AC 210 gsm": 0.023,
     "AC 230 gsm": 0.025,
@@ -132,17 +136,25 @@ function hitungSoftCover() {
   }
   document.getElementById('softcover-totalA3').value = totalA3 + ' pcs';
 
-  let halamanIsi = sisiIsi === "2" ? Math.ceil(halaman / 2) : halaman;
-  if (sisiIsi === "2" && halamanIsi % 2 !== 0) halamanIsi += 1;
+let totalIsi = 0;
 
-  const totalIsi = halamanIsi * cetak;
-  const lembarIsi = Math.ceil(totalIsi / totalA3);
-  document.getElementById('softcover-lembar-isi').value = lembarIsi + ' Lembar';
+if (sisiIsi === "1") {
+  totalIsi = halaman * cetak;
+} else if (sisiIsi === "2") {
+  totalIsi = (halaman / 2) * cetak;
+} else {
+  showAlertModal('Pilih opsi sisi cetak isi yang valid.');
+  return;
+}
 
-  const totalPunggung = halamanIsi * ketebalan;
-  document.getElementById('softcover-punggung').value = totalPunggung.toFixed(2) + ' cm';
+const lembarIsi = Math.ceil(totalIsi / totalA3);
+document.getElementById('softcover-lembar-isi').value = lembarIsi + ' Lembar';
 
-  document.getElementById('output-softcover').classList.remove('hidden');
+const lembarFisik = sisiIsi === "2" ? (halaman / 2) : halaman;
+const totalPunggung = lembarFisik * ketebalan;
+document.getElementById('softcover-punggung').value = totalPunggung.toFixed(2) + ' cm';
+
+document.getElementById('output-softcover').classList.remove('hidden');
 }
 
 
