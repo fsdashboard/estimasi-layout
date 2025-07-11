@@ -1,0 +1,142 @@
+<div id="form-spiral" class="form-buku">
+  <h3 class="font-bold mb-2">Estimasi Buku - Spiral</h3>
+
+  <table class="mb-4 w-[400px]">
+    <tr>
+      <td class="pr-2 py-2 whitespace-nowrap">Jumlah Halaman:</td>
+      <td><input type="number" id="spiral-halaman" class="ml-2 p-1 border rounded w-full" /></td>
+    </tr>
+    <tr>
+      <td class="pr-2 py-2 whitespace-nowrap">Jumlah Cetak:</td>
+      <td><input type="number" id="spiral-cetak" class="ml-2 p-1 border rounded w-full" /></td>
+    </tr>
+    <tr>
+      <td class="pr-2 py-2 whitespace-nowrap">Ukuran Jadi:</td>
+      <td>
+        <select id="preset-ukuran-spiral" class="ml-2 p-1 border rounded w-full">
+          <option value="">-- Pilih Ukuran --</option>
+          <option value="A3">A3 (29.7x42 cm)</option>
+          <option value="A4">A4 (21x29.7 cm)</option>
+          <option value="A5">A5 (14.8x21 cm)</option>
+          <option value="A6">A6 (10.5x14.8 cm)</option>
+          <option value="A7">A7 (7.4x10.5 cm)</option>
+          <option value="custom">Custom Size</option>
+        </select>
+      </td>
+    </tr>
+    <tr id="custom-size-row-spiral" class="hidden">
+      <td class="pr-2 py-2 whitespace-nowrap">Ukuran Jadi (cm):</td>
+      <td>
+        <div class="flex ml-2 w-full">
+          <input type="number" placeholder="Panjang" id="spiral-panjang" class="p-1 border rounded w-1/2 mr-1" />
+          <span class="flex items-center px-1">x</span>
+          <input type="number" placeholder="Lebar" id="spiral-lebar" class="p-1 border rounded w-1/2 ml-1" />
+        </div>
+        <div id="preview-orientasi-spiral" class="text-center text-sm text-gray-500 mt-1 italic">Orientasi: -</div>
+      </td>
+    </tr>
+    <tr>
+      <td class="pr-2 py-2 whitespace-nowrap">Bahan Cover:</td>
+      <td>
+        <select id="spiral-bahan-cover" class="ml-2 p-1 border rounded w-full">
+          <option value="">-jenis bahan-</option>
+          <option value="BOOK PAPER">BOOK PAPER</option>
+          <option value="HVS 75 gsm">HVS 75 gsm</option>
+          <option value="AC 230 gsm">AC 230 gsm</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="pr-2 py-2 whitespace-nowrap">Sided Cover:</td>
+      <td>
+        <select id="spiral-sisi-cover" class="ml-2 p-1 border rounded w-full">
+          <option value="">-sided cover-</option>
+          <option value="1">1 Sisi</option>
+          <option value="2">2 Sisi</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="pr-2 py-2 whitespace-nowrap">Media Cetak Cover:</td>
+      <td>
+        <select id="spiral-media-cover" class="ml-2 p-1 border rounded w-full">
+          <option value="">media cover</option>
+          <option value="A3+">A3+</option>
+          <option value="A3">A3</option>
+          <option value="A4">A4</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="pr-2 py-2 whitespace-nowrap">Bahan Isi:</td>
+      <td>
+        <select id="spiral-bahan-isi" class="ml-2 p-1 border rounded w-full">
+          <option value="">-- Pilih Kertas --</option>
+          <option value="BOOK PAPER">BOOK PAPER</option>
+          <option value="HVS 75 gsm">HVS 75 gsm</option>
+          <option value="HVS 80 gsm">HVS 80 gsm</option>
+          <option value="HVS 100 gsm">HVS 100 gsm</option>
+          <option value="AP 120 gsm">AP 120 gsm</option>
+          <option value="AP 150 gsm">AP 150 gsm</option>
+          <option value="MP 120 gsm">MP 120 gsm</option>
+          <option value="MP 150 gsm">MP 150 gsm</option>
+          <option value="AC 210 gsm">AC 210 gsm</option>
+          <option value="AC 230 gsm">AC 230 gsm</option>
+          <option value="AC 260 gsm">AC 260 gsm</option>
+          <option value="AC 310 gsm">AC 310 gsm</option>
+          <option value="AC 400 gsm">AC 400 gsm</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="pr-2 py-2 whitespace-nowrap">Sided Isi:</td>
+      <td>
+        <select id="spiral-sisi-isi" class="ml-2 p-1 border rounded w-full">
+          <option value="">-sided isi-</option>
+          <option value="1">1 Sisi</option>
+          <option value="2">2 Sisi</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="pr-2 py-2 whitespace-nowrap">Media Cetak Isi:</td>
+      <td>
+        <select id="spiral-media-isi" class="ml-2 p-1 border rounded w-full">
+          <option value="">media isi</option>
+          <option value="A3+">A3+</option>
+          <option value="A3">A3</option>
+          <option value="A4">A4</option>
+        </select>
+      </td>
+    </tr>
+
+    <!-- OUTPUT -->
+    <tbody id="output-spiral" class="hidden">
+      <tr>
+        <td id="label-total-cover" class="pr-2 py-2 whitespace-nowrap">Total Cover dalam 1 A3+:</td>
+        <td><input type="text" id="spiral-total-cover" readonly class="ml-2 p-1 border rounded w-full bg-gray-100" /></td>
+      </tr>
+      <tr>
+        <td id="label-total-isi" class="pr-2 py-2 whitespace-nowrap">Total Isi dalam 1 A3+:</td>
+        <td><input type="text" id="spiral-total-isi" readonly class="ml-2 p-1 border rounded w-full bg-gray-100" /></td>
+      </tr>
+      <tr>
+        <td>Jumlah Cetak Cover:</td>
+        <td><input type="text" id="spiral-lembar-cover" readonly class="ml-2 p-1 border rounded w-full bg-gray-100" /></td>
+      </tr>
+      <tr>
+        <td>Jumlah Cetak Isi:</td>
+        <td><input type="text" id="spiral-lembar-isi" readonly class="ml-2 p-1 border rounded w-full bg-gray-100" /></td>
+      </tr>
+      <tr>
+        <td>Nomor Spiral:</td>
+        <td><input type="text" id="spiral-nomor" readonly class="ml-2 p-1 border rounded w-full bg-gray-100" /></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="mt-4">
+    <button onclick="hitungSpiral()" class="px-4 py-2 bg-blue-600 text-white rounded">Hitung</button>
+    <button onclick="resetSpiralForm()" class="ml-2 px-4 py-2 bg-gray-500 text-white rounded">Reset</button>
+  </div>
+</div>
