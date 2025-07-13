@@ -77,7 +77,7 @@ function hitungBooklet() {
   let panjangCetak = spreadWidth;
   let lebarCetak = spreadHeight;
 
-  if (mediaIsi === "A3+") {
+  if (mediaIsi === "A3+" || mediaIsi === "LONG-CUSTOM") {
     panjangCetak += 0.4;
     lebarCetak += 0.4;
   }
@@ -93,6 +93,9 @@ function hitungBooklet() {
   } else if (mediaIsi === "A4") {
     acuanPanjang = 29.7;
     acuanLebar = 21;
+  } else if (mediaIsi === "LONG-CUSTOM") {
+    acuanPanjang = 65;
+    acuanLebar = 32.5;
   } else {
     showAlertModal('Pilih media cetak isi yang valid.');
     return;
@@ -144,7 +147,7 @@ function hitungBooklet() {
       lebarCetakCover += 0.4;
     }
 
-    if (mediaCover === "A3+") {
+    if (mediaCover === "A3+" || mediaCover === "LONG-CUSTOM") {
       acuanPanjang = 47.5;
       acuanLebar = 31.5;
     } else if (mediaCover === "A3") {
