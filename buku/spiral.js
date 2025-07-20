@@ -90,8 +90,12 @@ function hitungSpiral() {
   let acuan = mediaIsi === "A3+" ? [47.5, 31.5] : mediaIsi === "A3" ? [42, 29.7] : [29.7, 21];
   document.getElementById('label-total-isi').innerText = `Total Isi dalam 1 ${mediaIsi}:`;
 
-  const fit1 = Math.floor(acuan[0] / panjang) * Math.floor(acuan[1] / lebar);
-  const fit2 = Math.floor(acuan[0] / lebar) * Math.floor(acuan[1] / panjang);
+// Tambah bleed jika A3+
+  let panjangCetak = mediaIsi === "A3+" ? panjang + 0.4 : panjang;
+  let lebarCetak   = mediaIsi === "A3+" ? lebar + 0.4 : lebar;
+
+  const fit1 = Math.floor(acuan[0] / panjangCetak) * Math.floor(acuan[1] / lebarCetak);
+  const fit2 = Math.floor(acuan[0] / lebarCetak) * Math.floor(acuan[1] / panjangCetak);
   const totalDalam = Math.max(fit1, fit2);
 
   if (totalDalam <= 0) {
@@ -116,12 +120,16 @@ function hitungSpiral() {
     document.getElementById('spiral-total-isi').value = `${totalDalam} pcs`;
     document.getElementById('spiral-lembar-isi').value = `${lembarDalam} Lembar ${mediaIsi}`;
   } else {
+
     // Default → cover & isi terpisah
     let acuanCover = mediaCover === "A3+" ? [47.5, 31.5] : mediaCover === "A3" ? [42, 29.7] : [29.7, 21];
     document.getElementById('label-total-cover').innerText = `Total Cover dalam 1 ${mediaCover}:`;
 
-    const fit1Cover = Math.floor(acuanCover[0] / panjang) * Math.floor(acuanCover[1] / lebar);
-    const fit2Cover = Math.floor(acuanCover[0] / lebar) * Math.floor(acuanCover[1] / panjang);
+    let panjangCetakCover = mediaCover === "A3+" ? panjang + 0.4 : panjang;
+    let lebarCetakCover   = mediaCover === "A3+" ? lebar + 0.4 : lebar;
+
+    const fit1Cover = Math.floor(acuanCover[0] / panjangCetakCover) * Math.floor(acuanCover[1] / lebarCetakCover);
+    const fit2Cover = Math.floor(acuanCover[0] / lebarCetakCover) * Math.floor(acuanCover[1] / panjangCetakCover);
     const totalCover = Math.max(fit1Cover, fit2Cover);
 
     if (totalCover <= 0) {
