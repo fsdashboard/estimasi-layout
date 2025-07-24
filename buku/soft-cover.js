@@ -141,7 +141,8 @@ let totalIsi = 0;
 if (sisiIsi === "1") {
   totalIsi = halaman * cetak;
 } else if (sisiIsi === "2") {
-  totalIsi = (halaman / 2) * cetak;
+  const lembarFisik = Math.ceil(halaman / 2);
+  totalIsi = lembarFisik * cetak;
 } else {
   showAlertModal('Pilih opsi sisi cetak isi yang valid.');
   return;
