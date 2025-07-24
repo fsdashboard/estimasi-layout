@@ -106,8 +106,8 @@ function hitungSpiral() {
   if (sama) {
     // Jika sama → hanya 1 kebutuhan
     const lembarDalam = sisiIsi === "1"
-      ? Math.ceil((halaman * cetak) / totalDalam)
-      : Math.ceil(((halaman / 2) * cetak) / totalDalam);
+  ? Math.ceil((halaman * cetak) / totalDalam)
+  : Math.ceil((Math.ceil(halaman / 2) * cetak) / totalDalam);
 
     document.getElementById('spiral-total-cover').value = '';
     document.getElementById('spiral-lembar-cover').value = '';
@@ -141,8 +141,8 @@ function hitungSpiral() {
 
     let sisaHalaman = halaman - (sisiCover === "1" ? 2 : 4);
     const lembarIsi = sisiIsi === "1"
-      ? Math.ceil((sisaHalaman * cetak) / totalDalam)
-      : Math.ceil(((sisaHalaman / 2) * cetak) / totalDalam);
+  ? Math.ceil((sisaHalaman * cetak) / totalDalam)
+  : Math.ceil((Math.ceil(sisaHalaman / 2) * cetak) / totalDalam);
 
     document.getElementById('spiral-total-cover').value = `${totalCover} pcs`;
     document.getElementById('spiral-lembar-cover').value = `${lembarCover} Lembar ${mediaCover}`;
