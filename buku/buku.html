@@ -26,8 +26,11 @@
 
 <body class="bg-gray-100 text-gray-800">
 
-<!-- Tombol garis tiga (toggle sidebar) -->
-    <button id="toggleSidebar" class="md:hidden text-white text-2xl p-4 fixed z-50 bg-gray-800 top-0 left-0">☰</button>
+    <!-- Tombol garis tiga (toggle sidebar) -->
+  <button id="toggleSidebar" class="md:hidden text-white text-2xl p-4 fixed z-50 bg-gray-800 top-0 left-0">☰</button>
+  
+    <!-- Overlay -->
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 md:hidden" onclick="tutupSidebar()"></div>
 
   <div class="flex h-screen">
     <!-- Sidebar -->
