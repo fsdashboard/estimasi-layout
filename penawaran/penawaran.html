@@ -19,6 +19,7 @@
   </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
+
   <!-- Tombol garis tiga (toggle sidebar) -->
   <button id="toggleSidebar" class="md:hidden text-white text-2xl p-4 fixed z-50 bg-gray-800 top-0 left-0">☰</button>
 
@@ -27,7 +28,7 @@
 
   <div class="flex h-screen sidebar-print-hide">
     <!-- Sidebar -->
-    <aside id="sidebar" class="w-64 bg-gray-800 text-white flex flex-col sidebar-print-hide">
+    <aside id="sidebar" class="w-64 bg-gray-800 text-white flex flex-col sidebar-print-hide transform -translate-x-full transition-transform duration-300 md:translate-x-0 fixed h-full z-50">
       <div class="p-4 text-xl font-bold border-b border-gray-700">Estimasi Online</div>
       <nav class="flex-1 p-4 space-y-2 text-sm">
         <a href="/estimasi-layout/index.html" class="block p-2 font-semibold rounded hover:bg-gray-700 ">🏠 Halaman Utama</a>
