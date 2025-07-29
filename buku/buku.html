@@ -25,6 +25,10 @@
 </head>
 
 <body class="bg-gray-100 text-gray-800">
+
+<!-- Tombol garis tiga (toggle sidebar) -->
+    <button id="toggleSidebar" class="md:hidden text-white text-2xl p-4 fixed z-50 bg-gray-800 top-0 left-0">☰</button>
+
   <div class="flex h-screen">
     <!-- Sidebar -->
     <aside class="w-64 bg-gray-800 text-white flex flex-col">
@@ -127,6 +131,21 @@
         modal.classList.add("hidden");
       }
     });
+
+    // Toggle sidebar (responsive)
+    const toggleSidebar = document.getElementById("toggleSidebar");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    toggleSidebar.addEventListener("click", () => {
+      sidebar.classList.toggle("-translate-x-full");
+      overlay.classList.toggle("hidden");
+    });
+
+    function tutupSidebar() {
+      sidebar.classList.add("-translate-x-full");
+      overlay.classList.add("hidden");
+    }
   </script>
 
 </body>
