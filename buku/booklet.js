@@ -94,8 +94,8 @@ function hitungBooklet() {
     acuanPanjang = 29.7;
     acuanLebar = 21;
   } else if (mediaIsi === "LONG-CUSTOM") {
-    acuanPanjang = 65;
-    acuanLebar = 32.5;
+    acuanPanjang = 64;
+    acuanLebar = 31.5;
   } else {
     showAlertModal('Pilih media cetak isi yang valid.');
     return;
@@ -142,24 +142,27 @@ function hitungBooklet() {
   } else {
     let panjangCetakCover = spreadWidth;
     let lebarCetakCover = spreadHeight;
-    if (mediaCover === "A3+") {
+    if (mediaCover === "A3+" || mediaCover === "LONG-CUSTOM") {
       panjangCetakCover += 0.4;
       lebarCetakCover += 0.4;
     }
 
-    if (mediaCover === "A3+" || mediaCover === "LONG-CUSTOM") {
-      acuanPanjang = 47.5;
-      acuanLebar = 31.5;
-    } else if (mediaCover === "A3") {
-      acuanPanjang = 42;
-      acuanLebar = 29.7;
-    } else if (mediaCover === "A4") {
-      acuanPanjang = 29.7;
-      acuanLebar = 21;
-    } else {
-      showAlertModal('Pilih media cetak cover yang valid.');
-      return;
-    }
+  if (mediaCover === "A3+") {
+    acuanPanjang = 47.5;
+    acuanLebar = 31.5;
+  } else if (mediaCover === "A3") {
+    acuanPanjang = 42;
+    acuanLebar = 29.7;
+  } else if (mediaCover === "A4") {
+    acuanPanjang = 29.7;
+    acuanLebar = 21;
+  } else if (mediaCover === "LONG-CUSTOM") {
+    acuanPanjang = 64;
+    acuanLebar = 31.5;
+  } else {
+    showAlertModal('Pilih media cetak cover yang valid.');
+    return;
+  }
 
     const fit1Cover = Math.floor(acuanPanjang / panjangCetakCover) * Math.floor(acuanLebar / lebarCetakCover);
     const fit2Cover = Math.floor(acuanPanjang / lebarCetakCover) * Math.floor(acuanLebar / panjangCetakCover);
