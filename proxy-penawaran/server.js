@@ -3,7 +3,9 @@ const fetch = require("node-fetch");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: 'https://fsdashboard.github.io'
+}));
 app.use(express.json());
 
 app.post("/kirim-penawaran", async (req, res) => {
