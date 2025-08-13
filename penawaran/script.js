@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Kirim ke Google Sheet & cetak
   async function kirimKeGoogleSheet(data) {
     try {
-      const response = await fetch("https://script.google.com/macros/s/AKfycbzxtY67pkwLlajoHompRB6lOfNIW69z5MWrO9fVDttlEVkEPEzI--Rz2BbdZrnqEGcm/exec", {
+      const response = await fetch("https://script.google.com/macros/s/AKfycbx3yUGTPNmOTQo19BXUckk-vL_JoizNVpkfm1JRWCm861La1v0rV__NzZMg5PqjnMea/exec", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
