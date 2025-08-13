@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Kirim ke Google Sheet & cetak
 async function kirimKeGoogleSheet(data) {
   try {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbx3yUGTPNmOTQo19BXUckk-vL_JoizNVpkfm1JRWCm861La1v0rV__NzZMg5PqjnMea/exec", {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbxAqfHg4tsuZDNIzk3RhvzLXzMpLgAz0uH47Pm4K2rdWG-ygPq9Hpj2pokOnRWWavEm/exec", {
       method: "POST",
       // JANGAN pakai application/json agar tidak preflight
       headers: { "Content-Type": "text/plain;charset=utf-8" },
