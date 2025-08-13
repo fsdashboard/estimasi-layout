@@ -193,21 +193,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ====================================
   // Kirim ke Google Sheet & cetak
-  async function kirimKeGoogleSheet(data) {
-    try {
-      const response = await fetch("https://script.google.com/macros/s/AKfycbx3yUGTPNmOTQo19BXUckk-vL_JoizNVpkfm1JRWCm861La1v0rV__NzZMg5PqjnMea/exec", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-      if (!response.ok) throw new Error('Gagal mengirim data ke Google Sheet');
-      const result = await response.json();
-      return result.noInvoice;
-    } catch (error) {
-      alert("Terjadi kesalahan: " + error.message);
-      return null;
-    }
+async function kirimKeGoogleSheet(data) {
+  try {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbx3yUGTPNmOTQo19BXUckk-vL_JoizNVpkfm1JRWCm861La1v0rV__NzZMg5PqjnMea/exec", {
+      method: "POST",
+      // JANGAN pakai application/json agar tidak preflight
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error('Gagal mengirim data ke Google Sheet');
+    const result = await response.json();
+    return result.noInvoice;
+  } catch (error) {
+    alert("Terjadi kesalahan: " + error.message);
+    return null;
   }
+}
 
   const btn = document.querySelector('#btnPrint');
   if (btn) {
