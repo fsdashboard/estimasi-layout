@@ -69,8 +69,8 @@ function hitungSpiral() {
   }
 
   const ketebalanBahan = {
-    "BOOK PAPER": 0.0120,
-    "HVS 75 gsm": 0.0093,
+    "BOOK PAPER": 0.01322,
+    "HVS 75 gsm": 0.00995,
     "HVS 80 gsm": 0.01041,
     "HVS 100 gsm": 0.01266,
     "AP 120 gsm": 0.01052,
