@@ -214,6 +214,10 @@ async function kirimKeGoogleSheet(data) {
   if (btn) {
     btn.addEventListener("click", async function (e) {
       e.preventDefault();
+      const loading = document.getElementById("loadingOverlay");
+      if (loading) loading.style.display = "flex";
+
+      try {
       const tgl = document.getElementById("tanggal").value;
       const [d, m, y] = tgl.split("-");
       const bulanRomawi = getBulanRomawi(parseInt(m));
@@ -237,7 +241,13 @@ async function kirimKeGoogleSheet(data) {
       };
       const noInvoiceBaru = await kirimKeGoogleSheet(data);
       document.getElementById("pv-noSurat").textContent = noInvoiceBaru;
+      if (loading) loading.style.display = "none";
       window.print();
+      } catch (err) {
+      console.error("Gagal kirim data:", err);
+      if (loading) loading.style.display = "none"; // tutup loader meskipun error
+      alert("Terjadi kesalahan saat mengirim data!");
+    }
     });
   }
 
