@@ -7,6 +7,9 @@
   <!-- TailwindCSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css" />
+  <!-- Flatpickr -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <style>
     body, #previewPenawaran {
       background: #f3f4f6 !important;
@@ -229,9 +232,6 @@
     </div>
   </div>
   <script src="script.js"></script>
-  <!-- Flatpickr -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
   flatpickr("#tanggal", {
@@ -255,6 +255,19 @@
       overlay.classList.add("hidden");
     }
 </script>
+
+  <div id="loadingOverlay">
+    <div class="loader">
+      <div class="pacman"></div>
+      <div class="dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+    <div class="text">Loading...</div>
+  </div>
 
 </body>
 </html>
