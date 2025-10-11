@@ -165,11 +165,11 @@
 
       let totalA3;
       if (finishing === "Die Cut") {
-        p += 0.4; l += 0.4;
-        const mode1 = Math.floor(44 / p) * Math.floor(30.8 / l);
-        const mode2 = Math.floor(44 / l) * Math.floor(30.8 / p);
-        const mode3 = Math.floor(46.5 / p) * Math.floor(29 / l);
-        const mode4 = Math.floor(46.5 / l) * Math.floor(29 / p);
+        p += 0.3; l += 0.3;
+        const mode1 = Math.floor(44 / p) * Math.floor(31.5 / l);
+        const mode2 = Math.floor(44 / l) * Math.floor(31.5 / p);
+        const mode3 = Math.floor(47.5 / p) * Math.floor(29 / l);
+        const mode4 = Math.floor(47.5 / l) * Math.floor(29 / p);
         totalA3 = Math.max(mode1, mode2, mode3, mode4);
       } else {
         const mode1 = Math.floor(panjangAcuan / p) * Math.floor(lebarAcuan / l);
