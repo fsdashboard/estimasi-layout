@@ -5,52 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Shuffle Pages</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
   <style>
-    .modal-enter {
-      opacity: 0;
-      transform: scale(0.95);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    .modal-show {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    .modal-hide {
-      opacity: 0;
-      transform: scale(0.95);
-    }
+    .modal-enter { opacity: 0; transform: scale(0.95); transition: opacity 0.3s ease, transform 0.3s ease; }
+    .modal-show { opacity: 1; transform: scale(1); }
+    .modal-hide { opacity: 0; transform: scale(0.95); }
+    .rotate-box { font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
   </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
-
-  <!-- Tombol garis tiga (toggle sidebar) -->
   <button id="toggleSidebar" class="md:hidden text-white text-2xl p-4 fixed z-50 bg-gray-800 top-0 left-0">☰</button>
-
-  <!-- Overlay -->
   <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 md:hidden" onclick="tutupSidebar()"></div>
 
   <div class="flex h-screen">
     <aside id="sidebar" class="w-64 bg-gray-800 text-white flex flex-col fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50 md:relative">
       <div class="p-4 text-xl font-bold border-b border-gray-700">Estimasi Online</div>
       <nav class="flex-1 p-4 space-y-2 text-sm">
-        <a href="/estimasi-layout/index.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🏠 Halaman Utama</a>
-        <a href="/estimasi-layout/harga-potong.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">💰 Harga Potong (A3+)</a>
-        <a href="/estimasi-layout/layout-a3.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📐 Layout A3+</a>
-        <a href="/estimasi-layout/buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📘 Buku</a>
-        <a href="/estimasi-layout/spanduk.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🖼️ Spanduk</a>
-        <a href="/estimasi-layout/adjust-size.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🔧 Adjust Size</a>
+        <a href="/estimasi-layout/index.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🏠 Halaman Utama</a>
+        <a href="/estimasi-layout/harga-potong.html" class="block p-2 font-semibold rounded hover:bg-gray-700">💰 Harga Potong (A3+)</a>
+        <a href="/estimasi-layout/layout-a3.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📐 Layout A3+</a>
+        <a href="/estimasi-layout/buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📘 Buku</a>
+        <a href="/estimasi-layout/spanduk.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🖼️ Spanduk</a>
+        <a href="/estimasi-layout/adjust-size.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🔧 Adjust Size</a>
         <a href="/estimasi-layout/shuffle.html" class="block p-2 font-semibold rounded hover:bg-gray-700 bg-gray-900">📄 Shuffle Pages</a>
         <a href="/estimasi-layout/penawaran/penawaran.html" class="block p-2 font-semibold rounded hover:bg-gray-700">💰 Penawaran</a>
-        <a href="/estimasi-layout/pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🚚 Pengiriman</a>
+        <a href="/estimasi-layout/pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🚚 Pengiriman</a>
         <a href="/estimasi-layout/mockup.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🎨 mockup</a>
       </nav>
     </aside>
+
     <main class="flex-1 p-6 overflow-y-auto">
       <h1 class="text-2xl font-bold mb-4 text-blue-700">Shuffle Pages</h1>
       <p class="text-sm text-gray-600 mb-4">Tambahkan fitur pengurutan ulang halaman di sini</p>
+
       <div class="bg-white rounded-lg shadow p-6 w-fit mx-auto">
         <table class="mb-4">
           <tr>
@@ -68,11 +54,11 @@
             </td>
           </tr>
           <tr>
-            <td class="pr-2 py-3 block font-semibold">Baris&nbsp;&nbsp;&nbsp;&nbsp;&#x2B07;</td>
+            <td class="pr-2 py-3 block font-semibold">Baris</td>
             <td><input id="baris" type="number" class="ml-2 p-1 border rounded w-64" /></td>
           </tr>
           <tr>
-            <td class="pr-2 py-3 block font-semibold">Kolom &#x27A1;</td>
+            <td class="pr-2 py-3 block font-semibold">Kolom</td>
             <td><input id="kolom" type="number" class="ml-2 p-1 border rounded w-64" /></td>
           </tr>
           <tr>
@@ -114,6 +100,8 @@
   </div>
 
   <script>
+    const rotasiStatus = {}; // menyimpan status rotasi tiap halaman
+
     window.onload = function () {
       const modal = document.getElementById("customAlert");
       const alertBox = document.getElementById("alertBox");
@@ -121,7 +109,6 @@
 
       function showAlert(pesan, tipe = "error") {
         document.getElementById("alertMessage").textContent = pesan;
-
         if (tipe === "success") {
           alertTitle.textContent = "BERHASIL!";
           alertTitle.className = "text-lg font-bold text-blue-600 mb-2";
@@ -130,11 +117,8 @@
           alertTitle.textContent = "PERINGATAN!";
           alertTitle.className = "text-lg font-bold text-red-600 mb-2";
         }
-
         modal.classList.remove("hidden");
-        requestAnimationFrame(() => {
-          alertBox.classList.add("modal-show");
-        });
+        requestAnimationFrame(() => alertBox.classList.add("modal-show"));
       }
 
       function tutupAlert() {
@@ -156,61 +140,10 @@
             } else {
               index = balikKolom ? (r * kolom + (kolom - 1 - c)) : (r * kolom + c);
             }
-            if (index < list.length) {
-              matrix[r][c] = list[index];
-            }
+            if (index < list.length) matrix[r][c] = list[index];
           }
         }
         return { matrix };
-      }
-
-      function buatAcuan() {
-        const isiHalaman = parseInt(document.getElementById("isiHalaman").value);
-        const posisi = document.getElementById("posisi").value;
-        const baris = parseInt(document.getElementById("baris").value);
-        const kolom = parseInt(document.getElementById("kolom").value);
-        const slide = document.getElementById("slide").value;
-        const showSlide = document.getElementById("toggleSlide").checked;
-
-        let totalHalaman = (slide === "2 Sisi") ? isiHalaman * 2 : isiHalaman;
-        let angkaList = Array.from({ length: totalHalaman }, (_, i) => i + 1);
-        let output = document.getElementById("output");
-        output.innerHTML = "";
-
-        let hasilGabung = [];
-
-        if (!isiHalaman || !posisi || !baris || !kolom || !slide) {
-          showAlert("Mohon lengkapi semua input shuffle pages!");
-          return;
-        }
-
-        if (slide === "1 Sisi") {
-          const { matrix } = buatMatrix(angkaList, baris, kolom, posisi);
-          if (showSlide) output.appendChild(buatTabel(matrix, "Slide 1"));
-          matrix.forEach(row => hasilGabung.push(...row));
-        } else {
-          const ganjilList = angkaList.filter(n => n % 2 === 1);
-          const genapList = angkaList.filter(n => n % 2 === 0);
-
-          const { matrix: matrix1 } = buatMatrix(ganjilList, baris, kolom, posisi);
-          if (showSlide) output.appendChild(buatTabel(matrix1, "Slide 1 (Ganjil)"));
-          matrix1.forEach(row => hasilGabung.push(...row));
-
-          const { matrix: matrix2 } = buatMatrix(genapList, baris, kolom, posisi, true);
-          if (showSlide) output.appendChild(buatTabel(matrix2, "Slide 2 (Genap - Kolom Dibalik)"));
-          matrix2.forEach(row => hasilGabung.push(...row));
-        }
-
-        const hasilText = document.createElement("div");
-        hasilText.className = "mt-6 p-4 bg-gray-50 border rounded flex justify-between items-start gap-4";
-        hasilText.innerHTML = `
-          <div>
-            <strong>Gabungan Halaman:</strong><br>
-            <span id="hasilText">${hasilGabung.join(" ")}</span>
-          </div>
-          <button onclick="copyHasil()" class="text-blue-600 hover:text-blue-800 text-sm">📋 Copy</button>
-        `;
-        output.appendChild(hasilText);
       }
 
       function buatTabel(matrix, title) {
@@ -224,7 +157,14 @@
           row.forEach(cell => {
             const td = document.createElement("td");
             td.className = "border p-1";
-            td.textContent = cell;
+            td.innerHTML = `
+              <div class="rotate-box">
+                <div>${cell}</div>
+                <label class="flex items-center gap-1 text-xs">
+                  <input type="checkbox" class="rotate-checkbox accent-blue-600" data-page="${cell}" ${rotasiStatus[cell] ? "checked" : ""}> 180°
+                </label>
+              </div>
+            `;
             tr.appendChild(td);
           });
           table.appendChild(tr);
@@ -234,11 +174,69 @@
         return wrapper;
       }
 
+      function buatAcuan() {
+        const isiHalaman = parseInt(document.getElementById("isiHalaman").value);
+        const posisi = document.getElementById("posisi").value;
+        const baris = parseInt(document.getElementById("baris").value);
+        const kolom = parseInt(document.getElementById("kolom").value);
+        const slide = document.getElementById("slide").value;
+        const showSlide = document.getElementById("toggleSlide").checked;
+
+        if (!isiHalaman || !posisi || !baris || !kolom || !slide) {
+          showAlert("Mohon lengkapi semua input shuffle pages!");
+          return;
+        }
+
+        const totalHalaman = (slide === "2 Sisi") ? isiHalaman * 2 : isiHalaman;
+        const angkaList = Array.from({ length: totalHalaman }, (_, i) => i + 1);
+        const output = document.getElementById("output");
+        output.innerHTML = "";
+
+        let hasilGabung = [];
+
+        if (slide === "1 Sisi") {
+          const { matrix } = buatMatrix(angkaList, baris, kolom, posisi);
+          if (showSlide) output.appendChild(buatTabel(matrix, "Slide 1"));
+          matrix.forEach(row => hasilGabung.push(...row));
+        } else {
+          const ganjilList = angkaList.filter(n => n % 2 === 1);
+          const genapList = angkaList.filter(n => n % 2 === 0);
+          const { matrix: matrix1 } = buatMatrix(ganjilList, baris, kolom, posisi);
+          if (showSlide) output.appendChild(buatTabel(matrix1, "Slide 1 (Ganjil)"));
+          matrix1.forEach(row => hasilGabung.push(...row));
+          const { matrix: matrix2 } = buatMatrix(genapList, baris, kolom, posisi, true);
+          if (showSlide) output.appendChild(buatTabel(matrix2, "Slide 2 (Genap - Kolom Dibalik)"));
+          matrix2.forEach(row => hasilGabung.push(...row));
+        }
+
+        const hasilText = document.createElement("div");
+        hasilText.className = "mt-6 p-4 bg-gray-50 border rounded flex justify-between items-start gap-4";
+        hasilText.innerHTML = `
+          <div>
+            <strong>Gabungan Halaman:</strong><br>
+            <span id="hasilText">${formatGabungan(hasilGabung)}</span>
+          </div>
+          <button onclick="copyHasil()" class="text-blue-600 hover:text-blue-800 text-sm">📋 Copy</button>
+        `;
+        output.appendChild(hasilText);
+
+        // aktifkan event rotasi
+        document.querySelectorAll(".rotate-checkbox").forEach(cb => {
+          cb.addEventListener("change", e => {
+            const page = parseInt(e.target.dataset.page);
+            rotasiStatus[page] = e.target.checked;
+            document.getElementById("hasilText").textContent = formatGabungan(hasilGabung);
+          });
+        });
+      }
+
+      function formatGabungan(list) {
+        return list.map(n => (rotasiStatus[n] ? n + "*" : n)).join(" ");
+      }
+
       function copyHasil() {
         const text = document.getElementById("hasilText").textContent;
-        navigator.clipboard.writeText(text).then(() => {
-          showAlert("Hasil gabungan berhasil disalin!", "success");
-        });
+        navigator.clipboard.writeText(text).then(() => showAlert("Hasil gabungan berhasil disalin!", "success"));
       }
 
       function resetForm() {
@@ -249,13 +247,8 @@
         document.getElementById("slide").value = "-- Sided --";
         document.getElementById("toggleSlide").checked = false;
         document.getElementById("output").innerHTML = "";
+        for (const key in rotasiStatus) delete rotasiStatus[key];
       }
-
-      document.addEventListener("keydown", function (e) {
-        if (!modal.classList.contains("hidden") && e.key === "Enter") {
-          tutupAlert();
-        }
-      });
 
       window.buatAcuan = buatAcuan;
       window.resetForm = resetForm;
@@ -264,16 +257,14 @@
       window.showAlert = showAlert;
     };
 
-    // Toggle sidebar (responsive)
+    // Sidebar
     const toggleSidebar = document.getElementById("toggleSidebar");
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("overlay");
-
     toggleSidebar.addEventListener("click", () => {
       sidebar.classList.toggle("-translate-x-full");
       overlay.classList.toggle("hidden");
     });
-
     function tutupSidebar() {
       sidebar.classList.add("-translate-x-full");
       overlay.classList.add("hidden");
