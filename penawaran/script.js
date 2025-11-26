@@ -21,24 +21,27 @@ document.addEventListener("DOMContentLoaded", function () {
     return `${parseInt(d)} ${bulan[parseInt(m)-1]} ${y}`;
   }
 
-  // Format Rupiah
-  function formatRupiah(angka) {
-    angka = angka || 0;
-    angka = (typeof angka === "string") ? angka.replace(/[^\d]/g, "") : angka;
-    angka = parseInt(angka) || 0;
-    return angka.toLocaleString('id-ID');
-  }
+// Fungsi format rupiah, support desimal
+function formatRupiahDesimal(angka) {
+  angka = angka || 0;
+  let num = typeof angka === "string" ? angka.replace(/,/g, ".").replace(/[^\d.]/g, "") : angka;
+  num = parseFloat(num) || 0;
+  // Lokal id-ID default pakai koma sebagai separator desimal
+  return num.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 
-  window.formatInputRupiah = function(input) {
-    let value = input.value.replace(/[^\d]/g, "");
-    if (value === "") value = "0";
-    input.value = formatRupiah(value);
-    if (typeof window.updateSubtotal === "function") window.updateSubtotal();
-  }
+// Fungsi format input, izinkan koma/titik
+window.formatInputRupiah = function(input) {
+  let value = input.value.replace(/,/g, ".").replace(/[^\d.]/g, ""); // Hapus non digit/kecuali titik, konversi koma jadi titik
+  if (value === "") value = "0";
+  input.value = formatRupiahDesimal(value);
+  if (typeof window.updateSubtotal === "function") window.updateSubtotal();
+}
 
-  function getInputNumber(input) {
-    return parseInt(input.value.replace(/[^\d]/g, "")) || 0;
-  }
+// Fungsi ambil angka (support desimal)
+function getInputNumber(input) {
+  return parseFloat(input.value.replace(/,/g, ".").replace(/[^\d.]/g, "")) || 0;
+}
 
   // ====================================
   // Subtotal hitung otomatis
@@ -48,9 +51,9 @@ document.addEventListener("DOMContentLoaded", function () {
       row.querySelector('.row-no').textContent = idx + 1;
       const jumlah = row.querySelector('input[name="jumlah[]"]').valueAsNumber || 0;
       const hargaInput = row.querySelector('input[name="harga[]"]');
-      const harga = getInputNumber(hargaInput);
+      const harga = getInputNumber(hargaInput); // sudah support desimal!
       const rowSubtotal = jumlah * harga;
-      row.querySelector('.subtotal .rp-nominal').innerText = formatRupiah(rowSubtotal);
+      row.querySelector('.subtotal .rp-nominal').innerText = formatRupiahDesimal(rowSubtotal);
       subtotal += rowSubtotal;
     });
 
@@ -65,9 +68,9 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById('formSubtotal').style.display = 'none';
     }
 
-    document.getElementById('subtotalHarga').innerText = "Rp " + formatRupiah(subtotal);
-    document.getElementById('ppnHarga').innerText = "Rp " + formatRupiah(ppn);
-    document.getElementById('totalHarga').innerText = "Rp " + formatRupiah(subtotal + ppn);
+    document.getElementById('subtotalHarga').innerText = "Rp " + formatRupiahDesimal(subtotal);
+    document.getElementById('ppnHarga').innerText = "Rp " + formatRupiahDesimal(ppn);
+    document.getElementById('totalHarga').innerText = "Rp " + formatRupiahDesimal(subtotal + ppn);
   }
 
   // ====================================
@@ -157,8 +160,8 @@ document.addEventListener("DOMContentLoaded", function () {
           <td class="td-center">${idx+1}</td>
           <td>${nama}</td>
           <td class="td-center">${jumlah}</td>
-          <td><div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(harga)}</span></div></td>
-          <td><div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(rowSubtotal)}</span></div></td>
+          <td><div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiahDesimal(harga)}</span></div></td>
+          <td><div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiahDesimal(rowSubtotal)}</span></div></td>
         `;
         pvBody.appendChild(tr);
       });
@@ -174,9 +177,9 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('pv-subtotalRow').style.display = 'none';
       }
 
-      document.getElementById('pv-subtotalHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(subtotal)}</span></div>`;
-      document.getElementById('pv-ppnHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(ppn)}</span></div>`;
-      document.getElementById('pv-totalHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiah(subtotal + ppn)}</span></div>`;
+      document.getElementById('pv-subtotalHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiahDesimal(subtotal)}</span></div>`;
+      document.getElementById('pv-ppnHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiahDesimal(ppn)}</span></div>`;
+      document.getElementById('pv-totalHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiahDesimal(subtotal + ppn)}</span></div>`;
 
       document.querySelectorAll('.sidebar-print-hide').forEach(el => el.style.display = 'none');
       document.getElementById('previewPenawaran').style.display = 'block';
