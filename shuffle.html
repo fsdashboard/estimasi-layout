@@ -1,40 +1,37 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Shuffle Pages</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .modal-enter { opacity: 0; transform: scale(0.95); transition: opacity 0.3s ease, transform 0.3s ease; }
-    .modal-show { opacity: 1; transform: scale(1); }
-    .modal-hide { opacity: 0; transform: scale(0.95); }
+    .modal-show  { opacity: 1; transform: scale(1); }
+    .modal-hide  { opacity: 0; transform: scale(0.95); }
     .rotate-box { font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
     .rotate-row { display:flex; gap:6px; align-items:center; justify-content:center; }
-    .rotate-row label { display:flex; gap:4px; align-items:center; transform: rotate(0deg) !important; }
-    /* ensure checkboxes look consistent */
+    .rotate-row label { display:flex; gap:4px; align-items:center; }
+
+    /* normalize checkboxes so they don't look "miring" */
     input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-        appearance: auto !important;
-        -webkit-appearance: auto !important;
-        transform: none !important;
-        margin: 0 4px;
+      width: 16px;
+      height: 16px;
+      appearance: auto !important;
+      -webkit-appearance: auto !important;
+      transform: none !important;
+      margin: 0 4px;
     }
 
-    /* Fix specifically for any rotated-check visual issues */
-    .rotate-180 { transform: rotate(0deg) !important; }
-    .rotate-row label .rotate-180 { transform: rotate(0deg) !important; }
-
-    /* small tweaks for better table look */
+    /* small table tweaks */
     table.border { border-collapse: collapse; }
     table.border td, table.border th { border: 1px solid #e5e7eb; }
-
-    /* responsive fit */
     .w-fit { max-width: 95vw; }
   </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
+
+  <!-- Sidebar toggle -->
   <button id="toggleSidebar" class="md:hidden text-white text-2xl p-4 fixed z-50 bg-gray-800 top-0 left-0">☰</button>
   <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 md:hidden" onclick="tutupSidebar()"></div>
 
@@ -118,11 +115,11 @@
           </div>
         </div>
       </div>
+
     </main>
   </div>
 
   <script>
-    // sekarang rotasiStatus menyimpan objek per halaman:
     // rotasiStatus[page] = { left90: bool, right90: bool, rot180: bool }
     const rotasiStatus = {};
 
@@ -181,7 +178,6 @@
           row.forEach(cell => {
             const td = document.createElement("td");
             td.className = "border p-1 align-top";
-            // jika cell kosong, tampilkan kosong tanpa checkbox
             if (!cell) {
               td.innerHTML = `<div class="rotate-box"><div>&nbsp;</div></div>`;
             } else {
@@ -189,20 +185,22 @@
                 <div class="rotate-box">
                   <div>${cell}</div>
                   <div class="rotate-row">
-                    <label class="text-xs">
+
+                    <label class="text-xs" title="↺90° (ditampilkan sebagai '<' di hasil)">
                       <input type="checkbox" class="rotate-left accent-blue-600" data-page="${cell}" ${rotasiStatus[cell]?.left90 ? "checked" : ""}>
-                      <span class="ml-1 text-xs">&lt;90°</span>
+                      <span class="ml-1 text-xs">↺90°</span>
                     </label>
 
-                    <label class="text-xs">
+                    <label class="text-xs" title="↻90° (ditampilkan sebagai '>' di hasil)">
                       <input type="checkbox" class="rotate-right accent-blue-600" data-page="${cell}" ${rotasiStatus[cell]?.right90 ? "checked" : ""}>
-                      <span class="ml-1 text-xs">&gt;90°</span>
+                      <span class="ml-1 text-xs">↻90°</span>
                     </label>
 
-                    <label class="text-xs">
+                    <label class="text-xs" title="*180° (ditampilkan sebagai '*' di hasil)">
                       <input type="checkbox" class="rotate-180 accent-blue-600" data-page="${cell}" ${rotasiStatus[cell]?.rot180 ? "checked" : ""}>
                       <span class="ml-1 text-xs">*180°</span>
                     </label>
+
                   </div>
                 </div>
               `;
@@ -251,9 +249,10 @@
           matrix2.forEach(row => hasilGabung.push(...row));
         }
 
-        // pastikan hasilGabung hanya berisi angka valid (skip "")
+        // bersihkan array dari sel kosong
         hasilGabung = hasilGabung.filter(x => x !== "" && x !== null && typeof x !== "undefined");
 
+        // tampilkan hasil gabungan & tombol copy
         const hasilText = document.createElement("div");
         hasilText.className = "mt-6 p-4 bg-gray-50 border rounded flex justify-between items-start gap-4";
         hasilText.innerHTML = `
@@ -265,90 +264,67 @@
         `;
         output.appendChild(hasilText);
 
-        // pasang event listener rotasi untuk checkbox yang baru dibuat
-        // LEFT 90°
+        // pasang listener pada setiap checkbox di tabel yang baru dibuat
         document.querySelectorAll(".rotate-left").forEach(cb => {
           cb.addEventListener("change", e => {
             const page = parseInt(e.target.dataset.page);
             if (!rotasiStatus[page]) rotasiStatus[page] = { left90:false, right90:false, rot180:false };
 
-            // rule: hanya 1 rotasi aktif -> reset semua, lalu set jika dicentang
+            // hanya 1 rotasi aktif => reset lalu set bila dicentang
             rotasiStatus[page] = { left90:false, right90:false, rot180:false };
+            if (e.target.checked) rotasiStatus[page].left90 = true;
 
-            if (e.target.checked) {
-              rotasiStatus[page].left90 = true;
-            }
-
-            // sinkronkan DOM (pastikan checkbox sesuai data)
             syncCheckboxGroup(page);
-
             document.getElementById("hasilText").textContent = formatGabungan(hasilGabung);
           });
         });
 
-        // RIGHT 90°
         document.querySelectorAll(".rotate-right").forEach(cb => {
           cb.addEventListener("change", e => {
             const page = parseInt(e.target.dataset.page);
             if (!rotasiStatus[page]) rotasiStatus[page] = { left90:false, right90:false, rot180:false };
 
             rotasiStatus[page] = { left90:false, right90:false, rot180:false };
-
-            if (e.target.checked) {
-              rotasiStatus[page].right90 = true;
-            }
+            if (e.target.checked) rotasiStatus[page].right90 = true;
 
             syncCheckboxGroup(page);
-
             document.getElementById("hasilText").textContent = formatGabungan(hasilGabung);
           });
         });
 
-        // 180°
         document.querySelectorAll(".rotate-180").forEach(cb => {
           cb.addEventListener("change", e => {
             const page = parseInt(e.target.dataset.page);
             if (!rotasiStatus[page]) rotasiStatus[page] = { left90:false, right90:false, rot180:false };
 
             rotasiStatus[page] = { left90:false, right90:false, rot180:false };
-
-            if (e.target.checked) {
-              rotasiStatus[page].rot180 = true;
-            }
+            if (e.target.checked) rotasiStatus[page].rot180 = true;
 
             syncCheckboxGroup(page);
-
             document.getElementById("hasilText").textContent = formatGabungan(hasilGabung);
           });
         });
 
         // copy button
-        document.getElementById("copyBtn").addEventListener("click", () => {
-          copyHasil();
-        });
+        document.getElementById("copyBtn").addEventListener("click", copyHasil);
       }
 
-      // fungsi bantu: sinkronkan DOM checkbox sesuai rotasiStatus
+      // sinkron DOM checkbox sesuai rotasiStatus
       function syncCheckboxGroup(page) {
         const r = rotasiStatus[page] || { left90:false, right90:false, rot180:false };
         document.querySelectorAll(`[data-page="${page}"]`).forEach(cb => {
-          if (cb.classList.contains("rotate-left")) {
-            cb.checked = !!r.left90;
-          } else if (cb.classList.contains("rotate-right")) {
-            cb.checked = !!r.right90;
-          } else if (cb.classList.contains("rotate-180")) {
-            cb.checked = !!r.rot180;
-          }
+          if (cb.classList.contains("rotate-left")) cb.checked = !!r.left90;
+          else if (cb.classList.contains("rotate-right")) cb.checked = !!r.right90;
+          else if (cb.classList.contains("rotate-180")) cb.checked = !!r.rot180;
         });
       }
 
+      // format gabungan: tetap pakai simbol < > *
       function formatGabungan(list) {
-        // list = [1,8,2,7,...]
         return list.map(n => {
           const r = rotasiStatus[n];
           let txt = String(n);
           if (r) {
-            // hanya satu simbol akan aktif (sesuai requirement)
             if (r.left90) txt += "<";
             else if (r.right90) txt += ">";
             else if (r.rot180) txt += "*";
@@ -359,8 +335,9 @@
 
       function copyHasil() {
         const text = document.getElementById("hasilText").textContent;
-        navigator.clipboard.writeText(text).then(() => showAlert("Hasil gabungan berhasil disalin!", "success"))
-        .catch(() => showAlert("Gagal menyalin ke clipboard (izin ditolak)."));
+        navigator.clipboard.writeText(text)
+          .then(() => showAlert("Hasil gabungan berhasil disalin!", "success"))
+          .catch(() => showAlert("Gagal menyalin ke clipboard (izin ditolak)."));
       }
 
       function resetForm() {
@@ -374,15 +351,15 @@
         for (const key in rotasiStatus) delete rotasiStatus[key];
       }
 
-      // expose some functions to global scope (seperti di script aslinya)
+      // expose functions
       window.buatAcuan = buatAcuan;
       window.resetForm = resetForm;
       window.copyHasil = copyHasil;
       window.tutupAlert = tutupAlert;
       window.showAlert = showAlert;
-    };
+    }; // end window.onload
 
-    // Sidebar toggle (tetap sama)
+    // sidebar toggle
     const toggleSidebar = document.getElementById("toggleSidebar");
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("overlay");
