@@ -10,11 +10,28 @@
     .modal-show { opacity: 1; transform: scale(1); }
     .modal-hide { opacity: 0; transform: scale(0.95); }
     .rotate-box { font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .rotate-row { display:flex; gap:6px; align-items:center; }
-    .rotate-row label { display:flex; gap:4px; align-items:center; }
+    .rotate-row { display:flex; gap:6px; align-items:center; justify-content:center; }
+    .rotate-row label { display:flex; gap:4px; align-items:center; transform: rotate(0deg) !important; }
+    /* ensure checkboxes look consistent */
+    input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        appearance: auto !important;
+        -webkit-appearance: auto !important;
+        transform: none !important;
+        margin: 0 4px;
+    }
+
+    /* Fix specifically for any rotated-check visual issues */
+    .rotate-180 { transform: rotate(0deg) !important; }
+    .rotate-row label .rotate-180 { transform: rotate(0deg) !important; }
+
     /* small tweaks for better table look */
     table.border { border-collapse: collapse; }
     table.border td, table.border th { border: 1px solid #e5e7eb; }
+
+    /* responsive fit */
+    .w-fit { max-width: 95vw; }
   </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -249,29 +266,58 @@
         output.appendChild(hasilText);
 
         // pasang event listener rotasi untuk checkbox yang baru dibuat
+        // LEFT 90°
         document.querySelectorAll(".rotate-left").forEach(cb => {
           cb.addEventListener("change", e => {
             const page = parseInt(e.target.dataset.page);
             if (!rotasiStatus[page]) rotasiStatus[page] = { left90:false, right90:false, rot180:false };
-            rotasiStatus[page].left90 = e.target.checked;
+
+            // rule: hanya 1 rotasi aktif -> reset semua, lalu set jika dicentang
+            rotasiStatus[page] = { left90:false, right90:false, rot180:false };
+
+            if (e.target.checked) {
+              rotasiStatus[page].left90 = true;
+            }
+
+            // sinkronkan DOM (pastikan checkbox sesuai data)
+            syncCheckboxGroup(page);
+
             document.getElementById("hasilText").textContent = formatGabungan(hasilGabung);
           });
         });
 
+        // RIGHT 90°
         document.querySelectorAll(".rotate-right").forEach(cb => {
           cb.addEventListener("change", e => {
             const page = parseInt(e.target.dataset.page);
             if (!rotasiStatus[page]) rotasiStatus[page] = { left90:false, right90:false, rot180:false };
-            rotasiStatus[page].right90 = e.target.checked;
+
+            rotasiStatus[page] = { left90:false, right90:false, rot180:false };
+
+            if (e.target.checked) {
+              rotasiStatus[page].right90 = true;
+            }
+
+            syncCheckboxGroup(page);
+
             document.getElementById("hasilText").textContent = formatGabungan(hasilGabung);
           });
         });
 
+        // 180°
         document.querySelectorAll(".rotate-180").forEach(cb => {
           cb.addEventListener("change", e => {
             const page = parseInt(e.target.dataset.page);
             if (!rotasiStatus[page]) rotasiStatus[page] = { left90:false, right90:false, rot180:false };
-            rotasiStatus[page].rot180 = e.target.checked;
+
+            rotasiStatus[page] = { left90:false, right90:false, rot180:false };
+
+            if (e.target.checked) {
+              rotasiStatus[page].rot180 = true;
+            }
+
+            syncCheckboxGroup(page);
+
             document.getElementById("hasilText").textContent = formatGabungan(hasilGabung);
           });
         });
@@ -282,16 +328,30 @@
         });
       }
 
+      // fungsi bantu: sinkronkan DOM checkbox sesuai rotasiStatus
+      function syncCheckboxGroup(page) {
+        const r = rotasiStatus[page] || { left90:false, right90:false, rot180:false };
+        document.querySelectorAll(`[data-page="${page}"]`).forEach(cb => {
+          if (cb.classList.contains("rotate-left")) {
+            cb.checked = !!r.left90;
+          } else if (cb.classList.contains("rotate-right")) {
+            cb.checked = !!r.right90;
+          } else if (cb.classList.contains("rotate-180")) {
+            cb.checked = !!r.rot180;
+          }
+        });
+      }
+
       function formatGabungan(list) {
         // list = [1,8,2,7,...]
         return list.map(n => {
           const r = rotasiStatus[n];
           let txt = String(n);
           if (r) {
-            // tambahkan simbol setelah angka dalam urutan: <, >, *
+            // hanya satu simbol akan aktif (sesuai requirement)
             if (r.left90) txt += "<";
-            if (r.right90) txt += ">";
-            if (r.rot180) txt += "*";
+            else if (r.right90) txt += ">";
+            else if (r.rot180) txt += "*";
           }
           return txt;
         }).join(" ");
