@@ -27,6 +27,14 @@
     table.border { border-collapse: collapse; }
     table.border td, table.border th { border: 1px solid #e5e7eb; }
     .w-fit { max-width: 95vw; }
+
+    /* sidebar submenu styles */
+    .sidebar-submenu { background: #2d3748; } /* tailwind gray-800-ish */
+    .sidebar-submenu a.active { background: #1f2937; color: #fff; }
+    .sidebar-parent.active { background: #111827; color: #fff; } /* when parent active */
+
+    /* ensure hidden utility (in case tailwind not loaded yet) */
+    .hidden { display: none !important; }
   </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -36,6 +44,7 @@
   <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 md:hidden" onclick="tutupSidebar()"></div>
 
   <div class="flex h-screen">
+    <!-- SIDEBAR: modified to include collapsible submenu for Shuffle Pages -->
     <aside id="sidebar" class="w-64 bg-gray-800 text-white flex flex-col fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50 md:relative">
       <div class="p-4 text-xl font-bold border-b border-gray-700">Estimasi Online</div>
       <nav class="flex-1 p-4 space-y-2 text-sm">
@@ -45,7 +54,26 @@
         <a href="/estimasi-layout/buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📘 Buku</a>
         <a href="/estimasi-layout/spanduk.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🖼️ Spanduk</a>
         <a href="/estimasi-layout/adjust-size.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🔧 Adjust Size</a>
-        <a href="/estimasi-layout/shuffle.html" class="block p-2 font-semibold rounded hover:bg-gray-700 bg-gray-900">📄 Shuffle Pages</a>
+
+        <!-- Shuffle Pages parent with collapsible submenu.
+             Keeps visual "active" style similar to your example (parent highlighted when submenu active). -->
+        <div>
+          <button id="shuffleParentBtn" onclick="toggleShuffleSubmenu()" class="w-full flex items-center justify-between p-2 rounded sidebar-parent">
+            <span class="flex items-center gap-2">
+              <span>📄</span>
+              <span class="font-semibold">Shuffle Pages</span>
+            </span>
+            <span id="shuffleIcon">-</span>
+          </button>
+
+          <ul id="shuffleSubmenu" class="mt-1 sidebar-submenu hidden">
+            <li>
+
+              <a href="#" id="linkOrganize" class="block px-6 py-2 hover:bg-gray-700" onclick="openOrganize(event)">Organize Pages</a>
+            </li>
+          </ul>
+        </div>
+
         <a href="/estimasi-layout/penawaran/penawaran.html" class="block p-2 font-semibold rounded hover:bg-gray-700">💰 Penawaran</a>
         <a href="/estimasi-layout/pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🚚 Pengiriman</a>
         <a href="/estimasi-layout/mockup.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🎨 mockup</a>
@@ -56,7 +84,8 @@
       <h1 class="text-2xl font-bold mb-4 text-blue-700">Shuffle Pages</h1>
       <p class="text-sm text-gray-600 mb-4">Tambahkan fitur pengurutan ulang halaman di sini</p>
 
-      <div class="bg-white rounded-lg shadow p-6 w-fit mx-auto">
+      <!-- ORIGINAL SHUFFLE CONTENT (unchanged) -->
+      <div id="shuffleContent" class="bg-white rounded-lg shadow p-6 w-fit mx-auto">
         <table class="mb-4">
           <tr>
             <td class="pr-2 py-3 block font-semibold">Jumlah Halaman</td>
@@ -105,6 +134,37 @@
         <div id="output" class="mt-6 space-y-6"></div>
       </div>
 
+      <!-- ORGANIZE SECTION (hidden by default) -->
+      <div id="organizeSection" class="hidden mt-8">
+        <div class="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
+          <h2 class="text-xl font-bold mb-3">Organize Pages (Tool)</h2>
+
+          <label class="block mb-2">Sampai angka berapa? (wajib)</label>
+          <input id="batas" type="number" class="border p-2 w-full mb-3" placeholder="contoh: 70">
+
+          <label class="block mb-2">Kelipatan berapa? (wajib)</label>
+          <input id="kelipatan" type="number" class="border p-2 w-full mb-3" placeholder="contoh: 7">
+
+          <label class="block mb-2">Tambahkan halaman sebelum kelipatan? (opsional)</label>
+          <input id="tambahan" type="number" class="border p-2 w-full mb-3" placeholder="contoh: 3">
+
+          <div class="flex gap-3">
+            <button onclick="generateOrganize()" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Generate</button>
+            <button onclick="clearOrganize()" class="bg-gray-500 text-white px-4 py-2 rounded w-full">Clear</button>
+          </div>
+
+          <div class="mt-4">
+            <h3 class="font-semibold mb-2">Hasil:</h3>
+            <textarea id="hasilOrganize" class="w-full border p-2 h-28 rounded" readonly></textarea>
+          </div>
+
+          <button onclick="copyOrganize()" class="bg-green-600 text-white px-4 py-2 rounded w-full mt-3">Copy Hasil</button>
+          <p id="notifOrganize" class="text-green-600 mt-2 text-sm hidden">✔ Berhasil dicopy!</p>
+          <p id="warningOrganize" class="text-red-600 mt-2 text-sm hidden">Isi semua input wajib!</p>
+
+        </div>
+      </div>
+
       <!-- Modal Alert -->
       <div id="customAlert" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
         <div id="alertBox" class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full modal-enter">
@@ -120,10 +180,95 @@
   </div>
 
   <script>
+    /* ===========================
+       CONTROL: show/hide sections
+       =========================== */
+
+    // convenience references
+    const shuffleContent = document.getElementById("shuffleContent");
+    const organizeSection = document.getElementById("organizeSection");
+    const linkOrganize = document.getElementById("linkOrganize");
+    const linkShuffle = document.getElementById("linkShuffle");
+    const shuffleParentBtn = document.getElementById("shuffleParentBtn");
+    const shuffleSubmenu = document.getElementById("shuffleSubmenu");
+    const shuffleIcon = document.getElementById("shuffleIcon");
+
+    // ensure initial state: show shuffle, hide organize
+    function initView() {
+      shuffleContent.classList.remove("hidden");
+      organizeSection.classList.add("hidden");
+      // hide submenu by default (can be changed)
+      // keep submenu visible so user can access items — here we keep it shown to mimic previous
+      // but if hidden by default desired, uncomment next line:
+      // shuffleSubmenu.classList.add('hidden');
+      // set icons / active classes
+      shuffleIcon.textContent = shuffleSubmenu.classList.contains('hidden') ? '+' : '-';
+      linkOrganize.classList.remove('active');
+    }
+
+    // show shuffle and hide organize
+    function showShuffle(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      shuffleContent.classList.remove("hidden");
+      organizeSection.classList.add("hidden");
+      // highlight states
+      linkOrganize.classList.remove('active');
+      shuffleParentBtn.classList.add('sidebar-parent','active');
+      // ensure submenu open so user sees items
+      shuffleSubmenu.classList.remove('hidden');
+      shuffleIcon.textContent = '-';
+    }
+
+    // show organize and hide shuffle
+    function openOrganize(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      shuffleContent.classList.add("hidden");
+      organizeSection.classList.remove("hidden");
+      // highlight submenu item
+      document.querySelectorAll('#shuffleSubmenu a').forEach(a => a.classList.remove('active'));
+      linkOrganize.classList.add('active');
+      shuffleParentBtn.classList.add('sidebar-parent','active');
+      shuffleSubmenu.classList.remove('hidden');
+      shuffleIcon.textContent = '-';
+      // scroll into view for convenience
+      organizeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // toggle submenu: also ensure view consistent (open submenu -> show shuffle by default)
+    function toggleShuffleSubmenu() {
+      if (shuffleSubmenu.classList.contains('hidden')) {
+        shuffleSubmenu.classList.remove('hidden');
+        shuffleIcon.textContent = '-';
+        // when opening submenu by clicking parent, show Shuffle content
+        showShuffle();
+      } else {
+        shuffleSubmenu.classList.add('hidden');
+        shuffleIcon.textContent = '+';
+        // keep both hidden? keep shuffle open for usability — do not hide shuffle here
+      }
+    }
+
+    // Sidebar mobile toggle
+    document.getElementById("toggleSidebar").addEventListener("click", () => {
+      document.getElementById("sidebar").classList.toggle("-translate-x-full");
+      document.getElementById("overlay").classList.toggle("hidden");
+    });
+    function tutupSidebar() {
+      document.getElementById("sidebar").classList.add("-translate-x-full");
+      document.getElementById("overlay").classList.add("hidden");
+    }
+
+    /* ===========================
+       PRESERVE ORIGINAL rotasiStatus & shuffle logic
+       =========================== */
+
     // rotasiStatus[page] = { left90: bool, right90: bool, rot180: bool }
     const rotasiStatus = {};
 
     window.onload = function () {
+      // initialize view
+      initView();
+
       const modal = document.getElementById("customAlert");
       const alertBox = document.getElementById("alertBox");
       const alertTitle = document.getElementById("alertTitle");
@@ -359,7 +504,7 @@
       window.showAlert = showAlert;
     }; // end window.onload
 
-    // sidebar toggle
+    // === Sidebar toggle (preserve original handlers) ===
     const toggleSidebar = document.getElementById("toggleSidebar");
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("overlay");
@@ -371,6 +516,93 @@
       sidebar.classList.add("-translate-x-full");
       overlay.classList.add("hidden");
     }
+
+    // === New: submenu toggle + organize section handlers ===
+    // Note: functions declared earlier (openOrganize, toggleShuffleSubmenu) are used in HTML onclicks.
+    // We keep them global here.
+
+    // toggleShuffleSubmenu defined earlier as function inlined in HTML -> re-declare to ensure updated behavior:
+    function toggleShuffleSubmenu() {
+      if (shuffleSubmenu.classList.contains('hidden')) {
+        shuffleSubmenu.classList.remove('hidden');
+        shuffleIcon.textContent = '-';
+        // show Shuffle content when submenu opened
+        showShuffle();
+      } else {
+        shuffleSubmenu.classList.add('hidden');
+        shuffleIcon.textContent = '+';
+      }
+    }
+
+    // showShuffle and openOrganize are already declared above; ensure global binding:
+    // (we re-assign so HTML's onclick finds them)
+    window.showShuffle = showShuffle;
+    window.openOrganize = openOrganize;
+    window.toggleShuffleSubmenu = toggleShuffleSubmenu;
+
+    // Optionally hide organize section (if you want a Close later)
+    function closeOrganize() {
+      document.getElementById('organizeSection').classList.add('hidden');
+      document.getElementById('linkOrganize').classList.remove('active');
+      document.getElementById("shuffleParentBtn").classList.remove('sidebar-parent','active');
+    }
+    window.closeOrganize = closeOrganize;
+
+    // === Organize Pages tool logic (separate from shuffle) ===
+    function generateOrganize() {
+      const batas = parseInt(document.getElementById('batas').value);
+      const kelipatan = parseInt(document.getElementById('kelipatan').value);
+      let tambahan = document.getElementById('tambahan').value;
+
+      // Jika opsional kosong → otomatis 0
+      tambahan = tambahan === "" ? 0 : parseInt(tambahan);
+
+      const warning = document.getElementById("warningOrganize");
+
+      // Validasi input wajib
+      if (!batas || !kelipatan || batas <= 0 || kelipatan <= 0) {
+        warning.classList.remove("hidden");
+        document.getElementById('hasilOrganize').value = "";
+        return;
+      } else {
+        warning.classList.add("hidden");
+      }
+
+      let hasil = [];
+
+      // Loop kelipatan
+      for (let i = kelipatan; i <= batas; i += kelipatan) {
+        let start = i - tambahan;
+
+        if (start < 1) start = 1;
+
+        for (let x = start; x <= i; x++) {
+          hasil.push(x);
+        }
+      }
+
+      document.getElementById('hasilOrganize').value = hasil.join(",");
+    }
+
+    function copyOrganize() {
+      const text = document.getElementById("hasilOrganize").value;
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const notif = document.getElementById("notifOrganize");
+        notif.classList.remove("hidden");
+        setTimeout(() => notif.classList.add("hidden"), 1500);
+      });
+    }
+
+    function clearOrganize() {
+      document.getElementById('batas').value = "";
+      document.getElementById('kelipatan').value = "";
+      document.getElementById('tambahan').value = "";
+      document.getElementById('hasilOrganize').value = "";
+      document.getElementById("warningOrganize").classList.add("hidden");
+      document.getElementById("notifOrganize").classList.add("hidden");
+    }
+
   </script>
 </body>
 </html>
