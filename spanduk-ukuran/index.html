@@ -139,19 +139,6 @@
       width: '100%'
     });
 
-    // AUTO FOCUS ke search box saat dropdown dibuka
-    $('#bahan').on('select2:open', function () {
-      document.querySelector('.select2-search__field').focus();
-    });
-  });
-
-  $(document).ready(function () {
-    $('#bahan').select2({
-      placeholder: 'Cari produk',
-      allowClear: true,
-      width: '100%'
-    });
-
     // Auto focus search
     $('#bahan').on('select2:open', function () {
       document.querySelector('.select2-search__field')?.focus();
@@ -169,4 +156,5 @@
 </script>
 
 </body>
+
 </html>
