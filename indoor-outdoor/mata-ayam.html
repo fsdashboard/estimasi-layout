@@ -1,0 +1,68 @@
+<!-- mata-ayam.html : KONTEN SPANDUK 2 -->
+
+<div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
+
+  <h1 class="text-xl font-bold mb-4">Hitung Mata Ayam</h1>
+
+  <table class="mb-4 w-full">
+    <tr>
+      <td class="pr-4 py-3 font-semibold align-top">
+        Ukuran Jadi (cm):
+      </td>
+      <td class="py-2">
+        <div class="flex w-[300px]">
+          <input id="spanduk-panjang" type="number" placeholder="Panjang"
+            class="p-1 border rounded w-1/2 mr-1" />
+          <span class="flex items-center px-1">x</span>
+          <input id="spanduk-lebar" type="number" placeholder="Lebar"
+            class="p-1 border rounded w-1/2 ml-1" />
+        </div>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="pr-4 py-3 font-semibold">
+        Jumlah Cetak:
+      </td>
+      <td class="py-2">
+        <input id="spanduk-jumlah" type="number"
+          class="p-1 border rounded w-[300px]" />
+      </td>
+    </tr>
+
+    <tr>
+      <td class="pr-4 py-3 font-semibold">
+        Fins / M-A Keliling (cm):
+      </td>
+      <td class="py-2">
+        <input id="spanduk-fins" type="number"
+          class="p-1 border rounded w-[300px]" />
+      </td>
+    </tr>
+
+    <!-- HASIL -->
+    <tr id="hasilSection" class="hidden">
+      <td class="pr-4 py-3 font-semibold">
+        Tambahan M/A:
+      </td>
+      <td class="py-2">
+        <input id="spanduk-totalma" type="text"
+          class="p-1 border rounded w-[300px] bg-gray-100"
+          readonly />
+      </td>
+    </tr>
+  </table>
+
+  <div class="mt-3 flex gap-2">
+    <button onclick="hitungSpanduk()"
+      class="px-4 py-2 bg-blue-600 text-white rounded">
+      Hitung
+    </button>
+
+    <button onclick="resetSpandukForm()"
+      class="px-4 py-2 bg-gray-500 text-white rounded">
+      Reset
+    </button>
+  </div>
+
+</div>

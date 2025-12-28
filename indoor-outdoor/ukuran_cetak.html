@@ -1,0 +1,114 @@
+﻿<!-- index.html : KONTEN SPANDUK (HTML FRAGMENT) -->
+
+<div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
+
+  <h1 class="text-xl font-bold mb-4">Hitung Ukuran Cetak</h1>
+
+  <div class="mb-3">
+    <label class="block text-sm font-medium mb-1">
+      Panjang Desain (m)
+    </label>
+    <input
+      id="panjang"
+      type="number"
+      step="0.01"
+      class="w-full border p-2 rounded"
+    >
+  </div>
+
+  <div class="mb-3">
+    <label class="block text-sm font-medium mb-1">
+      Lebar Desain (m)
+    </label>
+    <input
+      id="lebar"
+      type="number"
+      step="0.01"
+      class="w-full border p-2 rounded"
+    >
+  </div>
+
+  <div class="mb-4">
+  <label class="block text-sm font-medium mb-1">
+    Jenis Bahan
+  </label>
+
+    <select id="bahan"
+    class="w-full select2"
+    data-placeholder="Pilih jenis bahan">
+      <option value=""></option>
+      <option value="china280">Flexi China 280gsm</option>
+      <option value="china340">Flexi China 340gsm</option>
+      <option value="korea">Flexi Korea 440gsm</option>
+      <option value="germany">Flexi Germany 510gsm</option>
+
+      <option value="backlitechina">Backlite China 510gsm</option>
+      <option value="backliteduratan">Backlite Duratran</option>
+
+      <option value="satinclouth">Satin Clouth</option>
+      <option value="albatros">Albatros</option>
+      <option value="photopaper">Photo Paper</option>
+      <option value="posterpaper">Poster Paper</option>
+      <option value="canvas">Canvas</option>
+      <option value="luster">Luster</option>
+
+      <option value="stickeralbatros">Sticker Albatros</option>
+      <option value="stickercamel">Sticker Camel</option>
+      <option value="stickerhologram">Sticker Hologram</option>
+      <option value="stickeroneway">Sticker One Way</option>
+      <option value="stickerpolytape">Sticker Polytape</option>
+      <option value="stickerritrama">Sticker Ritrama</option>
+      <option value="stickerritramatrf">Sticker Ritrama TRF</option>
+      <option value="stickersunblash">Sticker Sunblash</option>
+      <option value="stickervinilchina">Sticker Vinil China</option>
+
+      <option value="wallpaper">Wallpaper</option>
+      <option value="laminatingdoff">Laminating Doff</option>
+      <option value="laminatingglossy">Laminating Glossy</option>
+    </select>
+  </div>
+
+  <div class="flex gap-3">
+    <button
+      type="button"
+      onclick="hitung()"
+      class="flex-1 bg-blue-600 text-white py-2 rounded"
+    >
+      Hitung
+    </button>
+
+    <button
+      type="button"
+      onclick="resetForm()"
+      class="flex-1 bg-gray-300 text-gray-800 py-2 rounded"
+    >
+      Reset
+    </button>
+  </div>
+
+  <div
+    id="hasil"
+    class="mt-5 bg-gray-50 p-4 rounded hidden"
+  >
+    <p>
+      <strong>Ukuran Cetak Produksi:</strong>
+      <span id="ukuranCetak"></span>
+    </p>
+
+    <p>
+      <strong>Jumlah Potongan:</strong>
+      <span id="jumlahPanel"></span>
+    </p>
+
+    <p>
+      <strong>Ukuran per Potong:</strong>
+      <span id="ukuranPanel"></span>
+    </p>
+
+    <p
+      id="keterangan"
+      class="text-sm text-gray-600 mt-2"
+    ></p>
+  </div>
+
+</div>

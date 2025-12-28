@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Indoor/Outdoor</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- Select2 -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+  <style>
+    .modal-enter {
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .modal-show {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .modal-hide {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+      /* ===== BASE SELECT2 (SAMAKAN DENGAN INPUT TAILWIND) ===== */
+  .select2-container--default .select2-selection--single {
+    height: 42px;
+    border: 1px solid #d1d5db; /* border-gray-300 */
+    border-radius: 0.375rem;  /* rounded */
+    padding: 6px 10px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+  }
+
+  /* ===== TEKS VALUE ===== */
+  .select2-selection__rendered {
+    line-height: normal !important;
+    padding-left: 0 !important;
+    padding-right: 4.5rem !important; /* ruang untuk ❌ + ▼ */
+  }
+
+  /* ===== TOMBOL CLEAR (X) ===== */
+  .select2-container--default
+  .select2-selection--single
+  .select2-selection__clear {
+    position: absolute;
+    right: 36px; /* sejajar, di kiri arrow */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #9ca3af;
+    cursor: pointer;
+  }
+
+  .select2-selection__clear:hover {
+    color: #ef4444; /* merah saat hover */
+  }
+
+  /* ===== PANAH DROPDOWN ===== */
+  .select2-container--default
+  .select2-selection--single
+  .select2-selection__arrow {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: auto;
+  }
+
+  /* ===== SEARCH FIELD DI DROPDOWN ===== */
+  .select2-search__field {
+    height: 36px;
+    padding: 6px 10px;
+  }
+  </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+<!-- Toggle Sidebar -->
+<button id="toggleSidebar"
+  class="md:hidden text-white text-2xl p-4 fixed z-50 bg-gray-800 top-0 left-0">☰</button>
+
+<div id="overlay"
+  class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 md:hidden"
+  onclick="tutupSidebar()"></div>
+
+<div class="flex h-screen">
+
+  <!-- Sidebar -->
+  <aside id="sidebar"
+    class="w-64 bg-gray-800 text-white flex flex-col fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50 md:relative">
+
+    <div class="p-4 text-xl font-bold border-b border-gray-700">
+      Estimasi Online
+    </div>
+
+    <nav class="flex-1 p-4 space-y-2 text-sm">
+      <a href="/estimasi-layout/index.html" class="block p-2 rounded hover:bg-gray-700">🏠 Halaman Utama</a>
+      <a href="/estimasi-layout/harga-potong.html" class="block p-2 rounded hover:bg-gray-700">💰 Harga Potong (A3+)</a>
+      <a href="/estimasi-layout/layout-a3.html" class="block p-2 rounded hover:bg-gray-700">📐 Layout A3+</a>
+      <a href="/estimasi-layout/buku/buku.html" class="block p-2 rounded hover:bg-gray-700">📘 Buku</a>
+      <a href="/estimasi-layout/spanduk.html" class="block p-2 rounded hover:bg-gray-700 bg-gray-900">🖼️ Indoor/Outdoor</a>
+      <a href="/estimasi-layout/adjust-size.html" class="block p-2 rounded hover:bg-gray-700">🔧 Adjust Size</a>
+      <a href="/estimasi-layout/shuffle.html" class="block p-2 rounded hover:bg-gray-700">📄 Shuffle Pages</a>
+      <a href="/estimasi-layout/penawaran/penawaran.html" class="block p-2 rounded hover:bg-gray-700">💰 Penawaran</a>
+      <a href="/estimasi-layout/pengiriman.html" class="block p-2 rounded hover:bg-gray-700">🚚 Pengiriman</a>
+      <a href="/estimasi-layout/mockup.html" class="block p-2 rounded hover:bg-gray-700">🎨 Mockup</a>
+    </nav>
+  </aside>
+
+  <!-- Konten -->
+  <main class="flex-1 p-6 overflow-y-auto w-full">
+    <h1 class="text-2xl font-bold mb-4 text-blue-700">Indoor/Outdoor</h1>
+
+    <div class="bg-white rounded-lg shadow p-6 w-full max-w-3xl mx-auto">
+      <div class="flex space-x-2 mb-4">
+        <button id="btn1"
+  class="px-4 py-2 bg-gray-300 text-gray-700 rounded"
+  onclick="tampilkanKonten(1)">
+  Ukuran Cetak
+</button>
+
+<button id="btn2"
+  class="px-4 py-2 bg-gray-300 text-gray-700 rounded"
+  onclick="tampilkanKonten(2)">
+  Mata Ayam
+</button>
+      </div>
+
+      <div id="konten" class="bg-gray-50 p-4 rounded shadow min-h-[200px]">
+        Form akan muncul di sini setelah kamu memilih menu...
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ================= SIDEBAR ================= */
+const toggleSidebar = document.getElementById("toggleSidebar");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+
+toggleSidebar.addEventListener("click", () => {
+  sidebar.classList.toggle("-translate-x-full");
+  overlay.classList.toggle("hidden");
+});
+
+function tutupSidebar() {
+  sidebar.classList.add("-translate-x-full");
+  overlay.classList.add("hidden");
+}
+
+/* =============== INIT SELECT2 =============== */
+function initSelect2() {
+  if (!window.$ || !$('#bahan').length) return;
+
+  $('#bahan').select2({
+    width: '100%',
+    placeholder: 'Cari jenis bahan',
+    allowClear: true
+  });
+
+  // AUTO FOCUS SEARCH
+  $(document).on('select2:open', () => {
+    setTimeout(() => {
+      const search = document.querySelector('.select2-search__field');
+      if (search) search.focus();
+    }, 10);
+  });
+}
+
+/* =============== LOAD KONTEN =============== */
+function tampilkanKonten(n) {
+  const kontenDiv = document.getElementById("konten");
+    const btn1 = document.getElementById("btn1");
+  const btn2 = document.getElementById("btn2");
+
+  // Reset warna tombol
+  btn1.classList.remove("bg-blue-500", "text-white");
+  btn1.classList.add("bg-gray-300", "text-gray-700");
+  btn2.classList.remove("bg-blue-500", "text-white");
+  btn2.classList.add("bg-gray-300", "text-gray-700");
+
+  // Set tombol aktif
+  if (n === 1) {
+    btn1.classList.remove("bg-gray-300", "text-gray-700");
+    btn1.classList.add("bg-blue-500", "text-white");
+  } else {
+    btn2.classList.remove("bg-gray-300", "text-gray-700");
+    btn2.classList.add("bg-blue-500", "text-white");
+  }
+  let htmlFile = "";
+  let jsFile = "";
+
+  if (n === 1) {
+    htmlFile = "ukuran_cetak.html";
+    jsFile = "ukuran_cetak.js";
+  } else {
+    htmlFile = "mata-ayam.html";
+    jsFile = "mata-ayam.js";
+  }
+
+  fetch(htmlFile)
+    .then(res => res.text())
+    .then(html => {
+      kontenDiv.innerHTML = html;
+
+      // Load JS
+      const oldScript = document.getElementById("dynamicScript");
+      if (oldScript) oldScript.remove();
+
+      if (jsFile) {
+        const script = document.createElement("script");
+        script.src = jsFile;
+        script.id = "dynamicScript";
+        document.body.appendChild(script);
+      }
+
+      // INIT Select2 setelah DOM siap
+      setTimeout(initSelect2, 50);
+    })
+    .catch(() => {
+      kontenDiv.innerHTML =
+        "<p class='text-red-600'>Gagal memuat konten.</p>";
+    });
+}
+
+</script>
+
+</body>
+</html>
