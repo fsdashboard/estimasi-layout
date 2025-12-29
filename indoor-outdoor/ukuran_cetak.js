@@ -42,9 +42,10 @@ const bahanData = {
   },
   germany: {
     globalMax: 3.1,
-    minimalList: [1, 2, 3],
+    minimalList: [1, 1.5, 2, 3],
     rolls: [
       { width: 1.1, minimal: 1.0, maksimal: 1.0 },
+      { width: 1.6, minimal: 1.5, maksimal: 1.5 },
       { width: 2.2, minimal: 2.0, maksimal: 2.1 },
       { width: 3.2, minimal: 3.0, maksimal: 3.1 }
     ],
@@ -52,8 +53,10 @@ const bahanData = {
   },
   backlitechina: {
     globalMax: 3.1,
-    minimalList: [1, 2, 3],
+    minimalList: [1, 1.5, 2, 3],
     rolls: [
+      { width: 1.1, minimal: 1.0, maksimal: 1.0 },
+      { width: 1.6, minimal: 1.5, maksimal: 1.5 },      
       { width: 2.2, minimal: 2.0, maksimal: 2.1 },
       { width: 3.2, minimal: 3.0, maksimal: 3.1 }
     ],
@@ -459,3 +462,4 @@ function resetForm() {
   }
 
 }
+
