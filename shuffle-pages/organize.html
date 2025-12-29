@@ -1,0 +1,27 @@
+﻿<!-- organize.html -->
+<div id="organizeSection" class="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
+  <h2 class="text-xl font-bold mb-3">Organize Pages (Tool)</h2>
+
+  <label class="block mb-2">Sampai angka berapa? (wajib)</label>
+  <input id="batas" type="number" class="border p-2 w-full mb-3" placeholder="contoh: 70">
+
+  <label class="block mb-2">Kelipatan berapa? (wajib)</label>
+  <input id="kelipatan" type="number" class="border p-2 w-full mb-3" placeholder="contoh: 7">
+
+  <label class="block mb-2">Tambahkan halaman sebelum kelipatan? (opsional)</label>
+  <input id="tambahan" type="number" class="border p-2 w-full mb-3" placeholder="contoh: 3">
+
+  <div class="flex gap-3">
+    <button onclick="generateOrganize()" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Generate</button>
+    <button onclick="clearOrganize()" class="bg-gray-500 text-white px-4 py-2 rounded w-full">Clear</button>
+  </div>
+
+  <div class="mt-4">
+    <h3 class="font-semibold mb-2">Hasil:</h3>
+    <textarea id="hasilOrganize" class="w-full border p-2 h-28 rounded" readonly></textarea>
+  </div>
+
+  <button onclick="copyOrganize()" class="bg-green-600 text-white px-4 py-2 rounded w-full mt-3">Copy Hasil</button>
+  <p id="notifOrganize" class="text-green-600 mt-2 text-sm hidden">✔ Berhasil dicopy!</p>
+  <p id="warningOrganize" class="text-red-600 mt-2 text-sm hidden">Isi semua input wajib!</p>
+</div>

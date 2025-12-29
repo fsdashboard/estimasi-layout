@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shuffle Pages</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    .modal-enter { opacity: 0; transform: scale(1); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .modal-show  { opacity: 1; transform: scale(1); }
+    .modal-hide  { opacity: 0; transform: scale(1); }
+    .rotate-box { font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .rotate-row { display:flex; gap:6px; align-items:center; justify-content:center; }
+    .rotate-row label { display:flex; gap:4px; align-items:center; }
+
+    input[type="checkbox"] { width: 16px; height: 16px; appearance: auto !important; -webkit-appearance: auto !important; transform: none !important; margin: 0 4px; }
+
+    table.border { border-collapse: collapse; }
+    table.border td, table.border th { border: 1px solid #e5e7eb; }
+    .w-fit { max-width: 95vw; }
+
+    .sidebar-submenu { background: #2d3748; }
+    .sidebar-submenu a.active { background: #1f2937; color: #fff; }
+    .sidebar-parent.active { background: #111827; color: #fff; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+<button id="toggleSidebar" class="md:hidden text-white text-2xl p-4 fixed z-50 bg-gray-800 top-0 left-0">☰</button>
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 md:hidden" onclick="tutupSidebar()"></div>
+
+<div class="flex h-screen">
+
+  <aside id="sidebar" class="w-64 bg-gray-800 text-white flex flex-col fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50 md:relative">
+    <div class="p-4 text-xl font-bold border-b border-gray-700">Estimasi Online</div>
+    <nav class="flex-1 p-4 space-y-2 text-sm">
+        <a href="/estimasi-layout/index.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🏠 Halaman Utama</a>
+        <a href="/estimasi-layout/harga-potong.html" class="block p-2 font-semibold rounded hover:bg-gray-700">💰 Harga Potong (A3+)</a>
+        <a href="/estimasi-layout/layout-a3.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📐 Layout A3+</a>
+        <a href="/estimasi-layout/buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📘 Buku</a>
+        <a href="/estimasi-layout/indoor-outdoor/indoor-outdoor.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🖼️ Indoor/Outdoor</a>
+        <a href="/estimasi-layout/adjust-size.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🔧 Adjust Size</a>
+        <a href="/estimasi-layout/shuffle.html" class="block p-2 font-semibold rounded hover:bg-gray-700 bg-gray-900">📄 Shuffle Pages</a>
+        <a href="/estimasi-layout/penawaran/penawaran.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">💰 Penawaran</a>
+        <a href="/estimasi-layout/pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🚚 Pengiriman</a>
+        <a href="/estimasi-layout/mockup.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🎨 mockup</a>
+    </nav>
+  </aside>
+
+  <main class="flex-1 p-6 overflow-y-auto w-full">
+    <h1 class="text-2xl font-bold mb-4 text-blue-700">Shuffle Pages</h1>
+
+    <div class="bg-white rounded-lg shadow p-6 w-full max-w-3xl mx-auto">
+      <div class="flex space-x-2 mb-4">
+        <button id="btn1" class="px-4 py-2 bg-gray-300 text-gray-700 rounded">Shuffle Pages</button>
+        <button id="btn2" class="px-4 py-2 bg-gray-300 text-gray-700 rounded">Organize Pages</button>
+      </div>
+
+      <div id="konten" class="bg-gray-50 p-4 rounded shadow min-h-[200px]">
+        Form akan muncul di sini setelah kamu memilih menu...
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ===== SIDEBAR ===== */
+const toggleSidebar = document.getElementById("toggleSidebar");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+
+toggleSidebar.addEventListener("click", () => {
+  sidebar.classList.toggle("-translate-x-full");
+  overlay.classList.toggle("hidden");
+});
+function tutupSidebar() {
+  sidebar.classList.add("-translate-x-full");
+  overlay.classList.add("hidden");
+}
+
+/* ===== DYNAMIC KONTEN ===== */
+function initSelect2() {
+  if (!window.$ || !$('#bahan').length) return;
+  $('#bahan').select2({ width:'100%', placeholder:'Cari jenis bahan', allowClear:true });
+}
+
+function tampilkanKonten(n) {
+  const kontenDiv = document.getElementById("konten");
+  const btn1 = document.getElementById("btn1");
+  const btn2 = document.getElementById("btn2");
+
+  // Reset warna tombol
+  btn1.classList.remove("bg-blue-500","text-white");
+  btn1.classList.add("bg-gray-300","text-gray-700");
+  btn2.classList.remove("bg-blue-500","text-white");
+  btn2.classList.add("bg-gray-300","text-gray-700");
+
+  // Set tombol aktif
+  if(n===1){btn1.classList.remove("bg-gray-300","text-gray-700"); btn1.classList.add("bg-blue-500","text-white");}
+  else{btn2.classList.remove("bg-gray-300","text-gray-700"); btn2.classList.add("bg-blue-500","text-white");}
+
+  let htmlFile = (n===1) ? "shuffle.html" : "organize.html";
+  let jsFile = (n===1) ? "shuffle.js" : "organize.js";
+
+  // HAPUS SCRIPT LAMA DAN KONTEN
+  const oldScript = document.getElementById("dynamicScript");
+  if(oldScript) oldScript.remove();
+  kontenDiv.innerHTML = "<p class='text-gray-500'>Memuat konten...</p>";
+
+  fetch(htmlFile)
+    .then(res => res.text())
+    .then(html=>{
+      kontenDiv.innerHTML = html;
+
+      // Tambahkan JS baru
+      if(jsFile){
+        const script = document.createElement("script");
+        script.src = jsFile;
+        script.id = "dynamicScript";
+        document.body.appendChild(script);
+      }
+
+      setTimeout(initSelect2,50); // re-init select2 jika ada
+    })
+    .catch(()=>{ kontenDiv.innerHTML="<p class='text-red-600'>Gagal memuat konten.</p>"; });
+}
+
+/* ===== tombol menu ===== */
+document.getElementById("btn1").addEventListener("click", ()=>tampilkanKonten(1));
+document.getElementById("btn2").addEventListener("click", ()=>tampilkanKonten(2));
+
+</script>
+
+<!-- Modal Alert -->
+<div id="customAlert" class="fixed inset-0 bg-black bg-opacity-30 hidden flex items-center justify-center z-50">
+  <div id="alertBox" class="bg-white rounded-lg p-6 w-80 max-w-full transform modal-enter">
+    <h3 id="alertTitle" class="text-lg font-bold mb-2">BERHASIL!</h3>
+    <p id="alertMessage" class="text-gray-700"></p>
+    <div class="mt-4 text-right">
+      <button onclick="tutupAlert()" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Tutup</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

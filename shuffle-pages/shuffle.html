@@ -1,0 +1,49 @@
+﻿<!-- shuffle.html -->
+<div id="shuffleContent" class="bg-white rounded-lg shadow p-6 w-fit mx-auto">
+  <table class="mb-4">
+    <tr>
+      <td class="pr-2 py-3 block font-semibold">Jumlah Halaman</td>
+      <td><input id="isiHalaman" type="number" class="ml-2 p-1 border rounded w-64" /></td>
+    </tr>
+    <tr>
+      <td class="pr-2 py-3 block font-semibold">Posisi</td>
+      <td>
+        <select id="posisi" class="ml-2 p-1 border rounded w-64">
+          <option>-- Auto --</option>
+          <option>Portrait</option>
+          <option>Landscape</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td class="pr-2 py-3 block font-semibold">Baris&nbsp;&nbsp;&nbsp;&nbsp;&#x2B07;</td>
+      <td><input id="baris" type="number" class="ml-2 p-1 border rounded w-64" /></td>
+    </tr>
+    <tr>
+      <td class="pr-2 py-3 block font-semibold">Kolom &#x27A1;</td>
+      <td><input id="kolom" type="number" class="ml-2 p-1 border rounded w-64" /></td>
+    </tr>
+    <tr>
+      <td class="pr-2 py-3 block font-semibold">Slide</td>
+      <td>
+        <select id="slide" class="ml-2 p-1 border rounded w-64">
+          <option>-- Sided --</option>
+          <option>1 Sisi</option>
+          <option>2 Sisi</option>
+        </select>
+      </td>
+    </tr>
+  </table>
+
+  <div class="flex items-center gap-4 mb-4">
+    <button onclick="buatAcuan()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Buat Acuan</button>
+    <button onclick="resetForm()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Reset</button>
+  </div>
+
+  <label class="inline-flex items-center gap-2 mb-6">
+    <input type="checkbox" id="toggleSlide" class="accent-blue-600" onchange="buatAcuan()">
+    Tampilkan Slide 1 dan Slide 2
+  </label>
+
+  <div id="output" class="mt-6 space-y-6"></div>
+</div>
