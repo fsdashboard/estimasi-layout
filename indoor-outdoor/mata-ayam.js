@@ -10,18 +10,18 @@ function showAlert(pesan) {
 
 function hitungSpanduk() {
   const panjang = parseFloat(document.getElementById("spanduk-panjang")?.value);
-  const lebar = parseFloat(document.getElementById("spanduk-lebar")?.value);
-  const fins = parseFloat(document.getElementById("spanduk-fins")?.value);
-  const jumlah = parseInt(document.getElementById("spanduk-jumlah")?.value);
+  const lebar   = parseFloat(document.getElementById("spanduk-lebar")?.value);
+  const fins    = parseFloat(document.getElementById("spanduk-fins")?.value);
+  const jumlah  = parseInt(document.getElementById("spanduk-jumlah")?.value);
 
-  if (!panjang || !lebar || !fins || !jumlah) {
-    showAlert("Mohon lengkapi semua input spanduk.");
+  if (panjang <= 0 || lebar <= 0 || fins <= 0 || jumlah <= 0) {
+    showAlert("Mohon isi semua input dengan angka lebih dari 0.");
     return;
   }
 
-  const sisiPanjang = Math.round((panjang / fins) + 1 - 2) * 2;
-  const sisiLebar = Math.round((lebar / fins) + 1) * 2;
-  const totalMA = (sisiPanjang + sisiLebar - 4) * jumlah;
+  const sisiPanjang = Math.max(0, Math.ceil(panjang / fins + 1 - 2)) * 2;
+  const sisiLebar   = Math.max(0, Math.ceil(lebar   / fins + 1 - 2)) * 2;
+  const totalMA = (sisiPanjang + sisiLebar) * jumlah;
 
   document.getElementById("spanduk-totalma").value = totalMA + " PCS";
   document.getElementById("hasilSection").classList.remove("hidden");
