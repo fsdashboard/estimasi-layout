@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Page Duplicator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: #2a2a3d;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --accent3: #43e97b;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --glow: rgba(108, 99, 255, 0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(108,99,255,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(255,101,132,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 50% 50%, rgba(67,233,123,0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(108,99,255,0.15);
+    border: 1px solid rgba(108,99,255,0.3);
+    color: #a89fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent3);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+
+  h1 span.word1 { color: var(--text); }
+  h1 span.word2 {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  /* Steps */
+  .steps-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .step-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 14px 6px 8px;
+    font-size: 12px;
+    color: var(--muted);
+    transition: all 0.3s;
+  }
+
+  .step-pill.active {
+    border-color: var(--accent);
+    color: var(--text);
+    background: rgba(108,99,255,0.1);
+  }
+
+  .step-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .step-pill.active .step-num {
+    background: var(--accent);
+    color: white;
+  }
+
+  .step-arrow {
+    color: var(--border);
+    font-size: 14px;
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 20px;
+    transition: border-color 0.3s;
+  }
+
+  .card:hover { border-color: rgba(108,99,255,0.3); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .card-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .card-icon.purple { background: rgba(108,99,255,0.15); }
+  .card-icon.pink { background: rgba(255,101,132,0.15); }
+  .card-icon.green { background: rgba(67,233,123,0.15); }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .card-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+    font-weight: 400;
+  }
+
+  /* Upload Zone */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .upload-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(108,99,255,0.05) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(108,99,255,0.04);
+  }
+
+  .upload-zone:hover::before, .upload-zone.dragover::before {
+    opacity: 1;
+  }
+
+  .upload-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .upload-main {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .upload-sub {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  #fileInput { display: none; }
+
+  /* File info */
+  .file-info {
+    display: none;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface2);
+    border: 1px solid rgba(67,233,123,0.2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 16px;
+  }
+
+  .file-info.visible { display: flex; }
+
+  /* Locked warning */
+  .locked-warning {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,101,132,0.08);
+    border: 1px solid rgba(255,101,132,0.35);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    animation: slideIn 0.3s ease;
+  }
+  .locked-warning.visible { display: flex; }
+  .locked-warning-icon { font-size: 22px; flex-shrink: 0; }
+  .locked-warning-text { flex: 1; }
+  .locked-warning-title { font-size: 13px; font-weight: 700; color: var(--accent2); }
+  .locked-warning-desc  { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 3px; }
+
+  .file-info-icon {
+    width: 36px; height: 36px;
+    background: rgba(67,233,123,0.12);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .file-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    word-break: break-all;
+  }
+
+  .file-meta {
+    font-size: 11px;
+    color: var(--accent3);
+    font-family: 'DM Mono', monospace;
+    margin-top: 2px;
+  }
+
+  .remove-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 4px;
+    border-radius: 6px;
+    transition: color 0.2s;
+    flex-shrink: 0;
+  }
+
+  .remove-btn:hover { color: var(--accent2); }
+
+  /* Duplicate configs */
+  #duplicateConfigs { display: flex; flex-direction: column; gap: 14px; }
+
+  .config-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  input[type="number"], input[type="text"] {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    padding: 11px 14px;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+
+  input[type="number"]:focus, input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(108,99,255,0.12);
+  }
+
+  input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
+
+  .help-text {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-top: 4px;
+  }
+
+  .delete-row {
+    background: rgba(255,101,132,0.1);
+    border: 1px solid rgba(255,101,132,0.2);
+    border-radius: 10px;
+    color: var(--accent2);
+    cursor: pointer;
+    font-size: 16px;
+    width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .delete-row:hover {
+    background: rgba(255,101,132,0.2);
+    border-color: var(--accent2);
+  }
+
+  /* Buttons */
+  .btn-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .btn-add:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(108,99,255,0.05);
+  }
+
+  .btn-process {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, var(--accent), #8b7cf8);
+    border: none;
+    border-radius: 14px;
+    color: white;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(108,99,255,0.3);
+  }
+
+  .btn-process::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn-process:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(108,99,255,0.4);
+  }
+
+  .btn-process:hover::before { opacity: 1; }
+
+  .btn-process:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-download {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, var(--accent3), #1fd17b);
+    border: none;
+    border-radius: 14px;
+    color: #0a0a0f;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(67,233,123,0.25);
+    text-decoration: none;
+  }
+
+  .btn-download:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(67,233,123,0.35);
+  }
+
+  .btn-download.visible { display: flex; }
+
+  /* Progress */
+  .progress-wrap {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .progress-wrap.visible { display: flex; }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+  }
+
+  .progress-status { color: var(--muted); font-family: 'DM Mono', monospace; }
+  .progress-pct { color: var(--accent); font-family: 'DM Mono', monospace; font-weight: 500; }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 100px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  /* Result */
+  .result-info {
+    display: none;
+    background: rgba(67,233,123,0.06);
+    border: 1px solid rgba(67,233,123,0.2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--accent3);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .result-info.visible { display: block; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 13px;
+    max-width: 320px;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.error { border-color: rgba(255,101,132,0.4); color: var(--accent2); }
+  .toast.success { border-color: rgba(67,233,123,0.4); color: var(--accent3); }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+
+  /* Tabs */
+  .input-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 4px;
+  }
+  .input-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 16px;
+    transition: all 0.2s;
+  }
+  .input-tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .input-tab:not(.active):hover { color: var(--text); }
+
+  /* CSV upload zone */
+  .csv-upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 14px;
+  }
+  .csv-upload-zone:hover, .csv-upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(108,99,255,0.04);
+  }
+
+  /* CSV info box */
+  .csv-info-box {
+    background: rgba(108,99,255,0.06);
+    border: 1px solid rgba(108,99,255,0.2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+  }
+  .csv-info-title { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #a89fff; }
+  .csv-info-body  { font-size: 11px; color: var(--muted); line-height: 1.7; }
+  .csv-info-body code {
+    background: rgba(108,99,255,0.15);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: 'DM Mono', monospace;
+    color: #c4bfff;
+  }
+
+  /* CSV preview table */
+  .csv-preview { margin-top: 4px; }
+  .csv-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent3);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 10px;
+  }
+  .csv-table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th {
+    background: var(--surface2);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 9px 14px;
+    text-align: left;
+    position: sticky; top: 0;
+  }
+  tbody tr { border-top: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:hover { background: rgba(108,99,255,0.05); }
+  tbody td { padding: 8px 14px; font-family: 'DM Mono', monospace; }
+  td.td-page { color: var(--text); font-weight: 500; }
+  td.td-copy { color: var(--accent); }
+  td.td-copy.zero { color: var(--muted); }
+  td.td-seq  { color: var(--accent3); font-size: 11px; letter-spacing: 0.05em; }
+
+  .csv-sequence {
+    margin-top: 12px;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.8;
+    word-break: break-all;
+  }
+  .csv-sequence strong { color: var(--accent3); display: block; margin-bottom: 4px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* Responsive */
+  @media (max-width: 540px) {
+    .config-row { grid-template-columns: 1fr 1fr; }
+    .delete-row { grid-column: span 2; justify-self: end; width: 36px; height: 36px; }
+    .card { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="badge">PDF Tool</div>
+    <h1>
+      <span class="word1">Duplicate</span><br>
+      <span class="word2">Pages</span>
+    </h1>
+    <p class="subtitle">Duplikat halaman tertentu dari PDF kamu dengan mudah & cepat</p>
+  </header>
+
+  <div class="steps-flow">
+    <div class="step-pill active" id="step1">
+      <span class="step-num">1</span>
+      Upload PDF
+    </div>
+    <span class="step-arrow">›</span>
+    <div class="step-pill" id="step2">
+      <span class="step-num">2</span>
+      Atur Duplikasi
+    </div>
+    <span class="step-arrow">›</span>
+    <div class="step-pill" id="step3">
+      <span class="step-num">3</span>
+      Download
+    </div>
+  </div>
+
+  <!-- Card 1: Upload -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon purple">📄</div>
+      <div>
+        <div class="card-title">Upload File PDF</div>
+        <div class="card-desc">Pilih atau drag & drop file PDF kamu</div>
+      </div>
+    </div>
+
+    <div class="upload-zone" id="uploadZone">
+      <span class="upload-icon">☁️</span>
+      <div class="upload-main">Klik untuk pilih file atau drag & drop</div>
+      <div class="upload-sub">.pdf • Maksimal 100MB</div>
+    </div>
+    <input type="file" id="fileInput" accept=".pdf">
+
+    <div class="file-info" id="fileInfo">
+      <div class="file-info-icon">✅</div>
+      <div>
+        <div class="file-name" id="fileName">—</div>
+        <div class="file-meta" id="fileMeta">—</div>
+      </div>
+      <button class="remove-btn" id="removeFile" title="Hapus file">✕</button>
+    </div>
+
+    <!-- Peringatan PDF terkunci -->
+    <div class="locked-warning" id="lockedWarning">
+      <div class="locked-warning-icon">🔒</div>
+      <div class="locked-warning-text">
+        <div class="locked-warning-title">File PDF ini terkunci / terproteksi password</div>
+        <div class="locked-warning-desc">File tidak dapat diproses. Silakan gunakan PDF yang tidak terkunci.</div>
+      </div>
+      <button class="remove-btn" id="removeFileLocked" title="Hapus file">✕</button>
+    </div>
+  </div>
+
+  <!-- Card 2: Config -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon pink">⚙️</div>
+      <div>
+        <div class="card-title">Atur Halaman yang Diduplikat</div>
+        <div class="card-desc">Input manual atau import dari file CSV / TXT</div>
+      </div>
+    </div>
+
+    <!-- Tab switcher -->
+    <div class="input-tabs">
+      <button class="input-tab active" id="tabManual">✏️ Manual</button>
+      <button class="input-tab" id="tabCsv">📂 Import CSV / TXT</button>
+    </div>
+
+    <!-- Panel Manual -->
+    <div id="panelManual">
+      <div id="duplicateConfigs"></div>
+      <button class="btn-add" id="addRowBtn"><span>＋</span> Tambah Aturan</button>
+    </div>
+
+    <!-- Panel CSV -->
+    <div id="panelCsv" style="display:none">
+      <div class="csv-info-box">
+        <div class="csv-info-title">📋 Format file yang diterima</div>
+        <div class="csv-info-body">
+          Kolom pertama = <strong>nomor halaman</strong>, kolom kedua = <strong>jumlah copy</strong>.<br>
+          Copy <strong>0</strong> = halaman tetap 1×. Copy <strong>N</strong> = halaman muncul N×.<br>
+          Format: <code>CSV UTF-8</code> atau <code>Text (Macintosh)</code> dari Excel.<br>
+          Header baris pertama (Page, Copy, dll) akan otomatis dilewati.
+        </div>
+      </div>
+      <div class="csv-upload-zone" id="csvUploadZone">
+        <span class="upload-icon" style="font-size:30px;margin-bottom:8px">📂</span>
+        <div class="upload-main" style="font-size:13px">Klik atau drag &amp; drop file CSV / TXT</div>
+        <div class="upload-sub">.csv  •  .txt</div>
+      </div>
+      <input type="file" id="csvFileInput" accept=".csv,.txt" style="display:none">
+      <div class="csv-preview" id="csvPreview" style="display:none">
+        <div class="csv-preview-header">
+          <span id="csvPreviewTitle">—</span>
+          <button class="remove-btn" id="removeCsv" title="Hapus CSV">✕</button>
+        </div>
+        <div class="csv-table-wrap">
+          <table id="csvTable">
+            <thead><tr><th>Halaman</th><th>Copy</th><th>Hasil Urutan</th></tr></thead>
+            <tbody id="csvTableBody"></tbody>
+          </table>
+        </div>
+        <div class="csv-sequence" id="csvSequence"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Process & Download -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon green">🚀</div>
+      <div>
+        <div class="card-title">Proses & Download</div>
+        <div class="card-desc">PDF hasil duplikasi siap didownload</div>
+      </div>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-label">
+        <span class="progress-status" id="progressStatus">Memproses…</span>
+        <span class="progress-pct" id="progressPct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="result-info" id="resultInfo"></div>
+
+    <button class="btn-process" id="processBtn" disabled>
+      <span>⚡</span> Proses PDF Sekarang
+    </button>
+
+    <hr class="divider" id="downloadDivider" style="display:none">
+
+    <a class="btn-download" id="downloadBtn" download="hasil-duplikasi.pdf">
+      <span>⬇️</span> Download Hasil PDF
+    </a>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  // ─── State ───────────────────────────────────────────────────
+  let pdfFile        = null;
+  let totalPages     = 0;
+  let rowCounter     = 0;
+  let decryptedBytes = null;
+  let activeTab      = 'manual';  // 'manual' | 'csv'
+  let csvRules       = [];        // [{page, copy}] dari CSV
+
+  // ─── DOM Refs ─────────────────────────────────────────────────
+  const uploadZone       = document.getElementById('uploadZone');
+  const fileInput        = document.getElementById('fileInput');
+  const fileInfo         = document.getElementById('fileInfo');
+  const fileName         = document.getElementById('fileName');
+  const fileMeta         = document.getElementById('fileMeta');
+  const removeFile       = document.getElementById('removeFile');
+  const removeFileLocked = document.getElementById('removeFileLocked');
+  const lockedWarning    = document.getElementById('lockedWarning');
+  const configsWrap      = document.getElementById('duplicateConfigs');
+  const addRowBtn        = document.getElementById('addRowBtn');
+  const processBtn       = document.getElementById('processBtn');
+  const downloadBtn      = document.getElementById('downloadBtn');
+  const progressWrap     = document.getElementById('progressWrap');
+  const progressFill     = document.getElementById('progressFill');
+  const progressStatus   = document.getElementById('progressStatus');
+  const progressPct      = document.getElementById('progressPct');
+  const resultInfo       = document.getElementById('resultInfo');
+  const downloadDivider  = document.getElementById('downloadDivider');
+  const toastEl          = document.getElementById('toast');
+  const tabManual        = document.getElementById('tabManual');
+  const tabCsv           = document.getElementById('tabCsv');
+  const panelManual      = document.getElementById('panelManual');
+  const panelCsv         = document.getElementById('panelCsv');
+  const csvUploadZone    = document.getElementById('csvUploadZone');
+  const csvFileInput     = document.getElementById('csvFileInput');
+  const csvPreview       = document.getElementById('csvPreview');
+  const csvPreviewTitle  = document.getElementById('csvPreviewTitle');
+  const removeCsvBtn     = document.getElementById('removeCsv');
+  const csvTableBody     = document.getElementById('csvTableBody');
+  const csvSequenceEl    = document.getElementById('csvSequence');
+
+  // ─── Toast ────────────────────────────────────────────────────
+  let toastTimer;
+  function showToast(msg, type = 'info') {
+    toastEl.textContent = msg;
+    toastEl.className = `toast ${type} show`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3800);
+  }
+
+  // ─── Steps ────────────────────────────────────────────────────
+  function setStep(n) {
+    [1, 2, 3].forEach(i =>
+      document.getElementById('step' + i).classList.toggle('active', i <= n)
+    );
+  }
+
+  // ─── Tab switching ────────────────────────────────────────────
+  tabManual.addEventListener('click', () => switchTab('manual'));
+  tabCsv.addEventListener('click',   () => switchTab('csv'));
+
+  function switchTab(tab) {
+    activeTab = tab;
+    tabManual.classList.toggle('active', tab === 'manual');
+    tabCsv.classList.toggle('active',   tab === 'csv');
+    panelManual.style.display = tab === 'manual' ? '' : 'none';
+    panelCsv.style.display    = tab === 'csv'    ? '' : 'none';
+    checkReady();
+  }
+
+  // ─── Reset PDF file ───────────────────────────────────────────
+  function resetFile() {
+    pdfFile = null; totalPages = 0; decryptedBytes = null;
+    fileInfo.classList.remove('visible');
+    lockedWarning.classList.remove('visible');
+    fileInput.value = '';
+    processBtn.disabled = true;
+    setStep(1);
+  }
+  removeFile.addEventListener('click',       () => { resetFile(); showToast('File dihapus.', 'info'); });
+  removeFileLocked.addEventListener('click', () => { resetFile(); showToast('File dihapus.', 'info'); });
+
+  // ─── PDF Upload ───────────────────────────────────────────────
+  uploadZone.addEventListener('click', () => fileInput.click());
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault(); uploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
+
+  async function handleFile(f) {
+    if (!f.name.toLowerCase().endsWith('.pdf')) {
+      showToast('❌ Hanya file .pdf!', 'error'); return;
+    }
+    if (f.size > 100 * 1024 * 1024) {
+      showToast('❌ File terlalu besar (maks 100MB)', 'error'); return;
+    }
+    fileInfo.classList.remove('visible');
+    lockedWarning.classList.remove('visible');
+    processBtn.disabled = true;
+    pdfFile = f;
+    fileName.textContent = f.name;
+    fileMeta.textContent = 'Membaca file…';
+    fileInfo.classList.add('visible');
+    try {
+      const buf = await f.arrayBuffer();
+      const pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
+      totalPages     = pdfDoc.numPages;
+      decryptedBytes = await pdfDoc.getData();
+      fileMeta.textContent = `${totalPages} halaman  •  ${formatBytes(f.size)}`;
+      document.querySelectorAll('.page-help').forEach(el => {
+        el.textContent = `Antara 1 – ${totalPages}`;
+      });
+      checkReady();
+      setStep(2);
+      showToast(`✅ PDF dibaca — ${totalPages} halaman`, 'success');
+    } catch (e) {
+      fileInfo.classList.remove('visible');
+      lockedWarning.classList.add('visible');
+      pdfFile = null; decryptedBytes = null; totalPages = 0;
+      processBtn.disabled = true;
+      showToast('🔒 PDF terkunci! Gunakan PDF tanpa password.', 'error');
+    }
+  }
+
+  // ─── CSV Upload ───────────────────────────────────────────────
+  csvUploadZone.addEventListener('click', () => csvFileInput.click());
+  csvUploadZone.addEventListener('dragover', e => { e.preventDefault(); csvUploadZone.classList.add('dragover'); });
+  csvUploadZone.addEventListener('dragleave', () => csvUploadZone.classList.remove('dragover'));
+  csvUploadZone.addEventListener('drop', e => {
+    e.preventDefault(); csvUploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) handleCsv(e.dataTransfer.files[0]);
+  });
+  csvFileInput.addEventListener('change', () => { if (csvFileInput.files[0]) handleCsv(csvFileInput.files[0]); });
+
+  removeCsvBtn.addEventListener('click', () => {
+    csvRules = [];
+    csvPreview.style.display = 'none';
+    csvUploadZone.style.display = '';
+    csvFileInput.value = '';
+    checkReady();
+    showToast('CSV dihapus.', 'info');
+  });
+
+  function handleCsv(f) {
+    const ext = f.name.split('.').pop().toLowerCase();
+    if (!['csv','txt'].includes(ext)) {
+      showToast('❌ Hanya file .csv atau .txt!', 'error'); return;
+    }
+
+    // Try UTF-8 first, fallback to latin1 for Macintosh Text format
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target.result;
+      const parsed = parseCsv(text, f.name);
+      if (!parsed) return;
+      csvRules = parsed;
+      renderCsvPreview(f.name, parsed);
+      checkReady();
+    };
+    reader.readAsText(f, 'UTF-8');
+  }
+
+  function parseCsv(text, fname) {
+    // Normalize line endings (Windows \r\n, Mac \r, Unix \n)
+    const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n')
+      .map(l => l.trim()).filter(l => l.length > 0);
+
+    if (!lines.length) { showToast('❌ File kosong!', 'error'); return null; }
+
+    const rules = [];
+    let skippedHeader = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      // Split by comma OR tab OR semicolon
+      const cols = lines[i].split(/[,\t;]/).map(c => c.replace(/^["']|["']$/g, '').trim());
+      if (cols.length < 2) continue;
+
+      const pg = parseInt(cols[0]);
+      const cp = parseInt(cols[1]);
+
+      // Skip header row (non-numeric first column)
+      if (isNaN(pg)) {
+        if (!skippedHeader) { skippedHeader = true; continue; }
+        continue;
+      }
+      if (isNaN(cp)) continue;
+      if (pg < 1)    continue;
+
+      rules.push({ page: pg, copy: cp });
+    }
+
+    if (!rules.length) {
+      showToast('❌ Tidak ada data valid di file. Pastikan format kolom: Page, Copy', 'error');
+      return null;
+    }
+
+    showToast(`✅ CSV dibaca — ${rules.length} baris`, 'success');
+    return rules;
+  }
+
+  function renderCsvPreview(fname, rules) {
+    csvPreviewTitle.textContent = `${fname}  •  ${rules.length} baris`;
+    csvTableBody.innerHTML = '';
+
+    // Build map: page -> copy value (from CSV rules only)
+    const ruleMap = {};
+    rules.forEach(r => { ruleMap[r.page] = r.copy; });
+
+    // Show only the rows from CSV
+    rules.forEach(r => {
+      const copies = r.copy <= 0 ? 1 : r.copy;
+      const seq    = Array(copies).fill(r.page).join(' ');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="td-page">${r.page}</td>
+        <td class="td-copy ${r.copy === 0 ? 'zero' : ''}">${r.copy === 0 ? '0 (→1×)' : r.copy + '×'}</td>
+        <td class="td-seq">${seq}</td>
+      `;
+      csvTableBody.appendChild(tr);
+    });
+
+    // Full sequence note — actual full sequence built at process time when totalPages known
+    // Show preview based on rules only + note about unlisted pages
+    const rulesSeq = rules.map(r => {
+      const copies = r.copy <= 0 ? 1 : r.copy;
+      return Array(copies).fill(r.page).join(' ');
+    }).join('  ');
+    const maxPage = Math.max(...rules.map(r => r.page));
+    csvSequenceEl.innerHTML = `<strong>Urutan dari CSV (halaman tidak tercantum tetap muncul 1×)</strong>${rulesSeq}<br><span style="color:var(--muted);font-size:10px">* Halaman lain di luar daftar ini akan otomatis disertakan 1× sesuai urutan asli</span>`;
+
+    csvUploadZone.style.display = 'none';
+    csvPreview.style.display = '';
+  }
+
+  // ─── Manual rows ──────────────────────────────────────────────
+  function addRow() {
+    rowCounter++;
+    const div = document.createElement('div');
+    div.className = 'config-row';
+    div.innerHTML = `
+      <div class="field-group">
+        <label>Nomor Halaman</label>
+        <input type="number" class="page-input" min="1" placeholder="cth. 3">
+        <div class="help-text page-help">${totalPages ? 'Antara 1 – ' + totalPages : 'Upload PDF dulu'}</div>
+      </div>
+      <div class="field-group">
+        <label>Jumlah Copy</label>
+        <input type="number" class="count-input" min="0" max="999" placeholder="cth. 2">
+        <div class="help-text">Kosong/0 = 1×, 2 = muncul 2×, dst</div>
+      </div>
+      <button class="delete-row" title="Hapus baris">✕</button>
+    `;
+    div.querySelector('.delete-row').addEventListener('click', () => { div.remove(); checkReady(); });
+    div.querySelectorAll('input').forEach(inp => inp.addEventListener('input', checkReady));
+    configsWrap.appendChild(div);
+    checkReady();
+  }
+  addRowBtn.addEventListener('click', addRow);
+  addRow();
+
+  // ─── Validation ───────────────────────────────────────────────
+  function checkReady() {
+    if (!pdfFile || !decryptedBytes) { processBtn.disabled = true; return; }
+
+    if (activeTab === 'manual') {
+      let ok = false;
+      document.querySelectorAll('.config-row').forEach(row => {
+        const pg = parseInt(row.querySelector('.page-input').value);
+        const ct = row.querySelector('.count-input').value.trim();
+        // valid if page is set; copy field can be empty (treated as 1x) or a number
+        if (pg >= 1 && (ct === '' || !isNaN(parseInt(ct)))) ok = true;
+      });
+      processBtn.disabled = !ok;
+    } else {
+      processBtn.disabled = csvRules.length === 0;
+    }
+  }
+
+  // ─── Build page sequence from rules ──────────────────────────
+  // Rules only list pages with custom copy count.
+  // All pages 1..totalPages are included; unlisted pages default to 1x.
+  // Uncollated: all copies of page1 first, then page2, etc.
+  function buildSequence(rules, nPages) {
+    // Build a map: pageNumber (1-based) -> times to appear
+    const copyMap = {};
+    rules.forEach(r => {
+      const copies = (r.copy !== undefined ? r.copy : r.count);
+      copyMap[r.page] = copies <= 0 ? 1 : copies;
+    });
+
+    const seq = [];
+    for (let pg = 1; pg <= nPages; pg++) {
+      const times = copyMap[pg] !== undefined ? copyMap[pg] : 1; // default 1x
+      for (let i = 0; i < times; i++) seq.push(pg);
+    }
+    return seq;
+  }
+
+  // ─── Progress ─────────────────────────────────────────────────
+  function setProgress(pct, status) {
+    progressFill.style.width = pct + '%';
+    progressPct.textContent  = pct + '%';
+    progressStatus.textContent = status;
+  }
+
+  // ─── Process ─────────────────────────────────────────────────
+  processBtn.addEventListener('click', async () => {
+    if (!pdfFile || !decryptedBytes) return;
+
+    // Collect rules from active tab
+    let rules = [];
+    if (activeTab === 'manual') {
+      document.querySelectorAll('.config-row').forEach(row => {
+        const pg  = parseInt(row.querySelector('.page-input').value);
+        const raw = row.querySelector('.count-input').value.trim();
+        const ct  = raw === '' ? 1 : parseInt(raw);  // empty = default 1x
+        if (pg >= 1 && pg <= totalPages && !isNaN(ct)) rules.push({ page: pg, copy: ct });
+      });
+    } else {
+      rules = csvRules.filter(r => r.page >= 1 && r.page <= totalPages);
+    }
+
+    if (!rules.length) { showToast('❌ Tidak ada aturan duplikasi yang valid.', 'error'); return; }
+
+    // Build uncollated sequence
+    const pageSeq = buildSequence(rules, totalPages);
+
+    processBtn.disabled = true;
+    downloadBtn.classList.remove('visible');
+    downloadDivider.style.display = 'none';
+    resultInfo.classList.remove('visible');
+    progressWrap.classList.add('visible');
+    setProgress(0, 'Memuat dokumen…');
+
+    try {
+      await sleep(80);
+      const srcDoc = await PDFLib.PDFDocument.load(decryptedBytes);
+      const outDoc = await PDFLib.PDFDocument.create();
+
+      setProgress(20, 'Menyusun urutan halaman…');
+      await sleep(60);
+
+      for (let i = 0; i < pageSeq.length; i++) {
+        const pct = 20 + Math.round((i / pageSeq.length) * 70);
+        if (i % 5 === 0) {
+          setProgress(pct, `Menyalin halaman ${pageSeq[i]} (${i+1}/${pageSeq.length})…`);
+          await sleep(20);
+        }
+        const [p] = await outDoc.copyPages(srcDoc, [pageSeq[i] - 1]);
+        outDoc.addPage(p);
+      }
+
+      setProgress(92, 'Menyusun PDF akhir…');
+      await sleep(80);
+      const pdfBytes = await outDoc.save();
+      setProgress(100, 'Selesai! ✨');
+      await sleep(300);
+
+      downloadBtn.href = URL.createObjectURL(new Blob([pdfBytes], { type: 'application/pdf' }));
+
+      const totalCopied = pageSeq.length - srcDoc.getPageCount();
+      resultInfo.innerHTML = `
+        📋 Halaman sumber: <strong>${srcDoc.getPageCount()}</strong> &nbsp;|&nbsp;
+        📄 Total halaman hasil: <strong>${outDoc.getPageCount()}</strong> &nbsp;|&nbsp;
+        💾 Ukuran: <strong>${formatBytes(pdfBytes.length)}</strong>
+      `;
+      resultInfo.classList.add('visible');
+      downloadDivider.style.display = '';
+      downloadBtn.classList.add('visible');
+      setStep(3);
+      showToast('🎉 PDF berhasil diproses!', 'success');
+
+    } catch (e) {
+      console.error(e);
+      showToast('❌ Gagal memproses: ' + e.message, 'error');
+      progressWrap.classList.remove('visible');
+    }
+    processBtn.disabled = false;
+  });
+
+  function formatBytes(b) {
+    if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
+    return (b / (1024 * 1024)).toFixed(2) + ' MB';
+  }
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>
