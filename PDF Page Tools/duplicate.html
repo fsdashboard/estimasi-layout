@@ -1228,6 +1228,8 @@
       await sleep(300);
 
       downloadBtn.href = URL.createObjectURL(new Blob([pdfBytes], { type: 'application/pdf' }));
+        const originalName = pdfFile.name.replace(/\.pdf$/i, '');
+        downloadBtn.download = originalName + '_duplicated.pdf';
 
       const totalCopied = pageSeq.length - srcDoc.getPageCount();
       resultInfo.innerHTML = `
