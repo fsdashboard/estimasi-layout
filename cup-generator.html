@@ -154,6 +154,7 @@ canvas#cvs{display:block;width:100%;background:#fafaf8}
     <div class="section">
       <div class="sec-header"><span class="sec-num">03</span><span class="sec-title">Kalkulasi</span></div>
       <div class="stats" id="statsBox">
+        <div class="stat-row"><span class="stat-label">Tipe bentuk</span><span class="stat-val" id="v_shape">—</span></div>
         <div class="stat-row"><span class="stat-label">Slant height (s)</span><span class="stat-val" id="v_slant">—</span></div>
         <div class="stat-row"><span class="stat-label">Radius luar (R)</span><span class="stat-val" id="v_bigR">—</span></div>
         <div class="stat-row"><span class="stat-label">Radius dalam (r)</span><span class="stat-val" id="v_smlR">—</span></div>
@@ -164,8 +165,21 @@ canvas#cvs{display:block;width:100%;background:#fafaf8}
       </div>
     </div>
 
+    <div class="section" id="designBox" style="display:none">
+      <div class="sec-header"><span class="sec-num">05</span><span class="sec-title">Ukuran Desain</span></div>
+      <div style="font-size:11px;color:#555;line-height:1.8;background:white;padding:10px;border-radius:3px;border:1px solid var(--faint)">
+        Siapkan desain dengan ukuran:<br>
+        <span style="font-family:var(--mono);color:var(--accent)">Lebar atas</span> = <strong id="des_w">—</strong><br>
+        <span style="font-family:var(--mono);color:var(--accent)">Tinggi</span> = <strong id="des_h">—</strong> (slant)<br>
+        <span style="font-size:10px;color:#999;margin-top:4px;display:block">
+          ⚠ Lebar desain mengikuti Arc atas.<br>
+          Tinggi desain = slant height (sisi miring), bukan tinggi vertikal cup.
+        </span>
+      </div>
+    </div>
+
     <div class="section">
-      <div class="sec-header"><span class="sec-num">04</span><span class="sec-title">Keterangan</span></div>
+      <div class="sec-header"><span class="sec-num">06</span><span class="sec-title">Keterangan</span></div>
       <div class="legend-strip">
         <div class="leg-item"><div class="leg-line" style="background:var(--cut)"></div>Cut Line — garis potong</div>
         <div class="leg-item"><div class="leg-line" style="background:var(--bleed)"></div>Bleed — lebihan cetak</div>
@@ -261,7 +275,14 @@ function switchTab(name){
   document.querySelectorAll('.tab-panel').forEach((p,i)=>{
     p.classList.toggle('active', ['panel-template','panel-mockup'][i]==='panel-'+name);
   });
-  if(name==='mockup' && threeSetup) threeSetup.renderer.setSize(threeSetup.container.clientWidth, threeSetup.container.clientHeight);
+  if(name==='mockup' && threeSetup){
+    const c=document.getElementById('mockupArea');
+    const W=c.clientWidth||800;
+    const H=c.clientHeight||500;
+    threeSetup.renderer.setSize(W,H);
+    threeSetup.camera.aspect=W/H;
+    threeSetup.camera.updateProjectionMatrix();
+  }
 }
 
 /* ═══════════════════ MATH ═══════════════════ */
@@ -277,32 +298,83 @@ function arcPts(radius,a0,a1,n){
 }
 
 function calc(dTop,dBot,hCup,glue,bleed){
-  const rTop=dTop/2,rBot=dBot/2;
+  const rTop=dTop/2, rBot=dBot/2;
   const slant=Math.sqrt(hCup*hCup+(rTop-rBot)*(rTop-rBot));
-  const bigR=slant*rTop/(rTop-rBot);
-  const smlR=Math.max(bigR-slant,0);
-  const theta=360*rTop/bigR;
-  const glueAngle=(glue/(2*PI*bigR))*360;
-  const bleedAngle=(bleed/(2*PI*bigR))*360;
-  const aStart=90-theta/2;
-  const aEnd=90+theta/2+glueAngle;
-  const glueStart=90+theta/2;
-  const arcTop=(theta/360)*2*PI*bigR;
-  const arcBot=(theta/360)*2*PI*smlR;
-  return{slant,bigR,smlR,theta,glueAngle,bleedAngle,aStart,aEnd,glueStart,arcTop,arcBot};
+  const isCylinder = Math.abs(rTop-rBot) < 0.001;
+  const isInverted = rTop < rBot;
+
+  // ── SILINDER (atas = bawah) ──
+  // Template = persegi panjang lurus, bukan busur
+  if(isCylinder){
+    const circumference = 2*PI*rTop;
+    const glueW   = glue;
+    const bleedW  = bleed;
+    // Lebar total template = keliling + lem
+    const rectW   = circumference + glueW;
+    const rectH   = slant;
+    return{
+      slant, shapeType:'cylinder',
+      arcTop: circumference, arcBot: circumference,
+      rectW, rectH, glue, bleed,
+      // dummy values agar tidak error di tempat lain
+      bigR:0, smlR:0, theta:360, glueAngle:0, bleedAngle:0,
+      aStart:0, aEnd:360, glueStart:360
+    };
+  }
+
+  // ── FRUSTUM normal (atas > bawah) ──
+  if(!isInverted){
+    const bigR  = slant * rTop / (rTop - rBot);
+    const smlR  = Math.max(bigR - slant, 0);
+    const theta = 360 * rTop / bigR;
+    const glueAngle  = (glue  / (2*PI*bigR)) * 360;
+    const bleedAngle = (bleed / (2*PI*bigR)) * 360;
+    const aStart  = 90 - theta/2;
+    const aEnd    = 90 + theta/2 + glueAngle;
+    const glueStart = 90 + theta/2;
+    const arcTop  = (theta/360)*2*PI*bigR;
+    const arcBot  = (theta/360)*2*PI*smlR;
+    return{slant,bigR,smlR,theta,glueAngle,bleedAngle,
+           aStart,aEnd,glueStart,arcTop,arcBot,
+           shapeType:'frustum',isInverted:false};
+  }
+
+  // ── INVERTED (atas < bawah) ──
+  // Matematika sama tapi posisi inner/outer dibalik
+  // outer (busur luar/besar) = bawah, inner (busur dalam/kecil) = atas
+  const bigR  = slant * rBot / (rBot - rTop);  // rBot lebih besar
+  const smlR  = Math.max(bigR - slant, 0);
+  const theta = 360 * rBot / bigR;
+  const glueAngle  = (glue  / (2*PI*bigR)) * 360;
+  const bleedAngle = (bleed / (2*PI*bigR)) * 360;
+  // Untuk inverted: busur LUAR ada di BAWAH (y rendah di canvas)
+  // kita flip dengan menaruh aStart/aEnd di bawah (270 sebagai center)
+  const angleMid  = 270; // bawah
+  const aStart    = angleMid - theta/2;
+  const aEnd      = angleMid + theta/2 + glueAngle;
+  const glueStart = angleMid + theta/2;
+  // Arc: atas = kecil (smlR), bawah = besar (bigR)
+  const arcTop = (theta/360)*2*PI*smlR;
+  const arcBot = (theta/360)*2*PI*bigR;
+  return{slant,bigR,smlR,theta,glueAngle,bleedAngle,
+         aStart,aEnd,glueStart,arcTop,arcBot,
+         shapeType:'inverted',isInverted:true};
 }
 
 function getPts(f,bleed){
+  // Cylinder tidak pakai arc points — pakai rectangle langsung
+  if(f.shapeType==='cylinder') return null;
   const N=Math.max(180,Math.round((f.theta/360)*400));
   return{
-    inner:arcPts(f.smlR,f.aStart,f.aEnd,N),
-    outer:arcPts(f.bigR,f.aStart,f.aEnd,N),
-    bIn:arcPts(Math.max(f.smlR-bleed,0),f.aStart-f.bleedAngle,f.aEnd+f.bleedAngle,N),
-    bOut:arcPts(f.bigR+bleed,f.aStart-f.bleedAngle,f.aEnd+f.bleedAngle,N)
+    inner:arcPts(f.smlR,                   f.aStart,               f.aEnd,              N),
+    outer:arcPts(f.bigR,                   f.aStart,               f.aEnd,              N),
+    bIn:  arcPts(Math.max(f.smlR-bleed,0), f.aStart-f.bleedAngle,  f.aEnd+f.bleedAngle, N),
+    bOut: arcPts(f.bigR+bleed,             f.aStart-f.bleedAngle,  f.aEnd+f.bleedAngle, N)
   };
 }
 
 function bbox(p){
+  if(!p) return{minX:0,maxX:0,minY:0,maxY:0};
   const all=[...p.inner,...p.outer,...p.bIn,...p.bOut];
   return{
     minX:Math.min(...all.map(q=>q[0])),maxX:Math.max(...all.map(q=>q[0])),
@@ -323,15 +395,17 @@ function generate(){
   if(!dTop||!dBot||!hCup||dTop<=0||dBot<=0||hCup<=0){
     err.textContent='Diameter dan tinggi harus diisi dan lebih dari 0!';err.style.display='block';return;
   }
-  if(dTop<=dBot){
-    err.textContent='Diameter atas harus lebih besar dari diameter bawah!';err.style.display='block';return;
-  }
+  // Semua kondisi diizinkan: atas>bawah (cup), atas=bawah (silinder), atas<bawah (ember)
 
   const f=calc(dTop,dBot,hCup,glue,bleed);
-  const p=getPts(f,bleed);
+  const p=f.shapeType==='cylinder' ? null : getPts(f,bleed);
   lastData={f,p,bleed,dTop,dBot,hCup};
 
   const fmt=v=>v.toFixed(2);
+  const shapeLabel = f.shapeType==='cylinder' ? '⬤ Silinder / Tabung'
+                   : f.shapeType==='inverted'  ? '▽ Terbalik (Ember)'
+                   : '△ Cup / Frustum';
+  document.getElementById('v_shape').textContent=shapeLabel;
   document.getElementById('v_slant').textContent=fmt(f.slant)+' mm';
   document.getElementById('v_bigR').textContent=fmt(f.bigR)+' mm';
   document.getElementById('v_smlR').textContent=fmt(f.smlR)+' mm';
@@ -339,6 +413,11 @@ function generate(){
   document.getElementById('v_glueA').textContent=fmt(f.glueAngle)+'°';
   document.getElementById('v_arcT').textContent=fmt(f.arcTop)+' mm';
   document.getElementById('v_arcB').textContent=fmt(f.arcBot)+' mm';
+
+  // Update design size recommendation
+  document.getElementById('des_w').textContent=fmt(f.arcTop)+' mm';
+  document.getElementById('des_h').textContent=fmt(f.slant)+' mm';
+  document.getElementById('designBox').style.display='block';
 
   document.getElementById('statsBox').style.display='flex';
   document.getElementById('emptyState').style.display='none';
@@ -349,24 +428,56 @@ function generate(){
   document.getElementById('uploadZone').style.display='flex';
 
   drawCanvas(f,p);
-  if(threeSetup) buildCupGeometry(null);
+  if(threeSetup) buildCupGeometry(threeSetup.texture||null);
 }
 
 /* ═══════════════════ CANVAS PREVIEW ═══════════════════ */
 function drawCanvas(f,p){
-  const bb=bbox(p);
-  const W=bb.maxX-bb.minX,H=bb.maxY-bb.minY;
   const cvs=document.getElementById('cvs');
-  const PAD=32,cvsW=760;
+  const PAD=32, cvsW=760;
+  const ctx=cvs.getContext('2d');
+
+  // ── SILINDER: gambar sebagai persegi panjang ──
+  if(f.shapeType==='cylinder'){
+    const W=f.rectW, H=f.rectH;
+    const sc=Math.min((cvsW-PAD*2)/W, 300/H);
+    const drawW=W*sc, drawH=H*sc;
+    const cvsH=Math.round(drawH+PAD*2);
+    cvs.width=cvsW; cvs.height=cvsH;
+    ctx.fillStyle='#fafaf8'; ctx.fillRect(0,0,cvsW,cvsH);
+    // grid
+    ctx.strokeStyle='#eeebe5'; ctx.lineWidth=0.5;
+    for(let gx=0;gx<cvsW;gx+=20){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,cvsH);ctx.stroke()}
+    for(let gy=0;gy<cvsH;gy+=20){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(cvsW,gy);ctx.stroke()}
+    const ox=(cvsW-drawW)/2, oy=PAD;
+    // Bleed rect
+    const bd=f.bleed*sc;
+    ctx.setLineDash([5,3]); ctx.strokeStyle='#2d7a4f'; ctx.lineWidth=1;
+    ctx.strokeRect(ox-bd, oy-bd, drawW+bd*2, drawH+bd*2);
+    ctx.setLineDash([]);
+    // Cut rect fill + stroke
+    ctx.fillStyle='rgba(200,68,26,.05)';
+    ctx.fillRect(ox, oy, drawW, drawH);
+    ctx.strokeStyle='#c8441a'; ctx.lineWidth=1.5;
+    ctx.strokeRect(ox, oy, drawW, drawH);
+    // Glue line (kanan setelah keliling)
+    const glueX=ox + (f.arcTop*sc);
+    ctx.beginPath(); ctx.moveTo(glueX,oy); ctx.lineTo(glueX,oy+drawH);
+    ctx.strokeStyle='#1a5fa8'; ctx.lineWidth=1.5; ctx.stroke();
+    return;
+  }
+
+  // ── FRUSTUM & INVERTED: gambar sebagai busur ──
+  const bb=bbox(p);
+  const W=bb.maxX-bb.minX, H=bb.maxY-bb.minY;
   const cvsH=Math.max(200,Math.round(cvsW*(H+PAD*2)/(W+PAD*2)));
-  cvs.width=cvsW;cvs.height=cvsH;
+  cvs.width=cvsW; cvs.height=cvsH;
   const sc=(cvsW-PAD*2)/W;
   const tx=x=>PAD+(x-bb.minX)*sc;
   const ty=y=>cvsH-PAD-(y-bb.minY)*sc;
-  const ctx=cvs.getContext('2d');
   ctx.clearRect(0,0,cvsW,cvsH);
-  ctx.fillStyle='#fafaf8';ctx.fillRect(0,0,cvsW,cvsH);
-  ctx.strokeStyle='#eeebe5';ctx.lineWidth=0.5;
+  ctx.fillStyle='#fafaf8'; ctx.fillRect(0,0,cvsW,cvsH);
+  ctx.strokeStyle='#eeebe5'; ctx.lineWidth=0.5;
   const gs=Math.round(10*sc);
   for(let gx=PAD%gs;gx<cvsW;gx+=gs){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,cvsH);ctx.stroke()}
   for(let gy=PAD%gs;gy<cvsH;gy+=gs){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(cvsW,gy);ctx.stroke()}
@@ -381,16 +492,16 @@ function drawCanvas(f,p){
   }
 
   shape(p.bIn,p.bOut);
-  ctx.fillStyle='rgba(45,122,79,.05)';ctx.fill();
-  ctx.setLineDash([5,3]);ctx.strokeStyle='#2d7a4f';ctx.lineWidth=1;ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(45,122,79,.05)'; ctx.fill();
+  ctx.setLineDash([5,3]); ctx.strokeStyle='#2d7a4f'; ctx.lineWidth=1; ctx.stroke(); ctx.setLineDash([]);
   shape(p.inner,p.outer);
-  ctx.fillStyle='rgba(200,68,26,.05)';ctx.fill();
-  ctx.strokeStyle='#c8441a';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle='rgba(200,68,26,.05)'; ctx.fill();
+  ctx.strokeStyle='#c8441a'; ctx.lineWidth=1.5; ctx.stroke();
   const gr=d2r(f.glueStart);
   ctx.beginPath();
   ctx.moveTo(tx(f.smlR*Math.cos(gr)),ty(f.smlR*Math.sin(gr)));
   ctx.lineTo(tx(f.bigR*Math.cos(gr)),ty(f.bigR*Math.sin(gr)));
-  ctx.strokeStyle='#1a5fa8';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.strokeStyle='#1a5fa8'; ctx.lineWidth=1.5; ctx.stroke();
 }
 
 /* ═══════════════════ SVG DOWNLOAD ═══════════════════ */
@@ -406,26 +517,51 @@ function ptsToPath(inner,outer,minX,maxY,PAD){
 function downloadSVG(){
   if(!lastData)return;
   const{f,p,dTop,dBot,hCup}=lastData;
-  const bb=bbox(p);const PAD=5;
-  const svgW=(bb.maxX-bb.minX+PAD*2).toFixed(4);
-  const svgH=(bb.maxY-bb.minY+PAD*2).toFixed(4);
-  const dCut=ptsToPath(p.inner,p.outer,bb.minX,bb.maxY,PAD);
-  const dBleed=ptsToPath(p.bIn,p.bOut,bb.minX,bb.maxY,PAD);
-  const gr=d2r(f.glueStart);
-  const[glx1,gly1]=toSP(f.smlR*Math.cos(gr),f.smlR*Math.sin(gr),bb.minX,bb.maxY,PAD);
-  const[glx2,gly2]=toSP(f.bigR*Math.cos(gr),f.bigR*Math.sin(gr),bb.minX,bb.maxY,PAD);
-  const svg=`<?xml version="1.0" encoding="UTF-8"?>
-<!-- CupForge | Dia Atas:${dTop}mm | Dia Bawah:${dBot}mm | Tinggi:${hCup}mm -->
+  const PAD=5;
+  let svg='';
+
+  if(f.shapeType==='cylinder'){
+    // Silinder → persegi panjang
+    const W=(f.rectW+PAD*2).toFixed(4);
+    const H=(f.rectH+PAD*2).toFixed(4);
+    const x0=PAD.toFixed(4), y0=PAD.toFixed(4);
+    const cW=f.rectW.toFixed(4), cH=f.rectH.toFixed(4);
+    const bd=f.bleed;
+    const bx=(PAD-bd).toFixed(4), by=(PAD-bd).toFixed(4);
+    const bW=(f.rectW+bd*2).toFixed(4), bH=(f.rectH+bd*2).toFixed(4);
+    const glX=(PAD+f.arcTop).toFixed(4);
+    const glY2=(PAD+f.rectH).toFixed(4);
+    svg=`<?xml version="1.0" encoding="UTF-8"?>
+<!-- CupForge Silinder | Dia:${dTop}mm | Tinggi:${hCup}mm -->
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}">
+  <g id="Bleed"><rect x="${bx}" y="${by}" width="${bW}" height="${bH}" fill="none" stroke="#2d7a4f" stroke-width="0.25" stroke-dasharray="2,1"/></g>
+  <g id="Cut_Line"><rect x="${x0}" y="${y0}" width="${cW}" height="${cH}" fill="none" stroke="#c8441a" stroke-width="0.25"/></g>
+  <g id="Glue_Area"><line x1="${glX}" y1="${y0}" x2="${glX}" y2="${glY2}" stroke="#1a5fa8" stroke-width="0.25"/></g>
+</svg>`;
+  } else {
+    // Frustum / Inverted → busur
+    const bb=bbox(p);
+    const svgW=(bb.maxX-bb.minX+PAD*2).toFixed(4);
+    const svgH=(bb.maxY-bb.minY+PAD*2).toFixed(4);
+    const dCut=ptsToPath(p.inner,p.outer,bb.minX,bb.maxY,PAD);
+    const dBleed=ptsToPath(p.bIn,p.bOut,bb.minX,bb.maxY,PAD);
+    const gr=d2r(f.glueStart);
+    const[glx1,gly1]=toSP(f.smlR*Math.cos(gr),f.smlR*Math.sin(gr),bb.minX,bb.maxY,PAD);
+    const[glx2,gly2]=toSP(f.bigR*Math.cos(gr),f.bigR*Math.sin(gr),bb.minX,bb.maxY,PAD);
+    svg=`<?xml version="1.0" encoding="UTF-8"?>
+<!-- CupForge | Dia Atas:${dTop}mm | Dia Bawah:${dBot}mm | Tinggi:${hCup}mm | Tipe:${f.shapeType} -->
 <svg xmlns="http://www.w3.org/2000/svg" width="${svgW}mm" height="${svgH}mm" viewBox="0 0 ${svgW} ${svgH}">
   <g id="Bleed"><path d="${dBleed}" fill="none" stroke="#2d7a4f" stroke-width="0.25" stroke-dasharray="2,1"/></g>
   <g id="Cut_Line"><path d="${dCut}" fill="none" stroke="#c8441a" stroke-width="0.25"/></g>
   <g id="Glue_Area"><line x1="${glx1}" y1="${gly1}" x2="${glx2}" y2="${gly2}" stroke="#1a5fa8" stroke-width="0.25"/></g>
 </svg>`;
+  }
+
   const blob=new Blob([svg],{type:'image/svg+xml'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url;a.download=`cup_${dTop}x${dBot}x${hCup}mm.svg`;
-  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  a.href=url; a.download=`cup_${dTop}x${dBot}x${hCup}mm_${f.shapeType}.svg`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
 /* ═══════════════════ UPLOAD ═══════════════════ */
@@ -442,8 +578,8 @@ function handleUpload(e){
 /* ═══════════════════ THREE.JS 3D MOCKUP ═══════════════════ */
 function initThree(imageDataUrl){
   const container=document.getElementById('mockupArea');
-  const W=container.clientWidth;
-  const H=container.clientHeight;
+  const W=container.clientWidth||800;
+  const H=container.clientHeight||500;
 
   // cleanup old
   if(threeSetup){
@@ -481,68 +617,144 @@ function initThree(imageDataUrl){
   scene.add(fillLight);
 
   // Load texture from uploaded image
-  const texLoader=new THREE.TextureLoader();
-  const texture=texLoader.load(imageDataUrl);
-  texture.wrapS=THREE.RepeatWrapping;
-  texture.wrapT=THREE.ClampToEdgeWrapping;
-
-  threeSetup={renderer,scene,camera,texture};
-  buildCupGeometry(texture);
+  threeSetup={renderer,scene,camera,texture:null};
   setupOrbitControls(renderer,camera);
   animate();
+
+  // Load texture THEN build geometry — prevents "image undefined" warning
+  const texLoader=new THREE.TextureLoader();
+  texLoader.load(
+    imageDataUrl,
+    function(texture){
+      // onLoad: image is ready
+      texture.wrapS=THREE.ClampToEdgeWrapping;
+      texture.wrapT=THREE.ClampToEdgeWrapping;
+      texture.needsUpdate=true;
+      threeSetup.texture=texture;
+      buildCupGeometry(texture);
+    },
+    undefined,
+    function(err){
+      console.warn('Texture load error:', err);
+      buildCupGeometry(null);
+    }
+  );
 }
 
 function buildCupGeometry(texture){
   if(!lastData||!threeSetup)return;
-  const{f}=lastData;
+  const{f,dTop,dBot,hCup}=lastData;
   const{scene}=threeSetup;
 
-  // remove old cup
-  const old=scene.getObjectByName('cup');
-  if(old)scene.remove(old);
+  // Remove old cup
+  const oldCup=scene.getObjectByName('cup');
+  if(oldCup)scene.remove(oldCup);
 
-  // scale: 1 unit = 10mm
-  const rTop=f.bigR/10*0.5; // approximate visual radius
-  const rBot=f.smlR/10*0.5;
-  // actual cup radii from input
-  const RT=(lastData.dTop/2)/50;
-  const RB=(lastData.dBot/2)/50;
-  const H=lastData.hCup/50;
+  // Scale: divide by 50 so cup fits nicely in view
+  const SC=50;
+  const RT=(dTop/2)/SC;
+  const RB=(dBot/2)/SC;
+  const H = hCup/SC;
 
-  const segs=128;
-  const geo=new THREE.CylinderGeometry(RT,RB,H,segs,1,true);
+  const SEGS=128; // horizontal segments (smoother)
+  const VSEGS=32; // vertical segments
+
+  // ─── Custom frustum geometry with correct UV mapping ───
+  // UV mapping for frustum (truncated cone):
+  //   U axis = angle around cup (0=left edge, 1=right edge of design)
+  //   V axis = position along slant height (0=bottom/small, 1=top/large)
+  //
+  // The design image should be:
+  //   Width  = arc atas (top arc length)
+  //   Height = slant height
+  // UV maps directly from this rectangular design onto the curved surface.
+
+  const positions=[];
+  const normals=[];
+  const uvs=[];
+  const indices=[];
+
+  // Slant angle (how much the side tilts inward)
+  const slantAngle=Math.atan2(RT-RB, H); // angle of cone side from vertical
+
+  for(let j=0;j<=VSEGS;j++){
+    const t=j/VSEGS; // 0=bottom, 1=top
+    const r=RB+(RT-RB)*t;
+    const y=-H/2+H*t;
+    const v=t; // V coordinate: 0=bottom, 1=top
+
+    for(let i=0;i<=SEGS;i++){
+      const u=i/SEGS; // U coordinate: 0 to 1 across full circle
+      const angle=u*2*PI;
+
+      const x=r*Math.cos(angle);
+      const z=r*Math.sin(angle);
+
+      positions.push(x,y,z);
+
+      // Normal: perpendicular to cone surface
+      const nx=Math.cos(angle)*Math.cos(slantAngle);
+      const ny=Math.sin(slantAngle);
+      const nz=Math.sin(angle)*Math.cos(slantAngle);
+      normals.push(nx,ny,nz);
+
+      uvs.push(1-u,v); // flip U to fix mirror
+    }
+  }
+
+  // Build triangles
+  for(let j=0;j<VSEGS;j++){
+    for(let i=0;i<SEGS;i++){
+      const a=j*(SEGS+1)+i;
+      const b=a+1;
+      const c=a+(SEGS+1);
+      const d=c+1;
+      indices.push(a,c,b);
+      indices.push(b,c,d);
+    }
+  }
+
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  geo.setAttribute('normal',  new THREE.Float32BufferAttribute(normals,3));
+  geo.setAttribute('uv',      new THREE.Float32BufferAttribute(uvs,2));
+  geo.setIndex(indices);
+
+  // Texture setup
+  let tex=texture||threeSetup.texture||null;
+  if(tex){
+    tex.wrapS=THREE.ClampToEdgeWrapping;
+    tex.wrapT=THREE.ClampToEdgeWrapping;
+    // Only mark needsUpdate if image is actually loaded
+    if(tex.image && tex.image.complete){
+      tex.needsUpdate=true;
+    }
+  }
 
   const mat=new THREE.MeshStandardMaterial({
-    map: texture||null,
-    color: texture?0xffffff:0xf5ede0,
+    map:tex,
+    color:tex?0xffffff:0xf5ede0,
     side:THREE.FrontSide,
-    roughness:0.4,
-    metalness:0.05
+    roughness:0.35,
+    metalness:0.05,
   });
 
-  // UV fix: CylinderGeometry default UV wraps 0-1 horizontally
-  // theta / 360 = fraction of full circle = the fraction we need
-  const frac=f.theta/360;
-  const uvAttr=geo.attributes.uv;
-  for(let i=0;i<uvAttr.count;i++){
-    const u=uvAttr.getX(i);
-    uvAttr.setX(i, u*frac);
-  }
-  uvAttr.needsUpdate=true;
-
   const cup=new THREE.Mesh(geo,mat);
-  cup.name='cup';
   cup.castShadow=true;
 
+  // Cap material
+  const capMat=new THREE.MeshStandardMaterial({
+    color:0xe8ddd0,roughness:0.7,metalness:0
+  });
+
   // Top cap
-  const topGeo=new THREE.CircleGeometry(RT,segs);
-  const capMat=new THREE.MeshStandardMaterial({color:0xf0e8d8,roughness:0.6,metalness:0});
+  const topGeo=new THREE.CircleGeometry(RT,SEGS);
   const topCap=new THREE.Mesh(topGeo,capMat);
   topCap.rotation.x=-PI/2;
   topCap.position.y=H/2;
 
   // Bottom cap
-  const botGeo=new THREE.CircleGeometry(RB,segs);
+  const botGeo=new THREE.CircleGeometry(RB,SEGS);
   const botCap=new THREE.Mesh(botGeo,capMat);
   botCap.rotation.x=PI/2;
   botCap.position.y=-H/2;
@@ -550,23 +762,21 @@ function buildCupGeometry(texture){
   const group=new THREE.Group();
   group.add(cup,topCap,botCap);
   group.name='cup';
-  group.rotation.y=PI/4;
-  threeSetup.scene.add(group);
+  group.rotation.y=PI*0.1; // slight initial rotation for nice view
+  scene.add(group);
 
-  // Floor shadow plane
-  let floor=threeSetup.scene.getObjectByName('floor');
+  // Floor shadow
+  let floor=scene.getObjectByName('floor');
   if(!floor){
     const fGeo=new THREE.PlaneGeometry(20,20);
-    const fMat=new THREE.ShadowMaterial({opacity:0.12});
+    const fMat=new THREE.ShadowMaterial({opacity:0.15});
     floor=new THREE.Mesh(fGeo,fMat);
     floor.name='floor';
     floor.rotation.x=-PI/2;
-    floor.position.y=-H/2-0.01;
     floor.receiveShadow=true;
-    threeSetup.scene.add(floor);
-  }else{
-    floor.position.y=-H/2-0.01;
+    scene.add(floor);
   }
+  floor.position.y=-H/2-0.005;
 }
 
 /* ═══════════════════ ORBIT CONTROLS (manual) ═══════════════════ */
@@ -651,8 +861,10 @@ function saveRender(){
 window.addEventListener('resize',()=>{
   if(!threeSetup)return;
   const c=document.getElementById('mockupArea');
-  threeSetup.renderer.setSize(c.clientWidth,c.clientHeight);
-  threeSetup.camera.aspect=c.clientWidth/c.clientHeight;
+  const rW=c.clientWidth||800;
+  const rH=c.clientHeight||500;
+  threeSetup.renderer.setSize(rW,rH);
+  threeSetup.camera.aspect=rW/rH;
   threeSetup.camera.updateProjectionMatrix();
 });
 </script>
