@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -1031,6 +1032,11 @@
     reader.readAsText(f, 'UTF-8');
   }
 
+  function extractNumber(str) {
+  const match = str.match(/\d+/);
+  return match ? parseInt(match[0]) : NaN;
+}
+
   function parseCsv(text, fname) {
     // Normalize line endings (Windows \r\n, Mac \r, Unix \n)
     const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n')
@@ -1046,8 +1052,8 @@
       const cols = lines[i].split(/[,\t;]/).map(c => c.replace(/^["']|["']$/g, '').trim());
       if (cols.length < 2) continue;
 
-      const pg = parseInt(cols[0]);
-      const cp = parseInt(cols[1]);
+      const pg = extractNumber(cols[0]);
+      const cp = extractNumber(cols[1]);
 
       // Skip header row (non-numeric first column)
       if (isNaN(pg)) {
