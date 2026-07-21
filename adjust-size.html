@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
@@ -6,6 +6,7 @@
   <link rel="shortcut icon" href="logo/favicon.png" />
   <title>Adjust Size</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 <style>
   body {
@@ -29,6 +30,41 @@
   .modal-hide {
     opacity: 0;
     transform: scale(0.95);
+  }
+
+  .upload-zone {
+    border: 2px dashed #3b82f6;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background-color: #eff6ff;
+  }
+
+  .upload-zone:hover {
+    border-color: #1d4ed8;
+    background-color: #dbeafe;
+  }
+
+  .upload-zone.dragover {
+    border-color: #1d4ed8;
+    background-color: #dbeafe;
+  }
+
+  .file-info {
+    display: none;
+    background-color: #d1fae5;
+    border: 1px solid #6ee7b7;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .file-info.show {
+    display: flex;
   }
 </style>
 </head>
@@ -63,12 +99,29 @@
       <p class="text-sm text-gray-600 mb-4">Silakan tambahkan form penyesuaian ukuran file atau dokumen di sini</p>
       <div class="bg-white rounded-lg shadow p-6 w-fit mx-auto">
 
+    <!-- Upload File Section -->
+    <div class="mb-6">
+      <label class="block font-medium mb-2">Upload File (PNG, JPG, PDF):</label>
+      <div class="upload-zone" id="upload-zone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" onclick="document.getElementById('file-input').click()">
+        <div class="text-4xl mb-2">📁</div>
+        <p class="text-gray-600">Klik atau drag file ke sini</p>
+        <p class="text-sm text-gray-500">PNG, JPG, atau PDF</p>
+      </div>
+      <input type="file" id="file-input" accept=".png,.jpg,.jpeg,.pdf" style="display:none" onchange="handleFile(event)"/>
+      <div class="file-info" id="file-info">
+        <span>✓</span>
+        <span id="file-name" class="flex-1">—</span>
+        <button class="text-red-600 font-bold" onclick="removeFile()">✕</button>
+      </div>
+    </div>
+
     <div class="mb-4">
       <label class="block font-medium mb-1">Ukuran Awal (cm):</label>
       <div class="flex space-x-2">
         <input type="number" id="awal-panjang" placeholder="Panjang" class="p-1 border rounded w-[10.25rem] mr-1" />
         <input type="number" id="awal-lebar" placeholder="Lebar" class="p-1 border rounded w-[10.25rem] ml-1" />
       </div>
+      <p class="text-xs text-gray-500 mt-1">*Otomatis terisi jika Anda upload file</p>
     </div>
 
     <div class="mb-4">
@@ -101,84 +154,301 @@
   </div>
 </div>
 
+<!-- Modal Success -->
+<div id="customSuccess" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+  <div id="successBox" class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full modal-enter">
+    <h2 class="text-lg font-bold text-green-600 mb-2">SUKSES!</h2>
+    <p id="successMessage" class="text-gray-700 mb-4"></p>
+    <div class="text-right">
+      <button onclick="tutupSuccess()" class="px-4 py-2 bg-green-600 text-white rounded">Oke</button>
+    </div>
+  </div>
+</div>
+
 <script>
+  // Read DPI from PNG metadata (pHYs chunk)
+  function readPngDpi(arrayBuffer) {
+    try {
+      const data = new Uint8Array(arrayBuffer);
+      let i = 8;
+      while (i < data.length - 12) {
+        const len = (data[i]<<24|data[i+1]<<16|data[i+2]<<8|data[i+3]) >>> 0;
+        const type = String.fromCharCode(data[i+4],data[i+5],data[i+6],data[i+7]);
+        if (type === 'pHYs') {
+          const ppuX = (data[i+8]<<24|data[i+9]<<16|data[i+10]<<8|data[i+11]) >>> 0;
+          const unit = data[i+16];
+          if (unit === 1 && ppuX > 0) {
+            return Math.round(ppuX * 0.0254);
+          }
+          return null;
+        }
+        i += 12 + len;
+      }
+    } catch(e) {}
+    return null;
+  }
+
+  // Read DPI from JPG metadata (JFIF/EXIF)
+  function readJpgDpi(arrayBuffer) {
+    try {
+      const data = new Uint8Array(arrayBuffer);
+      let i = 2;
+      while (i < data.length - 4) {
+        if (data[i] !== 0xFF) break;
+        const marker = data[i+1];
+        const segLen = (data[i+2] << 8) | data[i+3];
+
+        if (marker === 0xE0 && segLen >= 14) {
+          const unit = data[i+11];
+          const xd = (data[i+12] << 8) | data[i+13];
+          if (xd > 0) {
+            if (unit === 1) return xd;
+            if (unit === 2) return Math.round(xd * 2.54);
+          }
+        }
+
+        if (marker === 0xE1 && segLen > 6) {
+          const exifHeader = String.fromCharCode(data[i+4],data[i+5],data[i+6],data[i+7]);
+          if (exifHeader === 'Exif') {
+            const tiffStart = i + 10;
+            const littleEndian = data[tiffStart] === 0x49;
+            function r16(o){ return littleEndian ? data[tiffStart+o]|(data[tiffStart+o+1]<<8) : (data[tiffStart+o]<<8)|data[tiffStart+o+1]; }
+            function r32(o){ return littleEndian ? data[tiffStart+o]|(data[tiffStart+o+1]<<8)|(data[tiffStart+o+2]<<16)|(data[tiffStart+o+3]<<24) : (data[tiffStart+o]<<24)|(data[tiffStart+o+1]<<16)|(data[tiffStart+o+2]<<8)|data[tiffStart+o+3]; }
+            const ifdOffset = r32(4);
+            const numEntries = r16(ifdOffset);
+            let xResNum = null, xResDen = 1, resUnit = 2;
+            for (let e = 0; e < numEntries; e++) {
+              const eOff = ifdOffset + 2 + e * 12;
+              const tag = r16(eOff);
+              if (tag === 0x011A) {
+                const valOff = r32(eOff+8);
+                xResNum = r32(valOff);
+                xResDen = r32(valOff+4) || 1;
+              }
+              if (tag === 0x0128) resUnit = r16(eOff+8);
+            }
+            if (xResNum && xResNum > 0) {
+              let dpi = xResNum / xResDen;
+              if (resUnit === 3) dpi = dpi * 2.54;
+              if (dpi > 0) return Math.round(dpi);
+            }
+          }
+        }
+        i += 2 + segLen;
+      }
+    } catch(e) {}
+    return null;
+  }
+
+  // Detect PDF dimensions
+  async function detectPdfDimensions(bytes) {
+    try {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const pdfDoc = await pdfjsLib.getDocument({ data: bytes.slice(0) }).promise;
+      const page = await pdfDoc.getPage(1);
+      const vp = page.getViewport({ scale: 1 });
+      return { width: vp.width, height: vp.height };
+    } catch(e) {
+      console.warn('Error detecting PDF dimensions:', e);
+      return null;
+    }
+  }
+
+  // Auto-fill dimensions from file
+  async function autoFillFromFile(fileW, fileH, isPdf, arrayBuffer, ext) {
+    let wCm, hCm;
+    
+    if (isPdf) {
+      wCm = fileW * (2.54 / 72);
+      hCm = fileH * (2.54 / 72);
+    } else {
+      let dpiUsed = 96;
+      if (ext === 'png' && arrayBuffer) {
+        const dpiFromMeta = readPngDpi(arrayBuffer);
+        if (dpiFromMeta) dpiUsed = dpiFromMeta;
+      } else if (arrayBuffer) {
+        const dpiFromMeta = readJpgDpi(arrayBuffer);
+        if (dpiFromMeta) dpiUsed = dpiFromMeta;
+      }
+      wCm = fileW * (2.54 / dpiUsed);
+      hCm = fileH * (2.54 / dpiUsed);
+    }
+
+    document.getElementById('awal-panjang').value = wCm.toFixed(2);
+    document.getElementById('awal-lebar').value = hCm.toFixed(2);
+
+    const dpiInfo = isPdf ? 'dari PDF' : 'dari metadata gambar';
+    showSuccess('Ukuran awal diisi otomatis ' + dpiInfo + '!');
+  }
+
+  // Handle file upload
+  async function handleFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    processUpload(file);
+  }
+
+  // Drag and drop handlers
+  function onDragOver(e) {
+    e.preventDefault();
+    document.getElementById('upload-zone').classList.add('dragover');
+  }
+
+  function onDragLeave(e) {
+    document.getElementById('upload-zone').classList.remove('dragover');
+  }
+
+  async function onDrop(e) {
+    e.preventDefault();
+    document.getElementById('upload-zone').classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) processUpload(file);
+  }
+
+  // Process uploaded file
+  async function processUpload(file) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['png','jpg','jpeg','pdf'].includes(ext)) {
+      showAlert('Format tidak didukung. Gunakan PNG, JPG, atau PDF.');
+      return;
+    }
+
+    document.getElementById('file-name').textContent = file.name;
+    document.getElementById('file-info').classList.add('show');
+
+    try {
+      if (ext === 'pdf') {
+        const arrayBuffer = await file.arrayBuffer();
+        const dims = await detectPdfDimensions(arrayBuffer);
+        if (dims) {
+          await autoFillFromFile(dims.width, dims.height, true, arrayBuffer, ext);
+        } else {
+          showAlert('Gagal membaca dimensi PDF.');
+        }
+      } else {
+        const arrayBuffer = await file.arrayBuffer();
+        const blob = new Blob([arrayBuffer]);
+        const img = new Image();
+        img.onload = async function() {
+          await autoFillFromFile(img.width, img.height, false, arrayBuffer, ext);
+        };
+        img.onerror = function() {
+          showAlert('Gagal membaca file gambar.');
+        };
+        img.src = URL.createObjectURL(blob);
+      }
+    } catch(err) {
+      console.error('Error processing file:', err);
+      showAlert('Terjadi kesalahan saat memproses file: ' + err.message);
+    }
+  }
+
+  // Remove file
+  function removeFile() {
+    document.getElementById('file-input').value = '';
+    document.getElementById('file-name').textContent = '—';
+    document.getElementById('file-info').classList.remove('show');
+  }
+
   window.onload = function () {
     const modal = document.getElementById("customAlert");
     const alertBox = document.getElementById("alertBox");
+    const successModal = document.getElementById("customSuccess");
+    const successBox = document.getElementById("successBox");
 
-    function showAlert(pesan) {
+    window.showAlert = function(pesan) {
       document.getElementById("alertMessage").textContent = pesan;
       modal.classList.remove("hidden");
       requestAnimationFrame(() => {
         alertBox.classList.add("modal-show");
       });
-    }
+    };
 
-    function tutupAlert() {
+    window.tutupAlert = function() {
       alertBox.classList.remove("modal-show");
       alertBox.classList.add("modal-hide");
-
       setTimeout(() => {
         modal.classList.add("hidden");
         alertBox.classList.remove("modal-hide");
       }, 300);
-    }
+    };
 
-function hitungAdjustSize() {
-  const awalPanjang = parseFloat(document.getElementById('awal-panjang').value);
-  const awalLebar = parseFloat(document.getElementById('awal-lebar').value);
-  const baruPanjang = parseFloat(document.getElementById('baru-panjang').value);
-  const baruLebar = parseFloat(document.getElementById('baru-lebar').value);
+    window.showSuccess = function(pesan) {
+      document.getElementById("successMessage").textContent = pesan;
+      successModal.classList.remove("hidden");
+      requestAnimationFrame(() => {
+        successBox.classList.add("modal-show");
+      });
+    };
 
-  if (!awalPanjang || !awalLebar || !baruPanjang || !baruLebar) {
-    showAlert('Mohon lengkapi semua input ukuran!');
-    return;
-  }
+    window.tutupSuccess = function() {
+      successBox.classList.remove("modal-show");
+      successBox.classList.add("modal-hide");
+      setTimeout(() => {
+        successModal.classList.add("hidden");
+        successBox.classList.remove("modal-hide");
+      }, 300);
+    };
 
-  const rasio = awalPanjang / awalLebar;
-  const fitLebarPanjang = baruLebar * rasio;
-  const fitTinggiLebar = baruPanjang / rasio;
+    window.hitungAdjustSize = function() {
+      const awalPanjang = parseFloat(document.getElementById('awal-panjang').value);
+      const awalLebar = parseFloat(document.getElementById('awal-lebar').value);
+      const baruPanjang = parseFloat(document.getElementById('baru-panjang').value);
+      const baruLebar = parseFloat(document.getElementById('baru-lebar').value);
 
-  document.getElementById('fit-lebar').innerText = `${fitLebarPanjang.toFixed(2)} x ${baruLebar.toFixed(2)}`;
-  document.getElementById('fit-tinggi').innerText = `${baruPanjang.toFixed(2)} x ${fitTinggiLebar.toFixed(2)}`;
+      if (!awalPanjang || !awalLebar || !baruPanjang || !baruLebar) {
+        showAlert('Mohon lengkapi semua input ukuran!');
+        return;
+      }
 
-  document.getElementById('adjust-result').classList.remove('hidden');
-}
+      const rasio = awalPanjang / awalLebar;
+      const fitLebarPanjang = baruLebar * rasio;
+      const fitTinggiLebar = baruPanjang / rasio;
 
-function resetAdjustSize() {
-  ['awal-panjang', 'awal-lebar', 'baru-panjang', 'baru-lebar'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-  document.getElementById('adjust-result').classList.add('hidden');
-}
+      document.getElementById('fit-lebar').innerText = `${fitLebarPanjang.toFixed(2)} x ${baruLebar.toFixed(2)}`;
+      document.getElementById('fit-tinggi').innerText = `${baruPanjang.toFixed(2)} x ${fitTinggiLebar.toFixed(2)}`;
+
+      document.getElementById('adjust-result').classList.remove('hidden');
+    };
+
+    window.resetAdjustSize = function() {
+      ['awal-panjang', 'awal-lebar', 'baru-panjang', 'baru-lebar'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('adjust-result').classList.add('hidden');
+    };
 
     document.addEventListener('keydown', function (e) {
       if (!modal.classList.contains('hidden') && e.key === 'Enter') {
-        tutupAlert();
+        window.tutupAlert();
+      }
+      if (!successModal.classList.contains('hidden') && e.key === 'Enter') {
+        window.tutupSuccess();
       }
     });
 
-    // Buat bisa dipanggil onclick
-window.hitungAdjustSize = hitungAdjustSize;
-window.resetAdjustSize = resetAdjustSize;
-window.tutupAlert = tutupAlert;
+    window.onDragOver = onDragOver;
+    window.onDragLeave = onDragLeave;
+    window.onDrop = onDrop;
+    window.handleFile = handleFile;
+    window.removeFile = removeFile;
   };
 
-    // Toggle sidebar (responsive)
-    const toggleSidebar = document.getElementById("toggleSidebar");
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
+  // Toggle sidebar (responsive)
+  const toggleSidebar = document.getElementById("toggleSidebar");
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
 
-    toggleSidebar.addEventListener("click", () => {
-      sidebar.classList.toggle("-translate-x-full");
-      overlay.classList.toggle("hidden");
-    });
+  toggleSidebar.addEventListener("click", () => {
+    sidebar.classList.toggle("-translate-x-full");
+    overlay.classList.toggle("hidden");
+  });
 
-    function tutupSidebar() {
-      sidebar.classList.add("-translate-x-full");
-      overlay.classList.add("hidden");
-    }  
-  </script>
+  window.tutupSidebar = function() {
+    sidebar.classList.add("-translate-x-full");
+    overlay.classList.add("hidden");
+  };
+</script>
 
 </body>
 </html>
