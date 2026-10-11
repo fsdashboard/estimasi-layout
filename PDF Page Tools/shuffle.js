@@ -19,15 +19,16 @@ function buatMatrix(list, baris, kolom, posisi, balikKolom = false) {
 
 function buatTabel(matrix, title) {
   const wrapper = document.createElement("div");
+  wrapper.className = "slide-wrap";
   wrapper.innerHTML = `<strong>${title}:</strong>`;
   const table = document.createElement("table");
-  table.className = "mt-2 w-full border text-center";
+  table.className = "slide-table";
 
   matrix.forEach(row => {
     const tr = document.createElement("tr");
     row.forEach(cell => {
       const td = document.createElement("td");
-      td.className = "border p-1 align-top";
+      td.className = "slide-cell";
       if (!cell) {
         td.innerHTML = `<div class="rotate-box"><div>&nbsp;</div></div>`;
       } else {
@@ -35,17 +36,17 @@ function buatTabel(matrix, title) {
           <div class="rotate-box">
             <div>${cell}</div>
             <div class="rotate-row">
-              <label class="text-xs">
-                <input type="checkbox" class="rotate-left accent-blue-600" data-page="${cell}" ${rotasiStatus[cell]?.left90 ? "checked" : ""}>
-                <span class="ml-1 text-xs">↺90°</span>
+              <label>
+                <input type="checkbox" class="rotate-left" data-page="${cell}" ${rotasiStatus[cell]?.left90 ? "checked" : ""}>
+                <span>↺90°</span>
               </label>
-              <label class="text-xs">
-                <input type="checkbox" class="rotate-right accent-blue-600" data-page="${cell}" ${rotasiStatus[cell]?.right90 ? "checked" : ""}>
-                <span class="ml-1 text-xs">↻90°</span>
+              <label>
+                <input type="checkbox" class="rotate-right" data-page="${cell}" ${rotasiStatus[cell]?.right90 ? "checked" : ""}>
+                <span>↻90°</span>
               </label>
-              <label class="text-xs">
-                <input type="checkbox" class="rotate-180 accent-blue-600" data-page="${cell}" ${rotasiStatus[cell]?.rot180 ? "checked" : ""}>
-                <span class="ml-1 text-xs">*180°</span>
+              <label>
+                <input type="checkbox" class="rotate-180" data-page="${cell}" ${rotasiStatus[cell]?.rot180 ? "checked" : ""}>
+                <span>*180°</span>
               </label>
             </div>
           </div>
@@ -120,13 +121,13 @@ function buatAcuan() {
   hasilGabung = hasilGabung.filter(x => x !== "" && x !== null && typeof x !== "undefined");
 
   const hasilText = document.createElement("div");
-  hasilText.className = "mt-6 p-4 bg-gray-50 border rounded flex justify-between items-start gap-4";
+  hasilText.className = "gabungan-box";
   hasilText.innerHTML = `
     <div>
       <strong>Gabungan Halaman:</strong><br>
       <span id="hasilText">${formatGabungan(hasilGabung)}</span>
     </div>
-    <button id="copyBtn" class="text-blue-600 hover:text-blue-800 text-sm">📋 Copy</button>
+    <button id="copyBtn" class="btn btn-secondary btn-sm">📋 Copy</button>
   `;
   output.appendChild(hasilText);
 
@@ -179,30 +180,18 @@ function resetForm() {
 // alert helper (modal)
 function showAlert(pesan, tipe="error") {
   const modal = document.getElementById("customAlert");
-  const alertBox = document.getElementById("alertBox");
-  const alertTitle = document.getElementById("alertTitle");
   document.getElementById("alertMessage").textContent = pesan;
   if (tipe === "success") {
-    alertTitle.textContent = "BERHASIL!";
-    alertTitle.className = "text-lg font-bold text-blue-600 mb-2";
+    document.getElementById("alertTitle").textContent = "Berhasil";
     setTimeout(tutupAlert, 2000);
   } else {
-    alertTitle.textContent = "PERINGATAN!";
-    alertTitle.className = "text-lg font-bold text-red-600 mb-2";
+    document.getElementById("alertTitle").textContent = "Peringatan";
   }
-  modal.classList.remove("hidden");
-  requestAnimationFrame(() => alertBox.classList.add("modal-show"));
+  modal.classList.add("active");
 }
 
 function tutupAlert() {
-  const modal = document.getElementById("customAlert");
-  const alertBox = document.getElementById("alertBox");
-  alertBox.classList.remove("modal-show");
-  alertBox.classList.add("modal-hide");
-  setTimeout(() => {
-    modal.classList.add("hidden");
-    alertBox.classList.remove("modal-hide");
-  }, 300);
+  document.getElementById("customAlert").classList.remove("active");
 }
 
 // expose globally

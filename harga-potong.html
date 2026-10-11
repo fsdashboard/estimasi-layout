@@ -3,77 +3,151 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Harga Potong</title>
   <link rel="shortcut icon" href="logo/favicon.png" />
-  <title>Harga Potong (A3+)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-<style>
-  body {
-    background-color: #bf8149;
-    background-image:
-      linear-gradient(#ededed 1px, transparent 1px),
-      linear-gradient(90deg, #ededed 1px, transparent 1px);
-    background-size: 32px 32px;
-  }
-</style>
+  <link rel="stylesheet" href="assets/app-theme.css" />
+  <style>
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0f1729;
+    }
+
+    .table-input {
+      width: 100%;
+      min-width: 110px;
+      padding: 0.7rem 0.8rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0c1220;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .table-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(91, 192, 255, 0.1);
+    }
+
+    /* ===== Kartu compact (seperti layout-a3-CONTOH) ===== */
+    .panel-compact {
+      width: fit-content;
+      min-width: min(560px, 100%);
+      max-width: 100%;
+      margin: 0 auto;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body>
+  <header class="app-header">
+    <h1>💰 Harga Potong</h1>
+    <button id="sidebarToggle" class="app-header-toggle" type="button" aria-label="Buka atau tutup sidebar" aria-expanded="true">
+      ☰
+    </button>
+  </header>
 
-  <!-- Tombol garis tiga (toggle sidebar) -->
-  <button id="toggleSidebar" class="md:hidden text-white text-2xl p-4 fixed z-50 bg-gray-800 top-0 left-0">☰</button>
+  <div class="app-shell">
+    <aside id="sidebar" class="app-sidebar">
+      <div class="app-sidebar-header">Tools</div>
+      <nav class="app-sidebar-nav">
+        <a href="index.html" class="app-nav-item">
+          <span class="app-nav-icon">🏠</span>
+          <span>Beranda</span>
+        </a>
 
-  <!-- Overlay -->
-  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 md:hidden" onclick="tutupSidebar()"></div>
+        <a href="layout-a3.html" class="app-nav-item">
+          <span class="app-nav-icon">📐</span>
+          <span>Layout A3+</span>
+        </a>
 
-  <div class="flex min-h-screen">
-    <!-- Sidebar -->
-    <aside id="sidebar" class="w-64 bg-gray-800 text-white flex flex-col fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50 md:relative">
-      <div class="p-4 text-xl font-bold border-b border-gray-700">Estimasi Online</div>
-      <nav class="flex-1 p-4 space-y-2 text-sm">
-        <a href="/estimasi-layout/index.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🏠 Halaman Utama</a>
-        <a href="/estimasi-layout/harga-potong.html" class="block p-2 font-semibold rounded hover:bg-gray-700 bg-gray-900">💰 Harga Potong (A3+)</a>
-        <a href="/estimasi-layout/layout-a3.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📐 Layout A3+</a>
-        <a href="/estimasi-layout/buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📘 Buku</a>
-        <a href="/estimasi-layout/indoor-outdoor/indoor-outdoor.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🖼️ Indoor/Outdoor</a>
-        <a href="/estimasi-layout/adjust-size.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🔧 Adjust Size</a>
-        <a href="/estimasi-layout/PDF Page Tools/index-shuffle.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📄 PDF Page Tools</a>
-        <a href="/estimasi-layout/penawaran/penawaran.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">💰 Penawaran</a>
-        <a href="/estimasi-layout/pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🚚 Pengiriman</a>
-        <a href="/estimasi-layout/mockup.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🎨 mockup</a>
+        <a href="harga-potong.html" class="app-nav-item active">
+          <span class="app-nav-icon">💰</span>
+          <span>Harga Potong</span>
+        </a>
+
+        <a href="adjust-size.html" class="app-nav-item">
+          <span class="app-nav-icon">🔧</span>
+          <span>Adjust Size</span>
+        </a>
+
+        <a href="buku/buku.html" class="app-nav-item">
+          <span class="app-nav-icon">📘</span>
+          <span>Estimasi Buku</span>
+        </a>
+
+        <a href="indoor-outdoor/indoor-outdoor.html" class="app-nav-item">
+          <span class="app-nav-icon">🖼️</span>
+          <span>Indoor/Outdoor</span>
+        </a>
+
+        <a href="PDF Page Tools/index-shuffle.html" class="app-nav-item">
+          <span class="app-nav-icon">📄</span>
+          <span>PDF Tools</span>
+        </a>
+
+        <a href="penawaran/penawaran.html" class="app-nav-item">
+          <span class="app-nav-icon">📋</span>
+          <span>Penawaran Harga</span>
+        </a>
+
+        <a href="pengiriman.html" class="app-nav-item">
+          <span class="app-nav-icon">🚚</span>
+          <span>Pengiriman</span>
+        </a>
+
+        <a href="mockup.html" class="app-nav-item">
+          <span class="app-nav-icon">🎨</span>
+          <span>Mockup</span>
+        </a>
       </nav>
+
+      <div class="app-sidebar-footer">APS Ciputat v2.0</div>
     </aside>
 
-    <!-- Konten Utama -->
-    <main class="flex-1 p-6 overflow-y-auto w-full">
-      <h1 class="text-2xl font-bold mb-4 text-blue-700">Harga Potong (A3+)</h1>
-      <p class="text-sm text-gray-600 mb-4">Estimasi biaya potong berdasarkan jumlah cetak dan kategori ukuran</p>
+    <div id="overlay" class="app-overlay"></div>
 
-      <div class="bg-white rounded-lg shadow p-6 w-full max-w-3xl mx-auto">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <button onclick="tambahBaris()" class="bg-gray-800 text-white px-3 py-1 rounded">+ Tambah Input</button>
-            <button onclick="resetSemua()" class="bg-red-500 text-white px-3 py-1 rounded ml-2">Reset Semua</button>
-          </div>
+    <main class="app-main">
+      <div class="app-content">
+        <div class="page-header">
+          <h2 class="page-title">Harga Potong</h2>
+          <p class="page-subtitle">Estimasi biaya potong berdasarkan jumlah cetak dan kategori ukuran</p>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm border">
-            <thead>
-              <tr class="bg-gray-200">
-                <th class="p-2 border">Jumlah Cetak</th>
-                <th class="p-2 border">Kategori</th>
-                <th class="p-2 border">Harga</th>
-                <th class="p-2 border">Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="tabelInput"></tbody>
-            <tfoot>
-              <tr class="font-semibold">
-                <td colspan="2" class="p-2 text-right border">Total Harga:</td>
-                <td class="p-2 border text-green-700" id="totalHarga">Rp 0</td>
-                <td class="p-2 border"></td>
-              </tr>
-            </tfoot>
-          </table>
+        <div class="panel panel-compact">
+          <div class="panel-header">
+            <div class="panel-icon">💰</div>
+            <div class="panel-title">Daftar Harga</div>
+          </div>
+
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem;">
+            <button class="btn btn-primary" onclick="tambahBaris()">+ Tambah Input</button>
+            <button class="btn btn-secondary" onclick="resetSemua()">Reset Semua</button>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Jumlah Cetak</th>
+                  <th>Kategori</th>
+                  <th>Harga</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+
+              <tbody id="tabelInput"></tbody>
+
+              <tfoot>
+                <tr>
+                  <td colspan="2" style="text-align:right; color:var(--text); font-weight:700;">Total Harga</td>
+                  <td id="totalHarga" style="color:var(--accent); font-weight:700;">Rp 0</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         </div>
       </div>
     </main>
@@ -135,21 +209,20 @@
     function tambahBaris() {
       const tbody = document.getElementById("tabelInput");
       const row = document.createElement("tr");
+
       row.innerHTML = `
-        <td class="p-2 border"><input type="number" class="jumlah w-full p-1 border rounded" /></td>
-        <td class="p-2 border">
-          <select class="kategori w-full p-1 border rounded">
+        <td><input type="number" class="table-input jumlah" /></td>
+        <td>
+          <select class="table-input kategori">
             <option value="">-- Pilih --</option>
             ${Object.keys(kategoriList).map(k => `<option value="${k}">${k}</option>`).join("")}
           </select>
         </td>
-        <td class="p-2 border text-green-700 harga">Rp 0</td>
-        <td class="p-2 border text-center">
-          <button onclick="hapusBaris(this)" class="text-red-500 hover:underline">Hapus</button>
-        </td>
+        <td class="harga">Rp 0</td>
+        <td><button class="btn btn-danger" onclick="hapusBaris(this)" style="padding:0.5rem 0.8rem; font-size:0.85rem;">Hapus</button></td>
       `;
-      tbody.appendChild(row);
 
+      tbody.appendChild(row);
       row.querySelector(".jumlah").addEventListener("input", hitungSemua);
       row.querySelector(".kategori").addEventListener("change", hitungSemua);
     }
@@ -194,21 +267,8 @@
 
       document.getElementById("totalHarga").textContent = "Rp " + total.toLocaleString();
     }
-
-    // Toggle sidebar (responsive)
-    const toggleSidebar = document.getElementById("toggleSidebar");
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
-
-    toggleSidebar.addEventListener("click", () => {
-      sidebar.classList.toggle("-translate-x-full");
-      overlay.classList.toggle("hidden");
-    });
-
-    function tutupSidebar() {
-      sidebar.classList.add("-translate-x-full");
-      overlay.classList.add("hidden");
-    }
   </script>
+
+  <script src="assets/sidebar.js"></script>
 </body>
 </html>

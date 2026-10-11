@@ -1,100 +1,172 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estimasi Buku</title>
   <link rel="shortcut icon" href="../logo/favicon.png" />
-  <title>Buku</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/app-theme.css" />
   <style>
-    body {
-      background-color: #bf8149;
-      background-image:
-        linear-gradient(#ededed 1px, transparent 1px),
-        linear-gradient(90deg, #ededed 1px, transparent 1px);
-      background-size: 32px 32px;
-    }
-    .modal-enter {
-      opacity: 0;
-      transform: scale(0.95);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
+    .hidden { display: none !important; }
+    .buku-wrap { max-width: calc(640px + 340px + 1.25rem); margin: 0 auto; }
+    .tab-row { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-start; margin-bottom: 1rem; }
+    .note { font-size: 0.85rem; color: var(--muted); }
 
-    .modal-show {
-      opacity: 1;
-      transform: scale(1);
-    }
+    /* input (kiri) + hasil (kanan), dibuat ringkas agar muat tanpa scroll */
+    .buku-layout { display: grid; grid-template-columns: minmax(0, 640px) minmax(0, 340px); gap: 1.25rem; justify-content: center; align-items: start; }
+    .buku-layout .panel { margin: 0; }
+    .buku-layout .panel-header { display: flex; align-items: center; }
+    .btn-reset { margin-left: auto; padding: 0.35rem 0.8rem; font-size: 0.8rem; }
 
-    .modal-hide {
-      opacity: 0;
-      transform: scale(0.95);
-    }
+    .fgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem 0.75rem; }
+    .fgrid .form-group { margin: 0; }
+    .fgrid .form-label { display: block; margin: 0 0 0.3rem; font-size: 0.85rem; }
+    .span3 { grid-column: 1 / -1; }
+    .sec { grid-column: 1 / -1; margin-top: 0.35rem; padding-top: 0.6rem; border-top: 1px solid var(--border); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+    .two-col { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 0.5rem; }
+    .two-col .sep { color: var(--muted); font-weight: 600; }
+    .orient { margin-top: 0.4rem; text-align: center; font-size: 0.8rem; font-style: italic; color: var(--muted); }
+
+    .res-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 0.6rem; padding: 0.7rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: rgba(17, 24, 39, 0.9); }
+    .res-label { margin: 0; font-size: 0.8rem; color: var(--muted); }
+    .res-val { flex: 1; min-width: 0; padding: 0; border: 0; outline: none; background: transparent; text-align: right; color: var(--accent); font-size: 1rem; font-weight: 700; }
+    .hint { margin: 0; font-size: 0.85rem; color: var(--muted); }
+    .warn { padding: 0.75rem 0.9rem; border: 1px solid rgba(255, 107, 107, 0.4); border-radius: 10px; background: rgba(255, 107, 107, 0.08); color: #ff8a8a; font-size: 0.85rem; }
+
+    .alert-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.6); }
+    .alert-card { width: calc(100% - 2rem); max-width: 24rem; padding: 1.5rem; border: 1px solid var(--border); border-radius: 12px; background: #111827; color: var(--text); text-align: center; }
+    .alert-card p { margin: 0 0 1rem; }
+    .alert-card .btn { width: 100%; justify-content: center; }
+
+    @media (max-width: 1000px) { .buku-layout { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .fgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   </style>
 </head>
+<body>
+  <header class="app-header">
+    <h1>📘 Estimasi Buku</h1>
+    <button id="sidebarToggle" class="app-header-toggle" type="button" aria-label="Buka atau tutup sidebar" aria-expanded="true">
+      ☰
+    </button>
+  </header>
 
-<body class="bg-gray-100 text-gray-800">
+  <div class="app-shell">
+    <aside id="sidebar" class="app-sidebar">
+      <div class="app-sidebar-header">Tools</div>
+      <nav class="app-sidebar-nav">
+        <a href="../index.html" class="app-nav-item">
+          <span class="app-nav-icon">🏠</span>
+          <span>Beranda</span>
+        </a>
 
-    <!-- Tombol garis tiga (toggle sidebar) -->
-  <button id="toggleSidebar" class="md:hidden text-white text-2xl p-4 fixed z-50 bg-gray-800 top-0 left-0">☰</button>
-  
-    <!-- Overlay -->
-  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 md:hidden" onclick="tutupSidebar()"></div>
+        <a href="../layout-a3.html" class="app-nav-item">
+          <span class="app-nav-icon">📐</span>
+          <span>Layout A3+</span>
+        </a>
 
-  <div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside id="sidebar" class="w-64 bg-gray-800 text-white flex flex-col transform md:transform-none -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:static h-full z-50 md:z-0">
-      <div class="p-4 text-xl font-bold border-b border-gray-700">Estimasi Online</div>
-      <nav class="flex-1 p-4 space-y-2 text-sm">
-        <a href="/estimasi-layout/index.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🏠 Halaman Utama</a>
-        <a href="/estimasi-layout/harga-potong.html" class="block p-2 font-semibold rounded hover:bg-gray-700">💰 Harga Potong (A3+)</a>
-        <a href="/estimasi-layout/layout-a3.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📐 Layout A3+</a>
-        <a href="/estimasi-layout/buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700 bg-gray-900">📘 Buku</a>
-        <a href="/estimasi-layout/indoor-outdoor/indoor-outdoor.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🖼️ Indoor/Outdoor</a>
-        <a href="/estimasi-layout/adjust-size.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🔧 Adjust Size</a>
-        <a href="/estimasi-layout/PDF Page Tools/index-shuffle.html" class="block p-2 font-semibold rounded hover:bg-gray-700">📄 PDF Page Tools</a>
-        <a href="/estimasi-layout/penawaran/penawaran.html" class="block p-2 font-semibold rounded hover:bg-gray-700">💰 Penawaran</a>
-        <a href="/estimasi-layout/pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🚚 Pengiriman</a>
-        <a href="/estimasi-layout/mockup.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🎨 mockup</a>
+        <a href="../harga-potong.html" class="app-nav-item">
+          <span class="app-nav-icon">💰</span>
+          <span>Harga Potong</span>
+        </a>
+
+        <a href="../adjust-size.html" class="app-nav-item">
+          <span class="app-nav-icon">🔧</span>
+          <span>Adjust Size</span>
+        </a>
+
+        <a href="buku.html" class="app-nav-item active">
+          <span class="app-nav-icon">📘</span>
+          <span>Estimasi Buku</span>
+        </a>
+
+        <a href="../indoor-outdoor/indoor-outdoor.html" class="app-nav-item">
+          <span class="app-nav-icon">🖼️</span>
+          <span>Indoor/Outdoor</span>
+        </a>
+
+        <a href="../PDF Page Tools/index-shuffle.html" class="app-nav-item">
+          <span class="app-nav-icon">📄</span>
+          <span>PDF Tools</span>
+        </a>
+
+        <a href="../penawaran/penawaran.html" class="app-nav-item">
+          <span class="app-nav-icon">📋</span>
+          <span>Penawaran Harga</span>
+        </a>
+
+        <a href="../pengiriman.html" class="app-nav-item">
+          <span class="app-nav-icon">🚚</span>
+          <span>Pengiriman</span>
+        </a>
+
+        <a href="../mockup.html" class="app-nav-item">
+          <span class="app-nav-icon">🎨</span>
+          <span>Mockup</span>
+        </a>
+
       </nav>
+
+      <div class="app-sidebar-footer">APS Ciputat v2.0</div>
     </aside>
 
-    <!-- Konten utama -->
-    <main class="flex-1 p-6 overflow-y-auto w-full">
-      <h1 class="text-2xl font-bold mb-4 text-blue-700">Buku</h1>
-      <p class="text-sm text-gray-600 mb-4">Estimasi perhitungan Soft Cover, Booklet, dan Spiral</p>
+    <div id="overlay" class="app-overlay"></div>
 
-      <!-- Dropdown & Form container -->
-      <div class="bg-white rounded-lg shadow p-6 w-fit mx-auto">
-        <label for="jenisBuku" class="block mb-2 font-medium text-sm">Pilih Jenis Buku</label>
-        <select id="jenisBuku" onchange="loadForm(this.value)" class="w-full border rounded px-3 py-2 mb-4">
-          <option value="">-- Pilih Jenis Buku --</option>
-          <option value="soft-cover.html">Soft Cover</option>
-          <option value="booklet.html">Booklet</option>
-          <option value="spiral.html">Spiral</option>
-        </select>
+    <main class="app-main">
+      <div class="app-content">
+        <div class="page-header">
+          <h2 class="page-title">Estimasi Buku</h2>
+          <p class="page-subtitle">Estimasi perhitungan Soft Cover, Booklet, dan Spiral</p>
+        </div>
 
-        <div id="form-container" class="mt-4">
-          <p class="text-gray-500">Form akan muncul di sini setelah kamu memilih jenis buku.</p>
+        <div class="buku-wrap">
+        <div class="tab-row">
+          <button type="button" class="btn btn-secondary" data-file="soft-cover.html" onclick="loadForm('soft-cover.html')">Soft Cover</button>
+          <button type="button" class="btn btn-secondary" data-file="booklet.html" onclick="loadForm('booklet.html')">Booklet</button>
+          <button type="button" class="btn btn-secondary" data-file="spiral.html" onclick="loadForm('spiral.html')">Spiral</button>
+        </div>
+
+        <div id="form-container">
+          <p class="note">Memuat form…</p>
+        </div>
         </div>
       </div>
     </main>
   </div>
 
   <!-- Modal Alert Global -->
-  <div id="modal-alert" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-    <div class="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg">
-      <p id="modal-alert-message" class="text-center text-gray-800 mb-4"></p>
-      <button id="modal-alert-close" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">OK</button>
+  <div id="modal-alert" class="alert-overlay hidden">
+    <div class="alert-card">
+      <p id="modal-alert-message"></p>
+      <button id="modal-alert-close" class="btn btn-primary" type="button">OK</button>
     </div>
   </div>
 
   <script>
+    let currentForm = null;
+
+    // fungsi hitung yang sudah ada di soft-cover.js / booklet.js / spiral.js (tidak diubah)
+    const HITUNG = {
+      'soft-cover.html': () => hitungSoftCover(),
+      'booklet.html': () => hitungBooklet(),
+      'spiral.html': () => hitungSpiral()
+    };
+    const OUTPUT_ID = {
+      'soft-cover.html': 'output-softcover',
+      'booklet.html': 'output-booklet',
+      'spiral.html': 'output-spiral'
+    };
+
     function loadForm(file) {
       const container = document.getElementById('form-container');
-      if (!file) {
-        container.innerHTML = '<p>Pilih jenis buku terlebih dahulu.</p>';
-        return;
-      }
+      if (!file) return;
+
+      currentForm = file;
+      document.querySelectorAll('.tab-row .btn').forEach(b => {
+        const aktif = b.dataset.file === file;
+        b.classList.toggle('btn-primary', aktif);
+        b.classList.toggle('btn-secondary', !aktif);
+      });
 
       fetch(file)
         .then(res => {
@@ -118,8 +190,55 @@
       const script = document.createElement('script');
       script.src = `${baseName}.js`;
       script.id = 'form-script';
-      script.defer = true;
+      script.onload = () => {
+        // hasil otomatis: hitung ulang setiap input / pilihan berubah
+        document.querySelectorAll('#form-container input:not([readonly]), #form-container select').forEach(el => {
+          el.addEventListener('input', autoHitung);
+          el.addEventListener('change', autoHitung);
+        });
+        autoHitung();
+      };
       document.body.appendChild(script);
+    }
+
+    // Jalankan fungsi hitung yang ada. Peringatan (alert / modal) dialihkan ke panel hasil
+    // supaya tidak muncul pop-up saat user masih mengetik.
+    function autoHitung() {
+      const fn = HITUNG[currentForm];
+      if (!fn) return;
+
+      const out = document.getElementById(OUTPUT_ID[currentForm]);
+      const empty = document.getElementById('buku-empty');
+      const warn = document.getElementById('buku-warn');
+      if (!out || !empty || !warn) return;
+
+      let msg = '';
+      const origAlert = window.alert;
+      const origModal = window.showAlertModal;
+      window.alert = (m) => { msg = m; };
+      window.showAlertModal = (m) => { msg = m; };
+      try {
+        fn();
+      } catch (e) {
+        msg = 'Lengkapi semua input.';
+      } finally {
+        window.alert = origAlert;
+        window.showAlertModal = origModal;
+      }
+
+      warn.classList.add('hidden');
+      if (msg) {
+        out.classList.add('hidden');
+        if (/^Lengkapi/i.test(msg)) {
+          empty.classList.remove('hidden');
+        } else {
+          empty.classList.add('hidden');
+          warn.textContent = msg;
+          warn.classList.remove('hidden');
+        }
+      } else {
+        empty.classList.add('hidden');
+      }
     }
 
     // Modal Alert Global
@@ -142,22 +261,9 @@
         modal.classList.add("hidden");
       }
     });
-
-    // Toggle sidebar (responsive)
-    const toggleSidebar = document.getElementById("toggleSidebar");
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
-
-    toggleSidebar.addEventListener("click", () => {
-      sidebar.classList.toggle("-translate-x-full");
-      overlay.classList.toggle("hidden");
-    });
-
-    function tutupSidebar() {
-      sidebar.classList.add("-translate-x-full");
-      overlay.classList.add("hidden");
-    }
   </script>
 
+  <script src="../assets/sidebar.js"></script>
+  <script>loadForm('soft-cover.html');</script>
 </body>
 </html>

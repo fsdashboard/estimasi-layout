@@ -1,0 +1,60 @@
+/* ================= PREVIEW (dokumen cetak) =================
+   Utilitas yang dulu dari Tailwind, ditulis ulang agar tampilan
+   dan hasil cetak dokumen tetap sama. Dipakai di jendela preview. */
+body { margin: 0; background: #f3f4f6; }
+#previewPenawaran { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.5; color: #1f2937; background: #f3f4f6; }
+#previewPenawaran *, #previewPenawaran *::before, #previewPenawaran *::after { box-sizing: border-box; }
+#previewPenawaran p { margin: 0; }
+#previewPenawaran hr { height: 0; margin: 0; border: 0; border-top: 1px solid #e5e7eb; color: inherit; }
+#previewPenawaran img { display: block; max-width: 100%; }
+#previewPenawaran ul { padding: 0; }
+#previewPenawaran .list-disc { list-style: disc; }
+#previewPenawaran .flex { display: flex; }
+#previewPenawaran .items-start { align-items: flex-start; }
+#previewPenawaran .justify-between { justify-content: space-between; }
+#previewPenawaran .block { display: block; }
+#previewPenawaran .bg-white { background-color: #fff; }
+#previewPenawaran .rounded-2xl { border-radius: 1rem; }
+#previewPenawaran .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1); }
+#previewPenawaran .p-8 { padding: 2rem; }
+#previewPenawaran .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+#previewPenawaran .px-2 { padding-left: .5rem; padding-right: .5rem; }
+#previewPenawaran .max-w-2xl { max-width: 42rem; }
+#previewPenawaran .w-full { width: 100%; }
+#previewPenawaran .min-w-full { min-width: 100%; }
+#previewPenawaran .min-h-screen { min-height: 100vh; }
+#previewPenawaran .mx-auto { margin-left: auto; margin-right: auto; }
+#previewPenawaran .my-8 { margin-top: 2rem; margin-bottom: 2rem; }
+#previewPenawaran .mb-2 { margin-bottom: .5rem; }
+#previewPenawaran .mt-1 { margin-top: .25rem; }
+#previewPenawaran .mt-2 { margin-top: .5rem; }
+#previewPenawaran .mt-3 { margin-top: .75rem; }
+#previewPenawaran .mt-4 { margin-top: 1rem; }
+#previewPenawaran .mt-6 { margin-top: 1.5rem; }
+#previewPenawaran .mt-8 { margin-top: 2rem; }
+#previewPenawaran .ml-6 { margin-left: 1.5rem; }
+#previewPenawaran .gap-2 { gap: .5rem; }
+#previewPenawaran .w-40 { width: 10rem; }
+#previewPenawaran .w-32 { width: 8rem; }
+#previewPenawaran .h-auto { height: auto; }
+#previewPenawaran .text-right { text-align: right; }
+#previewPenawaran .text-sm { font-size: .875rem; line-height: 1.25rem; }
+#previewPenawaran .font-semibold { font-weight: 600; }
+#previewPenawaran .font-bold { font-weight: 700; }
+#previewPenawaran .overflow-x-auto { overflow-x: auto; }
+#previewPenawaran .bg-gray-100 { background-color: #f3f4f6; }
+#previewPenawaran .preview-table { border-collapse: collapse; }
+#previewPenawaran .surat-meta { margin-top: .5rem; display: flex; justify-content: space-between; }
+#previewPenawaran .kepada { margin-top: .5rem; }
+#previewPenawaran .isi-surat { margin-top: .75rem; }
+#previewPenawaran .catatan { margin-top: .75rem; font-size: .875rem; line-height: 1.25rem; }
+#previewPenawaran .penutup { margin-top: 1.5rem; }
+#previewPenawaran .logo-small { height: auto; }
+#previewPenawaran .preview-buttons { margin-top: 1rem; gap: .5rem; padding-bottom: 2rem; }
+#previewPenawaran .btn-edit { background: #6b7280; }
+#previewPenawaran .btn-edit:hover { background: #4b5563; }
+@media print {
+  body { background: #fff !important; background-image: none !important; }
+  #previewPenawaran { background: #fff !important; padding: 0 !important; overflow: visible !important; }
+  #previewPenawaran > div:first-child { border-radius: 0; box-shadow: none; padding: 0; max-width: 100%; width: 760px; }
+}

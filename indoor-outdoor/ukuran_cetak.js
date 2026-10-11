@@ -284,19 +284,19 @@ function hitung() {
               }
 
               const saranHTML = `
-                <div class="mt-2 p-3 bg-red-50 border border-red-200 rounded">
-                  <div class="flex items-start gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <div class="saran-box">
+                  <div class="saran-inner">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="saran-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path fill-rule="evenodd" d="M8.257 3.099c.366-.756 1.415-.756 1.781 0l6.518 13.48A1 1 0 0 1 15.78 18H4.22a1 1 0 0 1-.776-1.421L8.257 3.1zM11 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-1-9a1 1 0 0 0-.993.883L9 6v4a1 1 0 0 0 1.993.117L11 10V6a1 1 0 0 0-1-1z" clip-rule="evenodd" />
                     </svg>
                     <div>
-                      <div class="text-red-700 font-semibold">Saran: untuk hasil lebih efisien bisa menggunakan ${jumlahAlt} potongan dengan :</div>
-                      <div class="text-sm text-gray-700 mt-2">
+                      <div class="saran-title">Saran: untuk hasil lebih efisien bisa menggunakan ${jumlahAlt} potongan dengan :</div>
+                      <div class="saran-detail">
                         <div><strong>Ukuran Cetak Produksi:</strong> ${produksiAltP.toFixed(2)} x ${produksiAltL.toFixed(2)} m</div>
                         <div><strong>Jumlah Potongan:</strong> ${jumlahAlt}</div>
                         <div><strong>Ukuran per Potong:</strong> ${perPotongAltP.toFixed(2)} x ${perPotongAltL.toFixed(2)} m</div>
                       </div>
-                      <div class="text-sm text-gray-600 mt-2">
+                      <div class="saran-hemat">
                         Estimasi total area (pilihan sekarang): <strong>${areaBest2.toFixed(2)} m²</strong>. Alternatif: <strong>${areaAlt.toFixed(2)} m²</strong> — hemat <strong>${areaDiff.toFixed(2)} m²</strong> (${percent.toFixed(1)}%).
                       </div>
                     </div>
@@ -427,7 +427,7 @@ function hitung() {
   // Jika bahan tidak direkomendasikan untuk sambung dan panel > 1, tambah peringatan
   if (bahanInfo && bahanInfo.seamNotRecommended && panel > 1) {
     const seamMsg = bahanInfo.seamWarning || "Bahan ini kurang direkomendasikan untuk finishing sambung.";
-    const seamHTML = `<div class="mt-2 p-2 bg-orange-50 border border-orange-200 rounded text-orange-700 text-sm"><strong>Peringatan:</strong> ${seamMsg}</div>`;
+    const seamHTML = `<div class="seam-warn"><strong>Peringatan:</strong> ${seamMsg}</div>`;
     note = `${note}<br>${seamHTML}`;
   }
 

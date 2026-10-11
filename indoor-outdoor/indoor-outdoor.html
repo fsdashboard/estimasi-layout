@@ -1,254 +1,290 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" href="../logo/favicon.png" />
   <title>Indoor/Outdoor</title>
+  <link rel="shortcut icon" href="../logo/favicon.png" />
+  <link rel="stylesheet" href="../assets/app-theme.css" />
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- jQuery -->
+  <!-- jQuery + Select2 -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-  <!-- Select2 -->
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
   <style>
-    body {
-      background-color: #bf8149;
-      background-image:
-        linear-gradient(#ededed 1px, transparent 1px),
-        linear-gradient(90deg, #ededed 1px, transparent 1px);
-      background-size: 32px 32px;
+    .hidden { display: none !important; }
+    .io-wrap { max-width: calc(460px + 420px + 1.25rem); margin: 0 auto; }
+    .tab-row { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-start; margin-bottom: 1rem; }
+    .note { margin-top: 0.5rem; font-size: 0.85rem; color: var(--muted); }
+    .text-err { color: #ff6b6b; }
+
+    /* input (kiri) + hasil (kanan) */
+    .io-layout { display: grid; grid-template-columns: minmax(0, 460px) minmax(0, 420px); gap: 1.25rem; justify-content: center; align-items: stretch; }
+    .io-layout .panel { margin: 0; }
+    .io-layout .panel-header { display: flex; align-items: center; }
+    .btn-reset { margin-left: auto; padding: 0.35rem 0.8rem; font-size: 0.8rem; }
+    .io-layout .form-group { display: grid; grid-template-columns: 9rem minmax(0, 1fr); align-items: center; column-gap: 0.75rem; margin-bottom: 0.85rem; }
+    .io-layout .form-group:last-of-type { margin-bottom: 0; }
+    .io-layout .form-group > :not(.form-label) { grid-column: 2; }
+    .io-layout .form-label { display: block; margin: 0; }
+    .two-col { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 0.5rem; }
+    .two-col .sep { color: var(--muted); font-weight: 600; }
+
+    .hint { margin: 0; font-size: 0.85rem; color: var(--muted); }
+    .warn { padding: 0.75rem 0.9rem; border: 1px solid rgba(255, 107, 107, 0.4); border-radius: 10px; background: rgba(255, 107, 107, 0.08); color: #ff8a8a; font-size: 0.85rem; }
+    .res-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 0.6rem; padding: 0.65rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: rgba(17, 24, 39, 0.9); }
+    .res-label { margin: 0; font-size: 0.8rem; color: var(--muted); }
+    .res-val { flex: 1; min-width: 0; padding: 0; border: 0; outline: none; background: transparent; text-align: right; color: var(--accent); font-size: 1rem; font-weight: 700; }
+    .result-note { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--muted); }
+    .saran-box { margin-top: 0.6rem; padding: 0.75rem; border: 1px solid rgba(255, 107, 107, 0.35); border-radius: 8px; background: rgba(255, 107, 107, 0.08); }
+    .saran-inner { display: flex; align-items: flex-start; gap: 0.75rem; }
+    .saran-icon { width: 20px; height: 20px; color: #ff6b6b; flex-shrink: 0; }
+    .saran-title { color: #ff8a8a; font-weight: 600; }
+    .saran-detail { margin-top: 0.5rem; font-size: 0.85rem; color: var(--text); }
+    .saran-hemat { margin-top: 0.5rem; font-size: 0.85rem; color: var(--muted); }
+    .seam-warn { margin-top: 0.6rem; padding: 0.55rem 0.75rem; border: 1px solid rgba(240, 136, 62, 0.4); border-radius: 8px; background: rgba(240, 136, 62, 0.1); color: #f0883e; font-size: 0.85rem; }
+
+    /* ===== Select2 (tema gelap) ===== */
+    .select2-container { width: 100% !important; }
+    .select2-container--default .select2-selection--single { position: relative; display: flex; align-items: center; height: 42px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; background: #0c1220; }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { padding: 0 4.5rem 0 0; line-height: normal; color: var(--text); }
+    .select2-container--default .select2-selection--single .select2-selection__placeholder { color: var(--muted); }
+    .select2-container--default .select2-selection--single .select2-selection__clear { position: absolute; right: 36px; top: 50%; transform: translateY(-50%); margin: 0; font-size: 16px; color: var(--muted); }
+    .select2-container--default .select2-selection--single .select2-selection__clear:hover { color: #ff6b6b; }
+    .select2-container--default .select2-selection--single .select2-selection__arrow { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); height: auto; }
+    .select2-container--default .select2-selection--single .select2-selection__arrow b { border-color: var(--muted) transparent transparent; }
+    .select2-container--default.select2-container--open .select2-selection--single,
+    .select2-container--default.select2-container--focus .select2-selection--single { border-color: var(--accent); }
+    .select2-dropdown { border: 1px solid var(--border); border-radius: 8px; background: #0f1729; color: var(--text); overflow: hidden; }
+    .select2-container--default .select2-search--dropdown .select2-search__field { height: 36px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: #0c1220; color: var(--text); }
+    .select2-container--default .select2-results__option { color: var(--text); }
+    .select2-container--default .select2-results__option--highlighted,
+    .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable,
+    .select2-container--default .select2-results__option--highlighted[aria-selected] { background: var(--accent); color: #0b1220; }
+    .select2-container--default .select2-results__option--selected,
+    .select2-container--default .select2-results__option[aria-selected=true] { background: rgba(91, 192, 255, 0.15); }
+
+    @media (max-width: 900px) { .io-layout { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) {
+      .io-layout .form-group { grid-template-columns: 1fr; row-gap: 0.4rem; }
+      .io-layout .form-group > :not(.form-label) { grid-column: 1; }
     }
-    .modal-enter {
-      opacity: 0;
-      transform: scale(0.95);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-    .modal-show {
-      opacity: 1;
-      transform: scale(1);
-    }
-    .modal-hide {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-
-      /* ===== BASE SELECT2 (SAMAKAN DENGAN INPUT TAILWIND) ===== */
-  .select2-container--default .select2-selection--single {
-    height: 42px;
-    border: 1px solid #d1d5db; /* border-gray-300 */
-    border-radius: 0.375rem;  /* rounded */
-    padding: 6px 10px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    background-color: #fff;
-  }
-
-  /* ===== TEKS VALUE ===== */
-  .select2-selection__rendered {
-    line-height: normal !important;
-    padding-left: 0 !important;
-    padding-right: 4.5rem !important; /* ruang untuk ❌ + ▼ */
-  }
-
-  /* ===== TOMBOL CLEAR (X) ===== */
-  .select2-container--default
-  .select2-selection--single
-  .select2-selection__clear {
-    position: absolute;
-    right: 36px; /* sejajar, di kiri arrow */
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 16px;
-    color: #9ca3af;
-    cursor: pointer;
-  }
-
-  .select2-selection__clear:hover {
-    color: #ef4444; /* merah saat hover */
-  }
-
-  /* ===== PANAH DROPDOWN ===== */
-  .select2-container--default
-  .select2-selection--single
-  .select2-selection__arrow {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    height: auto;
-  }
-
-  /* ===== SEARCH FIELD DI DROPDOWN ===== */
-  .select2-search__field {
-    height: 36px;
-    padding: 6px 10px;
-  }
   </style>
 </head>
+<body>
+  <header class="app-header">
+    <h1>🖼️ Indoor/Outdoor</h1>
+    <button id="sidebarToggle" class="app-header-toggle" type="button" aria-label="Buka atau tutup sidebar" aria-expanded="true">
+      ☰
+    </button>
+  </header>
 
-<body class="bg-gray-100 text-gray-800">
+  <div class="app-shell">
+    <aside id="sidebar" class="app-sidebar">
+      <div class="app-sidebar-header">Tools</div>
+      <nav class="app-sidebar-nav">
+        <a href="../index.html" class="app-nav-item">
+          <span class="app-nav-icon">🏠</span>
+          <span>Beranda</span>
+        </a>
 
-<!-- Toggle Sidebar -->
-<button id="toggleSidebar"
-  class="md:hidden text-white text-2xl p-4 fixed z-50 bg-gray-800 top-0 left-0">☰</button>
+        <a href="../layout-a3.html" class="app-nav-item">
+          <span class="app-nav-icon">📐</span>
+          <span>Layout A3+</span>
+        </a>
 
-<div id="overlay"
-  class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 md:hidden"
-  onclick="tutupSidebar()"></div>
+        <a href="../harga-potong.html" class="app-nav-item">
+          <span class="app-nav-icon">💰</span>
+          <span>Harga Potong</span>
+        </a>
 
-<div class="flex h-screen">
+        <a href="../adjust-size.html" class="app-nav-item">
+          <span class="app-nav-icon">🔧</span>
+          <span>Adjust Size</span>
+        </a>
 
-  <!-- Sidebar -->
-  <aside id="sidebar"
-    class="w-64 bg-gray-800 text-white flex flex-col fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50 md:relative">
+        <a href="../buku/buku.html" class="app-nav-item">
+          <span class="app-nav-icon">📘</span>
+          <span>Estimasi Buku</span>
+        </a>
 
-    <div class="p-4 text-xl font-bold border-b border-gray-700">
-      Estimasi Online
-    </div>
+        <a href="indoor-outdoor.html" class="app-nav-item active">
+          <span class="app-nav-icon">🖼️</span>
+          <span>Indoor/Outdoor</span>
+        </a>
 
-    <nav class="flex-1 p-4 space-y-2 text-sm">
-        <a href="/estimasi-layout/index.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🏠 Halaman Utama</a>
-        <a href="/estimasi-layout/harga-potong.html" class="block p-2 font-semibold rounded hover:bg-gray-700">💰 Harga Potong (A3+)</a>
-        <a href="/estimasi-layout/layout-a3.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📐 Layout A3+</a>
-        <a href="/estimasi-layout/buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📘 Buku</a>
-        <a href="/estimasi-layout/indoor-outdoor/indoor-outdoor.html" class="block p-2 font-semibold rounded hover:bg-gray-700 bg-gray-900">🖼️ Indoor/Outdoor</a>
-        <a href="/estimasi-layout/adjust-size.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🔧 Adjust Size</a>
-        <a href="/estimasi-layout/PDF Page Tools/index-shuffle.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📄 PDF Page Tools</a>
-        <a href="/estimasi-layout/penawaran/penawaran.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">💰 Penawaran</a>
-        <a href="/estimasi-layout/pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🚚 Pengiriman</a>
-        <a href="/estimasi-layout/mockup.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🎨 mockup</a>
-    </nav>
-  </aside>
+        <a href="../PDF Page Tools/index-shuffle.html" class="app-nav-item">
+          <span class="app-nav-icon">📄</span>
+          <span>PDF Tools</span>
+        </a>
 
-  <!-- Konten -->
-  <main class="flex-1 p-6 overflow-y-auto w-full">
-    <h1 class="text-2xl font-bold mb-4 text-blue-700">Indoor/Outdoor</h1>
+        <a href="../penawaran/penawaran.html" class="app-nav-item">
+          <span class="app-nav-icon">📋</span>
+          <span>Penawaran Harga</span>
+        </a>
 
-    <div class="bg-white rounded-lg shadow p-6 w-full max-w-3xl mx-auto">
-      <div class="flex space-x-2 mb-4">
-        <button id="btn1"
-  class="px-4 py-2 bg-gray-300 text-gray-700 rounded"
-  onclick="tampilkanKonten(1)">
-  Ukuran Cetak
-</button>
+        <a href="../pengiriman.html" class="app-nav-item">
+          <span class="app-nav-icon">🚚</span>
+          <span>Pengiriman</span>
+        </a>
 
-<button id="btn2"
-  class="px-4 py-2 bg-gray-300 text-gray-700 rounded"
-  onclick="tampilkanKonten(2)">
-  Mata Ayam
-</button>
+        <a href="../mockup.html" class="app-nav-item">
+          <span class="app-nav-icon">🎨</span>
+          <span>Mockup</span>
+        </a>
+
+      </nav>
+
+      <div class="app-sidebar-footer">APS Ciputat v2.0</div>
+    </aside>
+
+    <div id="overlay" class="app-overlay"></div>
+
+    <main class="app-main">
+      <div class="app-content">
+        <div class="page-header">
+          <h2 class="page-title">Indoor/Outdoor</h2>
+          <p class="page-subtitle">Estimasi kebutuhan cetak indoor/outdoor</p>
+        </div>
+
+        <div class="io-wrap">
+          <div class="tab-row">
+            <button id="btn1" class="btn btn-secondary" type="button" onclick="tampilkanKonten(1)">Ukuran Cetak</button>
+            <button id="btn2" class="btn btn-secondary" type="button" onclick="tampilkanKonten(2)">Mata Ayam</button>
+          </div>
+
+          <div id="konten">
+            <p class="note">Memuat form…</p>
+          </div>
+        </div>
       </div>
+    </main>
+  </div>
 
-      <div id="konten" class="bg-gray-50 p-4 rounded shadow min-h-[200px]">
-        Form akan muncul di sini setelah kamu memilih menu...
-      </div>
-    </div>
-  </main>
-</div>
+  <script>
+    let currentKonten = 1;
+    const val = (id) => (document.getElementById(id)?.value || '').trim();
 
-<script>
-/* ================= SIDEBAR ================= */
-const toggleSidebar = document.getElementById("toggleSidebar");
-const sidebar = document.getElementById("sidebar");
-const overlay = document.getElementById("overlay");
+    // fungsi hitung yang sudah ada di ukuran_cetak.js / mata-ayam.js (tidak diubah)
+    const KONTEN = {
+      1: {
+        html: 'ukuran_cetak.html', js: 'ukuran_cetak.js', out: 'hasil',
+        fn: () => hitung(),
+        lengkap: () => val('panjang') !== '' && val('lebar') !== '' && val('bahan') !== ''
+      },
+      2: {
+        html: 'mata-ayam.html', js: 'mata-ayam.js', out: 'hasilSection',
+        fn: () => hitungSpanduk(),
+        lengkap: () => ['spanduk-panjang', 'spanduk-lebar', 'spanduk-jumlah', 'spanduk-fins'].every(id => val(id) !== '')
+      }
+    };
 
-toggleSidebar.addEventListener("click", () => {
-  sidebar.classList.toggle("-translate-x-full");
-  overlay.classList.toggle("hidden");
-});
+    /* =============== INIT SELECT2 =============== */
+    function initSelect2() {
+      if (!window.$ || !$.fn.select2 || !$('#bahan').length) return;
 
-function tutupSidebar() {
-  sidebar.classList.add("-translate-x-full");
-  overlay.classList.add("hidden");
-}
+      $('#bahan').select2({
+        width: '100%',
+        placeholder: 'Cari jenis bahan',
+        allowClear: true
+      });
 
-/* =============== INIT SELECT2 =============== */
-function initSelect2() {
-  if (!window.$ || !$('#bahan').length) return;
+      // AUTO FOCUS SEARCH
+      $(document).off('select2:open.autofocus').on('select2:open.autofocus', () => {
+        setTimeout(() => {
+          const search = document.querySelector('.select2-search__field');
+          if (search) search.focus();
+        }, 10);
+      });
+    }
 
-  $('#bahan').select2({
-    width: '100%',
-    placeholder: 'Cari jenis bahan',
-    allowClear: true
-  });
+    /* =============== HASIL OTOMATIS =============== */
+    // Jalankan fungsi hitung yang ada. Peringatan (alert) dialihkan ke panel hasil
+    // supaya tidak muncul pop-up saat user masih mengetik.
+    function autoHitung() {
+      const cfg = KONTEN[currentKonten];
+      const out = document.getElementById(cfg.out);
+      const empty = document.getElementById('io-empty');
+      const warn = document.getElementById('io-warn');
+      if (!out || !empty || !warn) return;
 
-  // AUTO FOCUS SEARCH
-  $(document).on('select2:open', () => {
-    setTimeout(() => {
-      const search = document.querySelector('.select2-search__field');
-      if (search) search.focus();
-    }, 10);
-  });
-}
+      warn.classList.add('hidden');
 
-/* =============== LOAD KONTEN =============== */
-function tampilkanKonten(n) {
-  const kontenDiv = document.getElementById("konten");
-    const btn1 = document.getElementById("btn1");
-  const btn2 = document.getElementById("btn2");
-
-  // Reset warna tombol
-  btn1.classList.remove("bg-blue-500", "text-white");
-  btn1.classList.add("bg-gray-300", "text-gray-700");
-  btn2.classList.remove("bg-blue-500", "text-white");
-  btn2.classList.add("bg-gray-300", "text-gray-700");
-
-  // Set tombol aktif
-  if (n === 1) {
-    btn1.classList.remove("bg-gray-300", "text-gray-700");
-    btn1.classList.add("bg-blue-500", "text-white");
-  } else {
-    btn2.classList.remove("bg-gray-300", "text-gray-700");
-    btn2.classList.add("bg-blue-500", "text-white");
-  }
-  let htmlFile = "";
-  let jsFile = "";
-
-  if (n === 1) {
-    htmlFile = "ukuran_cetak.html";
-    jsFile = "ukuran_cetak.js";
-  } else {
-    htmlFile = "mata-ayam.html";
-    jsFile = "mata-ayam.js";
-  }
-
-  fetch(htmlFile)
-    .then(res => res.text())
-    .then(html => {
-      kontenDiv.innerHTML = html;
-
-      // Load JS
-      const oldScript = document.getElementById("dynamicScript");
-      if (oldScript) oldScript.remove();
-
-      if (jsFile) {
-        const script = document.createElement("script");
-        script.src = jsFile;
-        script.id = "dynamicScript";
-        document.body.appendChild(script);
+      // input belum lengkap -> kosongkan hasil, tanpa peringatan
+      if (!cfg.lengkap()) {
+        out.classList.add('hidden');
+        empty.classList.remove('hidden');
+        return;
       }
 
-      // INIT Select2 setelah DOM siap
-      setTimeout(initSelect2, 50);
-    })
-    .catch(() => {
-      kontenDiv.innerHTML =
-        "<p class='text-red-600'>Gagal memuat konten.</p>";
-    });
-}
+      let msg = '';
+      const origAlert = window.alert;
+      window.alert = (m) => { msg = m; };
+      try {
+        cfg.fn();
+      } catch (e) {
+        msg = '';
+        out.classList.add('hidden');
+        empty.classList.remove('hidden');
+        return;
+      } finally {
+        window.alert = origAlert;
+      }
 
-</script>
+      empty.classList.add('hidden');
+      if (msg) {
+        out.classList.add('hidden');
+        warn.textContent = msg;
+        warn.classList.remove('hidden');
+      }
+    }
 
+    function pasangAuto() {
+      document.querySelectorAll('#konten input:not([readonly])').forEach(el => {
+        el.addEventListener('input', autoHitung);
+        el.addEventListener('change', autoHitung);
+      });
+      // select (termasuk Select2) lewat jQuery supaya event Select2 ikut tertangkap
+      $('#konten select').on('change select2:select select2:clear', autoHitung);
+    }
+
+    /* =============== LOAD KONTEN =============== */
+    function tampilkanKonten(n) {
+      const kontenDiv = document.getElementById("konten");
+      currentKonten = n;
+
+      [["btn1", 1], ["btn2", 2]].forEach(([id, i]) => {
+        const b = document.getElementById(id);
+        b.classList.toggle("btn-primary", i === n);
+        b.classList.toggle("btn-secondary", i !== n);
+      });
+
+      const cfg = KONTEN[n];
+
+      fetch(cfg.html)
+        .then(res => res.text())
+        .then(html => {
+          kontenDiv.innerHTML = html;
+          pasangAuto();
+
+          const oldScript = document.getElementById("dynamicScript");
+          if (oldScript) oldScript.remove();
+
+          const script = document.createElement("script");
+          script.src = cfg.js;
+          script.id = "dynamicScript";
+          script.onload = () => autoHitung();
+          document.body.appendChild(script);
+
+          setTimeout(initSelect2, 50);
+        })
+        .catch(() => {
+          kontenDiv.innerHTML = "<p class='note text-err'>Gagal memuat konten.</p>";
+        });
+    }
+  </script>
+
+  <script src="../assets/sidebar.js"></script>
+  <script>tampilkanKonten(1);</script>
 </body>
 </html>
-
-
-
-

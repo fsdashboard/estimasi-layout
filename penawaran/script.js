@@ -148,21 +148,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.getElementById('produkBody');
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td class="row-no border text-center"></td>
-      <td class="border"><textarea name="produk[]" required class="w-full border rounded p-1"></textarea></td>
-      <td class="border text-center"><input type="number" name="jumlah[]" min="1" value="1" required class="w-16 border rounded p-1 text-center" /></td>
-      <td class="border text-right">
-        <div class="flex items-center">
-          <span class="mr-1">Rp</span>
-          <input type="text" name="harga[]" value="0" required class="w-36 border rounded p-1 text-right" oninput="handleHargaInput(this)" onblur="handleHargaBlur(this)" onfocus="handleHargaFocus(this)" />
+      <td class="row-no"></td>
+      <td><textarea name="produk[]" required class="table-input" rows="2"></textarea></td>
+      <td><input type="number" name="jumlah[]" min="1" value="1" required class="table-input col-jumlah" /></td>
+      <td>
+        <div class="harga-wrap">
+          <span>Rp</span>
+          <input type="text" name="harga[]" value="0" required class="table-input col-harga" oninput="handleHargaInput(this)" onblur="handleHargaBlur(this)" onfocus="handleHargaFocus(this)" />
         </div>
       </td>
-      <td class="subtotal border text-right">
+      <td class="subtotal">
         <span>Rp</span>
         <span class="rp-nominal">0</span>
       </td>
-      <td class="border text-center">
-        <button type="button" onclick="hapusBaris(this)" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs">Hapus</button>
+      <td>
+        <button type="button" onclick="hapusBaris(this)" class="btn btn-danger btn-sm">Hapus</button>
       </td>
     `;
     tbody.appendChild(row);
@@ -207,6 +207,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (formPenawaran) {
     formPenawaran.addEventListener('submit', function(e){
       e.preventDefault();
+      const previewWin = window.open('', '_blank');
 
       const tgl = document.getElementById('tanggal').value;
       document.getElementById('pv-tanggal').innerText = tgl ? formatTanggalIndo(tgl) : '';
@@ -270,11 +271,11 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById('pv-ppnHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiahSmart(ppn)}</span></div>`;
       document.getElementById('pv-totalHarga').innerHTML = `<div class="nominal-cell"><span class="rp-label">Rp</span><span class="rp-nominal">${formatRupiahSmart(subtotal + ppn)}</span></div>`;
 
-      document.querySelectorAll('.sidebar-print-hide').forEach(el => el.style.display = 'none');
-      document.getElementById('previewPenawaran').style.display = 'block';
-
       // placeholder nomor surat awal
       document.getElementById("pv-noSurat").textContent = `XXX`;
+
+      // tampilkan preview di jendela baru
+      window.bukaPreviewBaru(previewWin);
     });
   }
 
@@ -285,7 +286,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ====================================
   // Kirim ke Google Sheet & cetak
-  async function kirimKeGoogleSheet(data) {
+  async function kirimKeGoogleSheet(data, win) {
     try {
       const response = await fetch("https://script.google.com/macros/s/AKfycbxAqfHg4tsuZDNIzk3RhvzLXzMpLgAz0uH47Pm4K2rdWG-ygPq9Hpj2pokOnRWWavEm/exec", {
         method: "POST",
@@ -297,51 +298,86 @@ document.addEventListener("DOMContentLoaded", function () {
       const result = await response.json();
       return result.noInvoice;
     } catch (error) {
-      alert("Terjadi kesalahan: " + error.message);
+      (win || window).alert("Terjadi kesalahan: " + error.message);
       return null;
     }
   }
 
-  const btn = document.querySelector('#btnPrint');
-  if (btn) {
-    btn.addEventListener("click", async function (e) {
-      e.preventDefault();
-      const loading = document.getElementById("loadingOverlay");
-      if (loading) loading.style.display = "flex";
-
-      try {
-        const tgl = document.getElementById("tanggal").value;
-        const [d, m, y] = tgl.split("-");
-        const bulanRomawi = getBulanRomawi(parseInt(m));
-
-        const data = {
-          tanggal: tgl,
-          customer: document.getElementById("customer").value,
-          alamat: document.getElementById("alamat").value,
-          pengirim: document.getElementById("pengirim").value,
-          catatan: document.getElementById("catatan").value,
-          ppn: document.getElementById("ppn-option").value,
-          produk: Array.from(document.querySelectorAll('#produkBody tr')).map(row => ({
-            nama: row.querySelector('textarea[name="produk[]"]').value,
-            jumlah: row.querySelector('input[name="jumlah[]"]').value,
-            harga: row.querySelector('input[name="harga[]"]').value
-          })),
-          subtotal: document.getElementById('subtotalHarga').innerText,
-          ppn_nominal: document.getElementById('ppnHarga').innerText,
-          total: document.getElementById('totalHarga').innerText,
-          linkPDF: ""
-        };
-        const noInvoiceBaru = await kirimKeGoogleSheet(data);
-        document.getElementById("pv-noSurat").textContent = noInvoiceBaru;
-        if (loading) loading.style.display = "none";
-        window.print();
-      } catch (err) {
-        console.error("Gagal kirim data:", err);
-        if (loading) loading.style.display = "none"; // tutup loader meskipun error
-        alert("Terjadi kesalahan saat mengirim data!");
-      }
-    });
+  // Data yang dikirim ke Google Sheet (isi sama seperti sebelumnya)
+  function buatDataPenawaran() {
+    const tgl = document.getElementById("tanggal").value;
+    return {
+      tanggal: tgl,
+      customer: document.getElementById("customer").value,
+      alamat: document.getElementById("alamat").value,
+      pengirim: document.getElementById("pengirim").value,
+      catatan: document.getElementById("catatan").value,
+      ppn: document.getElementById("ppn-option").value,
+      produk: Array.from(document.querySelectorAll('#produkBody tr')).map(row => ({
+        nama: row.querySelector('textarea[name="produk[]"]').value,
+        jumlah: row.querySelector('input[name="jumlah[]"]').value,
+        harga: row.querySelector('input[name="harga[]"]').value
+      })),
+      subtotal: document.getElementById('subtotalHarga').innerText,
+      ppn_nominal: document.getElementById('ppnHarga').innerText,
+      total: document.getElementById('totalHarga').innerText,
+      linkPDF: ""
+    };
   }
+
+  // Dipanggil dari tombol Print di jendela preview
+  window.cetakPenawaran = async function (win, data) {
+    const loading = win.document.getElementById("loadingOverlay");
+    if (loading) loading.style.display = "flex";
+
+    try {
+      const noInvoiceBaru = await kirimKeGoogleSheet(data, win);
+      win.document.getElementById("pv-noSurat").textContent = noInvoiceBaru;
+      if (loading) loading.style.display = "none";
+      win.print();
+    } catch (err) {
+      console.error("Gagal kirim data:", err);
+      if (loading) loading.style.display = "none"; // tutup loader meskipun error
+      win.alert("Terjadi kesalahan saat mengirim data!");
+    }
+  };
+
+  // Buka preview di jendela baru (form tetap terbuka di jendela ini)
+  window.bukaPreviewBaru = function (win) {
+    if (!win) {
+      alert('Pop-up diblokir browser. Izinkan pop-up untuk situs ini, lalu klik "Buat Penawaran" lagi.');
+      return;
+    }
+    const snapshot = buatDataPenawaran(); // data saat preview dibuat
+    const clone = document.getElementById('previewPenawaran').cloneNode(true);
+    clone.style.display = 'block';
+    const loadingHTML = document.getElementById('loadingOverlay').outerHTML;
+
+    const html = '<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8">' +
+      '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+      '<base href="' + document.baseURI + '">' +
+      '<title>Penawaran Harga</title>' +
+      '<link rel="shortcut icon" href="../logo/favicon.png">' +
+      '<link rel="stylesheet" href="style.css">' +
+      '<link rel="stylesheet" href="preview.css">' +
+      '</head><body>' + clone.outerHTML + loadingHTML +
+      '<script>' +
+      'function editPenawaran(){ window.close(); }' +
+      'document.getElementById("btnPrint").addEventListener("click", function(e){' +
+      '  e.preventDefault();' +
+      '  if (!window.opener || window.opener.closed || !window.opener.cetakPenawaran) {' +
+      '    alert("Halaman Penawaran Harga asal sudah ditutup. Silakan buat ulang dari halaman Penawaran Harga.");' +
+      '    return;' +
+      '  }' +
+      '  window.opener.cetakPenawaran(window, window.__penawaranData);' +
+      '});' +
+      '<\/script></body></html>';
+
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    win.__penawaranData = snapshot;
+  };
 
   // ====================================
   // Init awal

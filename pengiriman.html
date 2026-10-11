@@ -3,106 +3,231 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pengiriman</title>
   <link rel="shortcut icon" href="logo/favicon.png" />
-  <title>Form Pengiriman</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/app-theme.css" />
   <style>
-    body {
-      background-color: #bf8149;
-      background-image:
-        linear-gradient(#ededed 1px, transparent 1px),
-        linear-gradient(90deg, #ededed 1px, transparent 1px);
-      background-size: 32px 32px;
+    .preview-box {
+      display: none;
+      margin-top: 1rem;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(17, 24, 39, 0.9);
     }
-    body, #previewPenawaran {
-      background: #f3f4f6 !important;
+
+    .preview-box.show {
+      display: block;
     }
-    @media print {
-      body, #previewPenawaran {
-        background: #fff !important;
+
+    .preview-content {
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(9, 15, 25, 0.9);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1rem 0 1.5rem;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .checkbox-group label {
+      cursor: pointer;
+    }
+
+    /* ===== Kartu compact (seperti layout-a3-CONTOH) ===== */
+    .panel-compact {
+      width: fit-content;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .panel-compact .form-group {
+      display: grid;
+      grid-template-columns: 11rem 16rem;
+      align-items: center;
+      column-gap: 0.75rem;
+    }
+
+    .panel-compact .form-label {
+      margin: 0;
+    }
+
+    .panel-compact .form-group > :not(.form-label) {
+      grid-column: 2;
+    }
+
+    @media (max-width: 640px) {
+      .panel-compact {
+        width: 100%;
       }
+
+      .panel-compact .form-group {
+        grid-template-columns: 1fr;
+        row-gap: 0.4rem;
+      }
+
+      .panel-compact .form-group > :not(.form-label) {
+        grid-column: 1;
+      }
+    }
+
+    .panel-compact .form-textarea {
+      resize: vertical;
+    }
+
+    .panel-compact .preview-box {
+      width: 0;
+      min-width: 100%;
     }
   </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body>
+  <header class="app-header">
+    <h1>🚚 Pengiriman</h1>
+    <button id="sidebarToggle" class="app-header-toggle" type="button" aria-label="Buka atau tutup sidebar" aria-expanded="true">
+      ☰
+    </button>
+  </header>
 
-  <!-- Tombol garis tiga (toggle sidebar) -->
-  <button id="toggleSidebar" class="md:hidden text-white text-2xl p-4 fixed z-50 bg-gray-800 top-0 left-0">☰</button>
+  <div class="app-shell">
+    <aside id="sidebar" class="app-sidebar">
+      <div class="app-sidebar-header">Tools</div>
 
-  <!-- Overlay -->
-  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 md:hidden" onclick="tutupSidebar()"></div>
+      <nav class="app-sidebar-nav">
+        <a href="index.html" class="app-nav-item">
+          <span class="app-nav-icon">🏠</span>
+          <span>Beranda</span>
+        </a>
 
-  <div class="flex h-screen">
-    <aside id="sidebar" class="w-64 bg-gray-800 text-white flex flex-col fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50 md:relative">
-      <div class="p-4 text-xl font-bold border-b border-gray-700">Estimasi Online</div>
-      <nav class="flex-1 p-4 space-y-2 text-sm">
-        <a href="/estimasi-layout/index.html" class="block p-2 font-semibold rounded hover:bg-gray-700 ">🏠 Halaman Utama</a>
-        <a href="/estimasi-layout/harga-potong.html" class="block p-2 font-semibold rounded hover:bg-gray-700 ">💰 Harga Potong (A3+)</a>
-        <a href="/estimasi-layout/layout-a3.html" class="block p-2 font-semibold rounded hover:bg-gray-700 ">📐 Layout A3+</a>
-        <a href="/estimasi-layout/buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700 ">📘 Buku</a>
-        <a href="/estimasi-layout/indoor-outdoor/indoor-outdoor.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🖼️ Indoor/Outdoor</a>
-        <a href="/estimasi-layout/adjust-size.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🔧 Adjust Size</a>
-        <a href="/estimasi-layout/PDF Page Tools/index-shuffle.html" class="block p-2 font-semibold rounded hover:bg-gray-700 ">📄 PDF Page Tools</a>
-        <a href="/estimasi-layout/penawaran/penawaran.html" class="block p-2 font-semibold rounded hover:bg-gray-700 ">💰 Penawaran</a>
-        <a href="/estimasi-layout/pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700 bg-gray-900">🚚 Pengiriman</a>
-        <a href="/estimasi-layout/mockup.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🎨 mockup</a>
+        <a href="layout-a3.html" class="app-nav-item">
+          <span class="app-nav-icon">📐</span>
+          <span>Layout A3+</span>
+        </a>
+
+        <a href="harga-potong.html" class="app-nav-item">
+          <span class="app-nav-icon">💰</span>
+          <span>Harga Potong</span>
+        </a>
+
+        <a href="adjust-size.html" class="app-nav-item">
+          <span class="app-nav-icon">🔧</span>
+          <span>Adjust Size</span>
+        </a>
+
+        <a href="buku/buku.html" class="app-nav-item">
+          <span class="app-nav-icon">📘</span>
+          <span>Estimasi Buku</span>
+        </a>
+
+        <a href="indoor-outdoor/indoor-outdoor.html" class="app-nav-item">
+          <span class="app-nav-icon">🖼️</span>
+          <span>Indoor/Outdoor</span>
+        </a>
+
+        <a href="PDF Page Tools/index-shuffle.html" class="app-nav-item">
+          <span class="app-nav-icon">📄</span>
+          <span>PDF Tools</span>
+        </a>
+
+        <a href="penawaran/penawaran.html" class="app-nav-item">
+          <span class="app-nav-icon">📋</span>
+          <span>Penawaran Harga</span>
+        </a>
+
+        <a href="pengiriman.html" class="app-nav-item active">
+          <span class="app-nav-icon">🚚</span>
+          <span>Pengiriman</span>
+        </a>
+
+        <a href="mockup.html" class="app-nav-item">
+          <span class="app-nav-icon">🎨</span>
+          <span>Mockup</span>
+        </a>
       </nav>
+
+      <div class="app-sidebar-footer">APS Ciputat v2.0</div>
     </aside>
 
-    <main class="flex-1 p-6 overflow-y-auto">
-      <h1 class="text-2xl font-bold mb-4 text-blue-700">Form Pengiriman</h1>
-      <p class="text-sm text-gray-600 mb-4">Buat dokumen pengiriman otomatis dan cepat</p>
-      <div class="bg-white rounded-lg shadow p-6 max-w-xl mx-auto">
-        <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="font-semibold block mb-1">Nama Customer:</label>
-            <textarea id="customer" class="w-full border rounded p-2"></textarea>
+    <div id="overlay" class="app-overlay"></div>
+
+    <main class="app-main">
+      <div class="app-content">
+        <div class="page-header">
+          <h2 class="page-title">Form Pengiriman</h2>
+          <p class="page-subtitle">Buat dokumen pengiriman otomatis dan cepat</p>
+        </div>
+
+        <div class="panel-compact">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-icon">🚚</div>
+            <div class="panel-title">Data Pengiriman</div>
           </div>
-          <div>
-            <label class="font-semibold block mb-1">Nomor Customer:</label>
-            <input id="nomor-customer" type="text" class="w-full border rounded p-2" placeholder="0812xxxx">
+
+          <div class="form-group">
+            <label class="form-label">Nama Customer</label>
+            <textarea id="customer" class="form-textarea" placeholder="Masukkan nama customer"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nomor Customer</label>
+            <input id="nomorCustomer" type="text" class="form-input" placeholder="0812xxxx" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Alamat</label>
+            <textarea id="alamat" class="form-textarea" placeholder="Masukkan alamat lengkap"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Metode Pengiriman</label>
+            <select id="metodePengiriman" class="form-select">
+              <option value="jne">JNE</option>
+              <option value="jnt">JNT</option>
+              <option value="wahana">WAHANA</option>
+              <option value="tiki">TIKI</option>
+              <option value="lion parcel">LION PARCEL</option>
+              <option value="ninja">NINJA</option>
+              <option value="pos">POS</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tipe Pelayanan</label>
+            <select id="tipePelayanan" class="form-select">
+              <option value="regular">Regular</option>
+              <option value="express">Express</option>
+            </select>
+          </div>
+
+          <div class="checkbox-group">
+            <input id="showPreview" type="checkbox" />
+            <label for="showPreview">Tampilkan Preview</label>
+          </div>
+
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+            <button id="savepdf" class="btn btn-primary">Save PDF</button>
           </div>
         </div>
 
-        <div class="mb-4">
-          <label class="font-semibold block mb-1">Alamat:</label>
-          <textarea id="alamat" class="w-full border rounded p-2"></textarea>
+        <div id="previewBox" class="preview-box">
+          <div class="preview-content" id="previewContent"></div>
         </div>
-
-        <div class="mb-4">
-          <label class="font-semibold block mb-1">Metode Pengiriman:</label>
-          <select id="metode-pengiriman" class="w-full border rounded p-2">
-            <option value="jne">JNE</option>
-            <option value="jnt">JNT</option>
-            <option value="wahana">WAHANA</option>
-            <option value="tiki">TIKI</option>
-            <option value="lion parcel">LION PARCEL</option>
-            <option value="ninja">NINJA</option>
-            <option value="pos">POS</option>
-          </select>
-        </div>
-
-        <div class="mb-4">
-          <label class="font-semibold block mb-1">Tipe Pelayanan:</label>
-          <select id="tipe-pelayanan" class="w-full border rounded p-2">
-            <option value="regular">Regular</option>
-            <option value="express">Express</option>
-          </select>
-        </div>
-
-        <div class="flex items-center mb-4">
-          <input id="showPreview" type="checkbox" class="mr-2">
-          <label for="showPreview" class="font-semibold">Tampilkan Preview</label>
-        </div>
-
-        <div class="flex justify-end">
-          <button id="savepdf" class="bg-red-600 hover:bg-blue-700 text-white px-4 py-2 font-semibold rounded">
-            Save PDF
-          </button>
         </div>
       </div>
-
-      <div id="previewPenawaran" class="p-6 max-w-xl mx-auto mt-8"></div>
     </main>
   </div>
 
@@ -110,66 +235,67 @@
   <script>
     const { jsPDF } = window.jspdf;
 
-    const saveBtn = document.getElementById('savepdf');
-    const showPreview = document.getElementById('showPreview');
-    const preview = document.getElementById('previewPenawaran');
+    const previewBox = document.getElementById("previewBox");
+    const previewContent = document.getElementById("previewContent");
 
     function updatePreview() {
-      const customer = document.getElementById('customer').value;
-      const nomorCustomer = document.getElementById('nomor-customer').value;
-      const alamat = document.getElementById('alamat').value;
-      const metode = document.getElementById('metode-pengiriman').value;
-      const tipe = document.getElementById('tipe-pelayanan').value;
+      const customer = document.getElementById("customer").value;
+      const nomorCustomer = document.getElementById("nomorCustomer").value;
+      const alamat = document.getElementById("alamat").value;
+      const metode = document.getElementById("metodePengiriman").value;
+      const tipe = document.getElementById("tipePelayanan").value;
 
-      if (showPreview.checked) {
-        preview.innerHTML = `
-          <div class="bg-white p-6 rounded shadow">
-            <p><strong>Pengirim :</strong><br>
-            Anugerah Printshop Ciputat<br>
-            Ciputat Timur, Kota Tangerang Selatan - Banten<br>
-            15412<br>
-            Telp 0821 2245 0210</p>
-            <p><strong>Penerima :</strong><br>
-            ${customer}<br>
-            ${nomorCustomer}<br>
-            ${alamat}</p>
-            <p><strong>Metode :</strong> ${metode.toUpperCase()}</p>
-            <p><strong>Tipe :</strong> ${tipe.charAt(0).toUpperCase() + tipe.slice(1)}</p>
-          </div>`;
+      if (document.getElementById("showPreview").checked) {
+        previewBox.classList.add("show");
+        previewContent.innerHTML = `
+          <strong>Pengirim :</strong><br>
+          Anugerah Printshop Ciputat<br>
+          Ciputat Timur, Kota Tangerang Selatan - Banten<br>
+          15412<br>
+          Telp 0821 2245 0210<br><br>
+          <strong>Penerima :</strong><br>
+          ${customer || "—"}<br>
+          ${nomorCustomer || "—"}<br>
+          ${alamat || "—"}<br><br>
+          <strong>Metode :</strong> ${metode.toUpperCase()}<br>
+          <strong>Tipe :</strong> ${tipe.charAt(0).toUpperCase() + tipe.slice(1)}
+        `;
       } else {
-        preview.innerHTML = '';
+        previewBox.classList.remove("show");
       }
     }
 
-    showPreview.addEventListener('change', updatePreview);
-    document.getElementById('customer').addEventListener('input', updatePreview);
-    document.getElementById('nomor-customer').addEventListener('input', updatePreview);
-    document.getElementById('alamat').addEventListener('input', updatePreview);
-    document.getElementById('metode-pengiriman').addEventListener('change', updatePreview);
-    document.getElementById('tipe-pelayanan').addEventListener('change', updatePreview);
+    document.getElementById("showPreview").addEventListener("change", updatePreview);
+    document.getElementById("customer").addEventListener("input", updatePreview);
+    document.getElementById("nomorCustomer").addEventListener("input", updatePreview);
+    document.getElementById("alamat").addEventListener("input", updatePreview);
+    document.getElementById("metodePengiriman").addEventListener("change", updatePreview);
+    document.getElementById("tipePelayanan").addEventListener("change", updatePreview);
 
-    saveBtn.addEventListener('click', () => {
-      const customer = document.getElementById('customer').value;
-      const nomorCustomer = document.getElementById('nomor-customer').value;
-      const alamat = document.getElementById('alamat').value;
-      const metode = document.getElementById('metode-pengiriman').value;
-      const tipe = document.getElementById('tipe-pelayanan').value;
+    document.getElementById("savepdf").addEventListener("click", () => {
+      const customer = document.getElementById("customer").value;
+      const nomorCustomer = document.getElementById("nomorCustomer").value;
+      const alamat = document.getElementById("alamat").value;
+      const metode = document.getElementById("metodePengiriman").value;
+      const tipe = document.getElementById("tipePelayanan").value;
 
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a6' });
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a6" });
       const img = new Image();
-      img.src = 'img/background-label.png';
+      img.src = "img/background-label.png";
 
-      img.onload = function() {
+      img.onload = function () {
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
-        doc.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight);
+
+        doc.addImage(img, "PNG", 0, 0, pageWidth, pageHeight);
 
         let y = 35;
         doc.setFontSize(11);
-        doc.setFont(undefined, 'bold');
+        doc.setFont(undefined, "bold");
         doc.text("Pengirim :", 10, y);
         y += 7;
-        doc.setFont(undefined, 'normal');
+
+        doc.setFont(undefined, "normal");
         doc.text("Anugerah Printshop Ciputat", 10, y);
         y += 6;
         doc.text("Ciputat Timur, Kota Tangerang Selatan - Banten", 10, y);
@@ -179,12 +305,13 @@
         doc.text("Telp 0821 2245 0210", 10, y);
 
         y += 12;
-        doc.setFont(undefined, 'bold');
+
+        doc.setFont(undefined, "bold");
         doc.text("Penerima :", 10, y);
         y += 7;
 
-        doc.setFont(undefined, 'normal');
-        let penerimaText = customer + '\n' + nomorCustomer + '\n' + alamat;
+        doc.setFont(undefined, "normal");
+        const text = customer + "\n" + nomorCustomer + "\n" + alamat;
         let fontSize = 11;
         let maxWidth = 85;
         let maxHeight = 45;
@@ -194,18 +321,21 @@
 
         while (totalHeight > maxHeight && fontSize > 5) {
           doc.setFontSize(fontSize);
-          splitted = doc.splitTextToSize(penerimaText, maxWidth);
+          splitted = doc.splitTextToSize(text, maxWidth);
           totalHeight = splitted.length * lineHeight;
-          if (totalHeight > maxHeight) fontSize -= 0.5;
+
+          if (totalHeight > maxHeight) {
+            fontSize -= 0.5;
+          }
         }
 
-        splitted.forEach(line => {
+        splitted.forEach((line) => {
           doc.text(line, 10, y);
           y += lineHeight;
         });
 
         let yFooter = 128;
-        doc.setFont(undefined, 'bold');
+        doc.setFont(undefined, "bold");
         doc.text("Metode Pengiriman", 10, yFooter);
         doc.text(":", 47, yFooter);
         doc.text(metode.toUpperCase(), 50, yFooter);
@@ -215,24 +345,11 @@
         doc.text(":", 47, yFooter);
         doc.text(tipe.charAt(0).toUpperCase() + tipe.slice(1), 50, yFooter);
 
-        doc.save('label_pengiriman.pdf');
+        doc.save("label_pengiriman.pdf");
       };
     });
-
-    // Toggle sidebar (responsive)
-    const toggleSidebar = document.getElementById("toggleSidebar");
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
-
-    toggleSidebar.addEventListener("click", () => {
-      sidebar.classList.toggle("-translate-x-full");
-      overlay.classList.toggle("hidden");
-    });
-
-    function tutupSidebar() {
-      sidebar.classList.add("-translate-x-full");
-      overlay.classList.add("hidden");
-    }
   </script>
+
+  <script src="assets/sidebar.js"></script>
 </body>
 </html>

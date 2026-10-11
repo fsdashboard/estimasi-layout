@@ -1,27 +1,37 @@
-﻿<!-- organize.html -->
-<div id="organizeSection" class="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
-  <h2 class="text-xl font-bold mb-3">Organize Pages (Tool)</h2>
-
-  <label class="block mb-2">Sampai angka berapa? (wajib)</label>
-  <input id="batas" type="number" class="border p-2 w-full mb-3" placeholder="contoh: 70">
-
-  <label class="block mb-2">Kelipatan berapa? (wajib)</label>
-  <input id="kelipatan" type="number" class="border p-2 w-full mb-3" placeholder="contoh: 7">
-
-  <label class="block mb-2">Tambahkan halaman sebelum kelipatan? (opsional)</label>
-  <input id="tambahan" type="number" class="border p-2 w-full mb-3" placeholder="contoh: 3">
-
-  <div class="flex gap-3">
-    <button onclick="generateOrganize()" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Generate</button>
-    <button onclick="clearOrganize()" class="bg-gray-500 text-white px-4 py-2 rounded w-full">Clear</button>
+<!-- organize.html : fragment -->
+<div class="pdf-layout eq">
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-icon">🗂️</div>
+    <div class="panel-title">Input Organize</div>
+    <button type="button" class="btn btn-secondary btn-reset" onclick="clearOrganize(); autoHitung();">Reset</button>
   </div>
-
-  <div class="mt-4">
-    <h3 class="font-semibold mb-2">Hasil:</h3>
-    <textarea id="hasilOrganize" class="w-full border p-2 h-28 rounded" readonly></textarea>
+  <div class="fgrid">
+    <div class="form-group">
+      <label class="form-label">Sampai angka berapa? (wajib)</label>
+      <input id="batas" type="number" class="form-input" placeholder="contoh: 70">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kelipatan berapa? (wajib)</label>
+      <input id="kelipatan" type="number" class="form-input" placeholder="contoh: 7">
+    </div>
+    <div class="form-group span2">
+      <label class="form-label">Tambah halaman sebelum kelipatan? (opsional)</label>
+      <input id="tambahan" type="number" class="form-input" placeholder="contoh: 3">
+    </div>
   </div>
+</div>
 
-  <button onclick="copyOrganize()" class="bg-green-600 text-white px-4 py-2 rounded w-full mt-3">Copy Hasil</button>
-  <p id="notifOrganize" class="text-green-600 mt-2 text-sm hidden">✔ Berhasil dicopy!</p>
-  <p id="warningOrganize" class="text-red-600 mt-2 text-sm hidden">Isi semua input wajib!</p>
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-icon">📋</div>
+    <div class="panel-title">Hasil</div>
+    <button type="button" class="btn btn-secondary btn-reset" onclick="copyOrganize()">Copy Hasil</button>
+  </div>
+  <p id="pdf-empty" class="hint">Isi data di sebelah kiri, hasil muncul otomatis.</p>
+  <div id="pdf-warn" class="warn hidden"></div>
+  <textarea id="hasilOrganize" class="form-textarea" rows="6" readonly placeholder="Hasil muncul di sini"></textarea>
+  <p id="notifOrganize" class="note text-ok hidden">✔ Berhasil dicopy!</p>
+  <p id="warningOrganize" class="note text-err hidden">Isi semua input wajib!</p>
+</div>
 </div>

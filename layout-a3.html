@@ -3,148 +3,259 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" href="logo/favicon.png" />
   <title>Layout A3+</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="shortcut icon" href="logo/favicon.png" />
+  <link rel="stylesheet" href="assets/app-theme.css" />
   <style>
-    body {
-      background-color: #bf8149;
-      background-image:
-        linear-gradient(#ededed 1px, transparent 1px),
-        linear-gradient(90deg, #ededed 1px, transparent 1px);
-      background-size: 32px 32px;
+    /* ===== Input (kiri) + hasil (kanan) ===== */
+    .layout-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 520px) minmax(0, 330px);
+      gap: 1.25rem;
+      justify-content: center;
+      align-items: stretch;
     }
-    .modal-enter {
-      opacity: 0;
-      transform: scale(0.95);
-      transition: opacity 0.3s ease, transform 0.3s ease;
+
+    .layout-grid .panel {
+      margin: 0;
     }
-    .modal-show {
-      opacity: 1;
-      transform: scale(1);
+
+    .layout-grid .panel-header {
+      display: flex;
+      align-items: center;
     }
-    .modal-hide {
-      opacity: 0;
-      transform: scale(0.95);
+
+    .btn-reset {
+      margin-left: auto;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.8rem;
+    }
+
+    .layout-grid .form-group {
+      margin-bottom: 0.85rem;
+    }
+
+    .layout-grid .form-label {
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+
+    .row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .row2 .form-group {
+      margin-bottom: 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .two-col .sep {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .result-box {
+      margin-bottom: 0.6rem;
+      padding: 0.65rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(17, 24, 39, 0.9);
+    }
+
+    .result-label {
+      margin-bottom: 0.15rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .result-value {
+      color: var(--accent);
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .hint {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      .layout-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .row2 {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <!-- Tombol garis tiga (toggle sidebar) -->
-  <button id="toggleSidebar" class="md:hidden text-white text-2xl p-4 fixed z-50 bg-gray-800 top-0 left-0">☰</button>
+<body>
+  <header class="app-header">
+    <h1>📐 Layout A3+</h1>
+    <button id="sidebarToggle" class="app-header-toggle" type="button" aria-label="Buka atau tutup sidebar" aria-expanded="true">
+      ☰
+    </button>
+  </header>
 
-  <!-- Overlay -->
-  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 md:hidden" onclick="tutupSidebar()"></div>
+  <div class="app-shell">
+    <aside id="sidebar" class="app-sidebar">
+      <div class="app-sidebar-header">Tools</div>
+      <nav class="app-sidebar-nav">
+        <a href="index.html" class="app-nav-item">
+          <span class="app-nav-icon">🏠</span>
+          <span>Beranda</span>
+        </a>
 
-  <div class="flex h-screen">
-    <aside id="sidebar" class="w-64 bg-gray-800 text-white flex flex-col fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50 md:relative">
-      <div class="p-4 text-xl font-bold border-b border-gray-700">Estimasi Online</div>
-      <nav class="flex-1 p-4 space-y-2 text-sm">
-        <a href="/estimasi-layout/index.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🏠 Halaman Utama</a>
-        <a href="/estimasi-layout/harga-potong.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">💰 Harga Potong (A3+)</a>
-        <a href="/estimasi-layout/layout-a3.html" class="block p-2 font-semibold rounded hover:bg-gray-700 bg-gray-900">📐 Layout A3+</a>
-        <a href="/estimasi-layout/buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700 ">📘 Buku</a>
-        <a href="/estimasi-layout/indoor-outdoor/indoor-outdoor.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🖼️ Indoor/Outdoor</a>
-        <a href="/estimasi-layout/adjust-size.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🔧 Adjust Size</a>
-        <a href="/estimasi-layout/PDF Page Tools/index-shuffle.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📄 PDF Page Tools</a>
-        <a href="/estimasi-layout/penawaran/penawaran.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">💰 Penawaran</a>
-        <a href="/estimasi-layout/pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🚚 Pengiriman</a>
-        <a href="/estimasi-layout/mockup.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🎨 mockup</a>
+        <a href="layout-a3.html" class="app-nav-item active">
+          <span class="app-nav-icon">📐</span>
+          <span>Layout A3+</span>
+        </a>
+
+        <a href="harga-potong.html" class="app-nav-item">
+          <span class="app-nav-icon">💰</span>
+          <span>Harga Potong</span>
+        </a>
+
+        <a href="adjust-size.html" class="app-nav-item">
+          <span class="app-nav-icon">🔧</span>
+          <span>Adjust Size</span>
+        </a>
+
+        <a href="buku/buku.html" class="app-nav-item">
+          <span class="app-nav-icon">📘</span>
+          <span>Estimasi Buku</span>
+        </a>
+
+        <a href="indoor-outdoor/indoor-outdoor.html" class="app-nav-item">
+          <span class="app-nav-icon">🖼️</span>
+          <span>Indoor/Outdoor</span>
+        </a>
+
+        <a href="PDF Page Tools/index-shuffle.html" class="app-nav-item">
+          <span class="app-nav-icon">📄</span>
+          <span>PDF Tools</span>
+        </a>
+
+        <a href="penawaran/penawaran.html" class="app-nav-item">
+          <span class="app-nav-icon">📋</span>
+          <span>Penawaran Harga</span>
+        </a>
+
+        <a href="pengiriman.html" class="app-nav-item">
+          <span class="app-nav-icon">🚚</span>
+          <span>Pengiriman</span>
+        </a>
+
+        <a href="mockup.html" class="app-nav-item">
+          <span class="app-nav-icon">🎨</span>
+          <span>Mockup</span>
+        </a>
       </nav>
+
+      <div class="app-sidebar-footer">APS Ciputat v2.0</div>
     </aside>
-    <main class="flex-1 p-6 overflow-y-auto">
-      <h1 class="text-2xl font-bold mb-4 text-blue-700">Layout A3+</h1>
-      <p class="text-sm text-gray-600 mb-4">Halaman perhitungan dan penyusunan layout cetak A3+</p>
-      <div class="bg-white rounded-lg shadow p-6 w-fit mx-auto">
-        <table class="mb-4">
-          <tr>
-            <td class="pr-2 py-3 font-semibold">Ukuran Jadi (cm):</td>
-            <td>
-              <div class="flex ml-2 w-64">
-                <input type="number" placeholder="Panjang" id="panjang" class="p-1 border rounded w-[7.25rem] mr-1" />
-                <span class="flex items-center px-1">x</span>
-                <input type="number" placeholder="Lebar" id="lebar" class="p-1 border rounded w-[7.25rem] ml-1" />
+
+    <div id="overlay" class="app-overlay"></div>
+
+    <main class="app-main">
+      <div class="app-content">
+        <div class="page-header">
+          <h2 class="page-title">Layout A3+</h2>
+          <p class="page-subtitle">Halaman perhitungan dan penyusunan layout cetak A3+</p>
+        </div>
+
+        <div class="layout-grid">
+          <!-- INPUT -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-icon">📐</div>
+              <div class="panel-title">Input Layout</div>
+              <button type="button" class="btn btn-secondary btn-reset" onclick="resetForm()">Reset</button>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Ukuran Jadi (cm)</label>
+              <div class="two-col">
+                <input id="panjang" type="number" class="form-input" placeholder="Panjang" />
+                <span class="sep">x</span>
+                <input id="lebar" type="number" class="form-input" placeholder="Lebar" />
               </div>
-            </td>
-          </tr>
-          <tr>
-            <td class="pr-2 py-3 font-semibold">Kebutuhan Cetak (pcs):</td>
-            <td><input type="number" id="kebutuhan" class="ml-2 p-1 border rounded w-64" /></td>
-          </tr>
-          <tr>
-            <td class="pr-2 py-3 font-semibold">Finishing:</td>
-            <td>
-              <select id="finishing" class="ml-2 p-1 border rounded w-64">
+            </div>
+
+            <div class="row2">
+            <div class="form-group">
+              <label class="form-label">Kebutuhan Cetak (pcs)</label>
+              <input id="kebutuhan" type="number" class="form-input" placeholder="Masukkan jumlah kebutuhan" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Finishing</label>
+              <select id="finishing" class="form-select">
                 <option value="">-- Pilih Finishing --</option>
                 <option value="Potong Kotak Kress 1">Potong Kotak Kress 1</option>
                 <option value="Potong Kotak Kress 2">Potong Kotak Kress 2</option>
                 <option value="Kiss Cut">Kiss Cut</option>
                 <option value="Die Cut">Die Cut</option>
               </select>
-            </td>
-          </tr>
-          <tr id="rowTotalA3" class="hidden">
-            <td class="pr-2 py-3 font-semibold">Total dalam 1 A3:</td>
-            <td><input type="text" id="hasilTotalA3" class="ml-2 p-1 border rounded w-64 bg-gray-100" readonly /></td>
-          </tr>
-          <tr id="rowA3Plus" class="hidden">
-            <td class="pr-2 py-3 font-semibold">Kebutuhan Cetak A3+:</td>
-            <td><input type="text" id="hasilA3plus" class="ml-2 p-1 border rounded w-64 bg-gray-100" readonly /></td>
-          </tr>
-          <tr id="rowFinishing" class="hidden">
-            <td class="pr-2 py-3 font-semibold">Total Biaya Finishing:</td>
-            <td><input type="text" id="totalFinishing" class="ml-2 p-1 border rounded w-64 bg-gray-100" readonly /></td>
-          </tr>
-        </table>
-        <div class="mt-4">
-          <button onclick="hitungTotal()" class="px-4 py-2 bg-blue-600 text-white rounded">Hitung</button>
-          <button onclick="resetForm()" class="ml-2 px-4 py-2 bg-gray-500 text-white rounded">Reset</button>
+            </div>
+            </div>
+          </div>
+
+          <!-- HASIL -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-icon">📊</div>
+              <div class="panel-title">Hasil</div>
+            </div>
+
+            <div class="result-box">
+              <div class="result-label">Total dalam 1 A3</div>
+              <div id="hasilTotalA3" class="result-value">—</div>
+            </div>
+
+            <div class="result-box">
+              <div class="result-label">Kebutuhan Cetak A3+</div>
+              <div id="hasilA3plus" class="result-value">—</div>
+            </div>
+
+            <div class="result-box">
+              <div class="result-label">Total Biaya Finishing</div>
+              <div id="totalFinishing" class="result-value">—</div>
+            </div>
+
+            <p class="hint">Hasil terisi otomatis setelah semua input diisi.</p>
+          </div>
         </div>
       </div>
     </main>
   </div>
 
-  <!-- Modal Alert -->
-  <div id="customAlert" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-    <div id="alertBox" class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full modal-enter">
-      <h2 class="text-lg font-bold text-red-600 mb-2">PERINGATAN!</h2>
-      <p id="alertMessage" class="text-gray-700 mb-4"></p>
-      <div class="text-right">
-        <button onclick="tutupAlert()" class="px-4 py-2 bg-blue-600 text-white rounded">Oke</button>
-      </div>
-    </div>
-  </div>
-
-<script>
-  window.onload = function () {
-    const modal = document.getElementById("customAlert");
-    const alertBox = document.getElementById("alertBox");
-
-    function showAlert(pesan) {
-      document.getElementById("alertMessage").textContent = pesan;
-      modal.classList.remove("hidden");
-      requestAnimationFrame(() => alertBox.classList.add("modal-show"));
-    }
-
-    function tutupAlert() {
-      alertBox.classList.remove("modal-show");
-      alertBox.classList.add("modal-hide");
-      setTimeout(() => {
-        modal.classList.add("hidden");
-        alertBox.classList.remove("modal-hide");
-      }, 300);
-    }
-
+  <script>
     function getHargaPotongKress(kebutuhan, totalA3) {
       const data = [
         { maxA3: 2, ranges: [{ maxK: 5, harga: 0 }, { maxK: 10, harga: 5000 }, { maxK: 50, harga: 10000 }, { maxK: 100, harga: 15000 }, { maxK: 200, harga: 20000 }, { maxK: 300, harga: 25000 }, { maxK: Infinity, harga: 30000 }]},
-        { maxA3: 8, ranges: [{ maxK: 5, harga: 0 }, { maxK: 10, harga: 5000 }, { maxK: 30, harga: 10000 }, { maxK: 50, harga: 15000 }, { maxK: 100, harga: 20000 }, { maxK: 200, harga: 25000 }, { maxK: 300, harga: 30000 }, { maxK: Infinity, harga: 35000 }]},
+        { maxA3: 8, ranges: [{ maxK: 5, harga: 0 }, { maxK: 10, harga: 5000 }, { maxK: 30, harga: 10000 }, { maxK: 50, harga: 15000 }, { maxK: 100, harga: 20000 }, { maxK: 200, harga: 25000 }, { maxK: 300, harga: 35000 }, { maxK: Infinity, harga: 40000 }]},
         { maxA3: 15, ranges: [{ maxK: 5, harga: "1000/LEMBAR" }, { maxK: 10, harga: 10000 }, { maxK: 30, harga: 20000 }, { maxK: 50, harga: 35000 }, { maxK: 100, harga: 40000 }, { maxK: 200, harga: 50000 }, { maxK: 300, harga: 60000 }, { maxK: Infinity, harga: 70000 }]},
         { maxA3: 25, ranges: [{ maxK: 5, harga: "3000/LEMBAR" }, { maxK: 10, harga: 15000 }, { maxK: 30, harga: 25000 }, { maxK: 50, harga: 35000 }, { maxK: 100, harga: 45000 }, { maxK: 200, harga: 55000 }, { maxK: 300, harga: 65000 }, { maxK: Infinity, harga: 75000 }]},
         { maxA3: Infinity, ranges: [{ maxK: 5, harga: "4000/LEMBAR" }, { maxK: 10, harga: 20000 }, { maxK: 30, harga: 30000 }, { maxK: 50, harga: 40000 }, { maxK: 100, harga: 50000 }, { maxK: 200, harga: 60000 }, { maxK: 300, harga: 70000 }, { maxK: Infinity, harga: 80000 }]}
       ];
+
       const baris = data.find(d => totalA3 <= d.maxA3);
-      const kolom = baris.ranges.find(r => kebutuhan <= r.maxK);
+      const kolom = baris && baris.ranges.find(r => kebutuhan <= r.maxK);
       return kolom ? kolom.harga : 0;
     }
 
@@ -154,26 +265,36 @@
       const kebutuhan = parseFloat(document.getElementById('kebutuhan').value);
       const finishing = document.getElementById('finishing').value;
 
+      // input belum lengkap -> kosongkan hasil tanpa peringatan
       if (!panjang || !lebar || !kebutuhan || !finishing) {
-        showAlert("Mohon lengkapi semua input layout A3+");
+        document.getElementById('hasilTotalA3').textContent = '—';
+        document.getElementById('hasilA3plus').textContent = '—';
+        document.getElementById('totalFinishing').textContent = '—';
         return;
       }
 
       let p = panjang;
       let l = lebar;
-      let panjangAcuan = 47.1, lebarAcuan = 31.1;
+      let panjangAcuan = 47.1;
+      let lebarAcuan = 31.1;
 
       if (finishing === "Potong Kotak Kress 2") {
-        p += 0.4; l += 0.4;
-        panjangAcuan = 47.5; lebarAcuan = 31.5;
+        p += 0.4;
+        l += 0.4;
+        panjangAcuan = 47.5;
+        lebarAcuan = 31.5;
       } else if (finishing === "Kiss Cut") {
-        p += 0.2; l += 0.2;
-        panjangAcuan = 44.9; lebarAcuan = 30.9;
+        p += 0.2;
+        l += 0.2;
+        panjangAcuan = 44.9;
+        lebarAcuan = 30.9;
       }
 
       let totalA3;
+
       if (finishing === "Die Cut") {
-        p += 0.3; l += 0.3;
+        p += 0.3;
+        l += 0.3;
         const mode1 = Math.floor(44 / p) * Math.floor(31.5 / l);
         const mode2 = Math.floor(44 / l) * Math.floor(31.5 / p);
         const mode3 = Math.floor(47.5 / p) * Math.floor(29 / l);
@@ -188,20 +309,18 @@
       const a3plus = totalA3 > 0 && kebutuhan > 0 ? Math.ceil(kebutuhan / totalA3) : 0;
       let harga = 0;
 
-      if (finishing === "Die Cut") harga = 8500 * a3plus;
-      else if (finishing === "Kiss Cut") harga = 5500 * a3plus;
-      else {
+      if (finishing === "Die Cut") {
+        harga = 8500 * a3plus;
+      } else if (finishing === "Kiss Cut") {
+        harga = 5500 * a3plus;
+      } else {
         const hargaData = getHargaPotongKress(a3plus, totalA3);
         harga = typeof hargaData === "string" ? parseInt(hargaData) * a3plus : hargaData;
       }
 
-      document.getElementById('hasilTotalA3').value = totalA3 + ' pcs';
-      document.getElementById('hasilA3plus').value = a3plus + ' Lembar';
-      document.getElementById('totalFinishing').value = harga > 0 ? 'Rp' + harga.toLocaleString() : 'FREE';
-
-      document.getElementById('rowTotalA3').classList.remove('hidden');
-      document.getElementById('rowA3Plus').classList.remove('hidden');
-      document.getElementById('rowFinishing').classList.remove('hidden');
+      document.getElementById('hasilTotalA3').textContent = totalA3 + ' pcs';
+      document.getElementById('hasilA3plus').textContent = a3plus + ' Lembar';
+      document.getElementById('totalFinishing').textContent = harga > 0 ? 'Rp ' + harga.toLocaleString() : 'FREE';
     }
 
     function resetForm() {
@@ -209,38 +328,17 @@
       document.getElementById('lebar').value = '';
       document.getElementById('kebutuhan').value = '';
       document.getElementById('finishing').value = '';
-      document.getElementById('hasilTotalA3').value = '';
-      document.getElementById('hasilA3plus').value = '';
-      document.getElementById('totalFinishing').value = '';
-
-      document.getElementById('rowTotalA3').classList.add('hidden');
-      document.getElementById('rowA3Plus').classList.add('hidden');
-      document.getElementById('rowFinishing').classList.add('hidden');
+      hitungTotal();
     }
 
-    document.addEventListener('keydown', function (e) {
-      if (!modal.classList.contains('hidden') && e.key === 'Enter') tutupAlert();
+    // Hasil otomatis: hitung ulang setiap input / pilihan berubah
+    ['panjang', 'lebar', 'kebutuhan', 'finishing'].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('input', hitungTotal);
+      el.addEventListener('change', hitungTotal);
     });
+  </script>
 
-    window.hitungTotal = hitungTotal;
-    window.resetForm = resetForm;
-    window.tutupAlert = tutupAlert;
-  };
-
-    // Toggle sidebar (responsive)
-    const toggleSidebar = document.getElementById("toggleSidebar");
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
-
-    toggleSidebar.addEventListener("click", () => {
-      sidebar.classList.toggle("-translate-x-full");
-      overlay.classList.toggle("hidden");
-    });
-
-    function tutupSidebar() {
-      sidebar.classList.add("-translate-x-full");
-      overlay.classList.add("hidden");
-    }
-</script>
+  <script src="assets/sidebar.js"></script>
 </body>
 </html>

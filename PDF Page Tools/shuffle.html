@@ -1,49 +1,54 @@
-﻿<!-- shuffle.html -->
-<div id="shuffleContent" class="bg-white rounded-lg shadow p-6 w-fit mx-auto">
-  <table class="mb-4">
-    <tr>
-      <td class="pr-2 py-3 block font-semibold">Jumlah Halaman</td>
-      <td><input id="isiHalaman" type="number" class="ml-2 p-1 border rounded w-64" /></td>
-    </tr>
-    <tr>
-      <td class="pr-2 py-3 block font-semibold">Posisi</td>
-      <td>
-        <select id="posisi" class="ml-2 p-1 border rounded w-64">
-          <option>-- Auto --</option>
-          <option>Portrait</option>
-          <option>Landscape</option>
-        </select>
-      </td>
-    </tr>
-    <tr>
-      <td class="pr-2 py-3 block font-semibold">Baris&nbsp;&nbsp;&nbsp;&nbsp;&#x2B07;</td>
-      <td><input id="baris" type="number" class="ml-2 p-1 border rounded w-64" /></td>
-    </tr>
-    <tr>
-      <td class="pr-2 py-3 block font-semibold">Kolom &#x27A1;</td>
-      <td><input id="kolom" type="number" class="ml-2 p-1 border rounded w-64" /></td>
-    </tr>
-    <tr>
-      <td class="pr-2 py-3 block font-semibold">Slide</td>
-      <td>
-        <select id="slide" class="ml-2 p-1 border rounded w-64">
-          <option>-- Sided --</option>
-          <option>1 Sisi</option>
-          <option>2 Sisi</option>
-        </select>
-      </td>
-    </tr>
-  </table>
-
-  <div class="flex items-center gap-4 mb-4">
-    <button onclick="buatAcuan()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Buat Acuan</button>
-    <button onclick="resetForm()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Reset</button>
+<!-- shuffle.html : fragment -->
+<div class="pdf-layout">
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-icon">🔀</div>
+    <div class="panel-title">Input Shuffle</div>
+    <button type="button" class="btn btn-secondary btn-reset" onclick="resetForm(); autoHitung();">Reset</button>
   </div>
+  <div class="fgrid">
+    <div class="form-group">
+      <label class="form-label">Jumlah Halaman</label>
+      <input id="isiHalaman" type="number" class="form-input" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Slide</label>
+      <select id="slide" class="form-select">
+        <option>-- Sided --</option>
+        <option>1 Sisi</option>
+        <option>2 Sisi</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Baris &#x2B07;</label>
+      <input id="baris" type="number" class="form-input" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kolom &#x27A1;</label>
+      <input id="kolom" type="number" class="form-input" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Posisi</label>
+      <select id="posisi" class="form-select">
+        <option>-- Auto --</option>
+        <option>Portrait</option>
+        <option>Landscape</option>
+      </select>
+    </div>
+  </div>
+</div>
 
-  <label class="inline-flex items-center gap-2 mb-6">
-    <input type="checkbox" id="toggleSlide" class="accent-blue-600" onchange="buatAcuan()">
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-icon">📋</div>
+    <div class="panel-title">Hasil Acuan</div>
+  </div>
+  <label class="check-row">
+    <input type="checkbox" id="toggleSlide">
     Tampilkan Slide 1 dan Slide 2
   </label>
-
-  <div id="output" class="mt-6 space-y-6"></div>
+  <p id="pdf-empty" class="hint">Isi data di sebelah kiri, hasil muncul otomatis.</p>
+  <div id="pdf-warn" class="warn hidden"></div>
+  <div id="output"></div>
+</div>
 </div>

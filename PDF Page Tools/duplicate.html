@@ -4,776 +4,178 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDF Page Duplicator</title>
+<title>Duplicate Pages</title>
+<link rel="shortcut icon" href="../logo/favicon.png">
+<link rel="stylesheet" href="../assets/app-theme.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap');
-
-  :root {
-    --bg: #0a0a0f;
-    --surface: #13131a;
-    --surface2: #1c1c28;
-    --border: #2a2a3d;
-    --accent: #6c63ff;
-    --accent2: #ff6584;
-    --accent3: #43e97b;
-    --text: #e8e8f0;
-    --muted: #6b6b8a;
-    --glow: rgba(108, 99, 255, 0.25);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Syne', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Animated background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(108,99,255,0.08) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(255,101,132,0.06) 0%, transparent 70%),
-      radial-gradient(ellipse 40% 60% at 50% 50%, rgba(67,233,123,0.04) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 40px 24px 80px;
-  }
-
-  /* Header */
-  header {
-    text-align: center;
-    margin-bottom: 56px;
-  }
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(108,99,255,0.15);
-    border: 1px solid rgba(108,99,255,0.3);
-    color: #a89fff;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    padding: 5px 14px;
-    border-radius: 100px;
-    margin-bottom: 20px;
-  }
-
-  .badge::before {
-    content: '';
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--accent3);
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-
-  h1 {
-    font-size: clamp(36px, 6vw, 64px);
-    font-weight: 800;
-    line-height: 1.05;
-    letter-spacing: -0.03em;
-    margin-bottom: 12px;
-  }
-
-  h1 span.word1 { color: var(--text); }
-  h1 span.word2 {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .subtitle {
-    color: var(--muted);
-    font-size: 15px;
-    font-weight: 400;
-    letter-spacing: 0.01em;
-  }
-
-  /* Steps */
-  .steps-flow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    margin-bottom: 48px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .step-pill {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    padding: 6px 14px 6px 8px;
-    font-size: 12px;
-    color: var(--muted);
-    transition: all 0.3s;
-  }
-
-  .step-pill.active {
-    border-color: var(--accent);
-    color: var(--text);
-    background: rgba(108,99,255,0.1);
-  }
-
-  .step-num {
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    background: var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    font-weight: 500;
-    flex-shrink: 0;
-  }
-
-  .step-pill.active .step-num {
-    background: var(--accent);
-    color: white;
-  }
-
-  .step-arrow {
-    color: var(--border);
-    font-size: 14px;
-  }
-
-  /* Card */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 32px;
-    margin-bottom: 20px;
-    transition: border-color 0.3s;
-  }
-
-  .card:hover { border-color: rgba(108,99,255,0.3); }
-
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-
-  .card-icon {
-    width: 40px; height: 40px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
-  }
-
-  .card-icon.purple { background: rgba(108,99,255,0.15); }
-  .card-icon.pink { background: rgba(255,101,132,0.15); }
-  .card-icon.green { background: rgba(67,233,123,0.15); }
-
-  .card-title {
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-  }
-
-  .card-desc {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 2px;
-    font-weight: 400;
-  }
-
-  /* Upload Zone */
-  .upload-zone {
-    border: 2px dashed var(--border);
-    border-radius: 14px;
-    padding: 40px 24px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .upload-zone::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at center, rgba(108,99,255,0.05) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .upload-zone:hover, .upload-zone.dragover {
-    border-color: var(--accent);
-    background: rgba(108,99,255,0.04);
-  }
-
-  .upload-zone:hover::before, .upload-zone.dragover::before {
-    opacity: 1;
-  }
-
-  .upload-icon {
-    font-size: 40px;
-    margin-bottom: 12px;
-    display: block;
-    animation: float 3s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-  }
-
-  .upload-main {
-    font-size: 15px;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-
-  .upload-sub {
-    font-size: 12px;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-  }
-
+  :root { --ok: #3fb950; --bad: #ff6b6b; --surf: rgba(17,24,39,0.9); --field: #0c1220; }
+  .dup-wrap { max-width: 780px; margin: 0 auto; }
+  .dup-card { margin-bottom: 1.25rem; }
+  .dup-wrap label { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .dup-wrap input[type="number"], .dup-wrap input[type="text"] { width: 100%; padding: .65rem .8rem; border-radius: 8px; border: 1px solid var(--border); background: var(--field); color: var(--text); font-size: .95rem; }
+  .dup-wrap input[type="number"]:focus, .dup-wrap input[type="text"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(91,192,255,.1); }
+  .card-desc { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+  .steps-flow { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem; }
+  .step-pill { display: flex; align-items: center; gap: 8px; padding: 6px 14px 6px 8px; border: 1px solid var(--border); border-radius: 100px; background: var(--surf); color: var(--muted); font-size: .8rem; transition: .3s; }
+  .step-pill.active { border-color: var(--accent); color: var(--text); background: rgba(91,192,255,.1); }
+  .step-num { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--border); font-size: .7rem; flex-shrink: 0; }
+  .step-pill.active .step-num { background: var(--accent); color: #0b1220; }
+  .step-arrow { color: var(--border); }
+  .upload-zone, .csv-upload-zone { padding: 1.75rem 1rem; border: 2px dashed var(--border); border-radius: 12px; background: rgba(91,192,255,.04); text-align: center; cursor: pointer; transition: .2s; }
+  .csv-upload-zone { padding: 1.25rem 1rem; margin-bottom: .9rem; }
+  .upload-zone:hover, .upload-zone.dragover, .csv-upload-zone:hover, .csv-upload-zone.dragover { border-color: var(--accent); background: rgba(91,192,255,.08); }
+  .upload-icon { display: block; margin-bottom: .5rem; font-size: 2rem; }
+  .upload-main { margin-bottom: .3rem; font-weight: 700; }
+  .upload-sub { font-size: .75rem; color: var(--muted); }
   #fileInput { display: none; }
-
-  /* File info */
-  .file-info {
-    display: none;
-    align-items: center;
-    gap: 14px;
-    background: var(--surface2);
-    border: 1px solid rgba(67,233,123,0.2);
-    border-radius: 12px;
-    padding: 14px 18px;
-    margin-top: 16px;
-  }
-
-  .file-info.visible { display: flex; }
-
-  /* Locked warning */
-  .locked-warning {
-    display: none;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255,101,132,0.08);
-    border: 1px solid rgba(255,101,132,0.35);
-    border-radius: 12px;
-    padding: 14px 18px;
-    margin-top: 14px;
-    animation: slideIn 0.3s ease;
-  }
-  .locked-warning.visible { display: flex; }
-  .locked-warning-icon { font-size: 22px; flex-shrink: 0; }
+  .file-info, .locked-warning { display: none; align-items: center; gap: .8rem; margin-top: 1rem; padding: .8rem 1rem; border-radius: 10px; }
+  .file-info { background: rgba(63,185,80,.08); border: 1px solid rgba(63,185,80,.3); }
+  .locked-warning { background: rgba(255,107,107,.08); border: 1px solid rgba(255,107,107,.35); }
+  .file-info.visible, .locked-warning.visible { display: flex; }
+  .file-info-icon, .locked-warning-icon { font-size: 1.3rem; flex-shrink: 0; }
   .locked-warning-text { flex: 1; }
-  .locked-warning-title { font-size: 13px; font-weight: 700; color: var(--accent2); }
-  .locked-warning-desc  { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 3px; }
-
-  .file-info-icon {
-    width: 36px; height: 36px;
-    background: rgba(67,233,123,0.12);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
-  }
-
-  .file-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    word-break: break-all;
-  }
-
-  .file-meta {
-    font-size: 11px;
-    color: var(--accent3);
-    font-family: 'DM Mono', monospace;
-    margin-top: 2px;
-  }
-
-  .remove-btn {
-    margin-left: auto;
-    background: none;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 18px;
-    line-height: 1;
-    padding: 4px;
-    border-radius: 6px;
-    transition: color 0.2s;
-    flex-shrink: 0;
-  }
-
-  .remove-btn:hover { color: var(--accent2); }
-
-  /* Duplicate configs */
-  #duplicateConfigs { display: flex; flex-direction: column; gap: 14px; }
-
-  .config-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    gap: 12px;
-    align-items: end;
-    animation: slideIn 0.3s ease;
-  }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
+  .locked-warning-title { font-size: .85rem; font-weight: 700; color: var(--bad); }
+  .locked-warning-desc, .help-text { margin-top: 3px; font-size: .72rem; color: var(--muted); }
+  .file-name { font-size: .85rem; font-weight: 600; color: var(--text); word-break: break-all; }
+  .file-meta { margin-top: 2px; font-size: .75rem; color: var(--ok); }
+  .remove-btn { margin-left: auto; padding: 4px; border: none; background: none; color: var(--muted); font-size: 1.1rem; cursor: pointer; flex-shrink: 0; }
+  .remove-btn:hover { color: var(--bad); }
+  #duplicateConfigs { display: flex; flex-direction: column; gap: .9rem; }
+  .config-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: .75rem; align-items: end; }
   .field-group { display: flex; flex-direction: column; gap: 6px; }
-
-  label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-  }
-
-  input[type="number"], input[type="text"] {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 14px;
-    padding: 11px 14px;
-    width: 100%;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-  }
-
-  input[type="number"]:focus, input[type="text"]:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(108,99,255,0.12);
-  }
-
-  input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
-
-  .help-text {
-    font-size: 10px;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    margin-top: 4px;
-  }
-
-  .delete-row {
-    background: rgba(255,101,132,0.1);
-    border: 1px solid rgba(255,101,132,0.2);
-    border-radius: 10px;
-    color: var(--accent2);
-    cursor: pointer;
-    font-size: 16px;
-    width: 42px; height: 42px;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-
-  .delete-row:hover {
-    background: rgba(255,101,132,0.2);
-    border-color: var(--accent2);
-  }
-
-  /* Buttons */
-  .btn-add {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 12px;
-    background: transparent;
-    border: 1.5px dashed var(--border);
-    border-radius: 10px;
-    color: var(--muted);
-    cursor: pointer;
-    font-family: 'Syne', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.2s;
-    margin-top: 8px;
-  }
-
-  .btn-add:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(108,99,255,0.05);
-  }
-
-  .btn-process {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    padding: 16px 32px;
-    background: linear-gradient(135deg, var(--accent), #8b7cf8);
-    border: none;
-    border-radius: 14px;
-    color: white;
-    cursor: pointer;
-    font-family: 'Syne', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(108,99,255,0.3);
-  }
-
-  .btn-process::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
-  .btn-process:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(108,99,255,0.4);
-  }
-
-  .btn-process:hover::before { opacity: 1; }
-
-  .btn-process:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-
-  .btn-download {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    padding: 16px 32px;
-    background: linear-gradient(135deg, var(--accent3), #1fd17b);
-    border: none;
-    border-radius: 14px;
-    color: #0a0a0f;
-    cursor: pointer;
-    font-family: 'Syne', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    transition: all 0.3s;
-    box-shadow: 0 4px 20px rgba(67,233,123,0.25);
-    text-decoration: none;
-  }
-
-  .btn-download:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(67,233,123,0.35);
-  }
-
+  .delete-row { width: 40px; height: 40px; border: 1px solid rgba(255,107,107,.3); border-radius: 8px; background: rgba(255,107,107,.1); color: var(--bad); cursor: pointer; flex-shrink: 0; }
+  .delete-row:hover { background: rgba(255,107,107,.2); }
+  .btn-add { width: 100%; margin-top: .5rem; padding: .7rem; border: 1.5px dashed var(--border); border-radius: 8px; background: transparent; color: var(--muted); font-weight: 600; cursor: pointer; }
+  .btn-add:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-process, .btn-download { width: 100%; justify-content: center; padding: .8rem 1rem; font-size: 1rem; }
+  .btn-process:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-download { display: none; text-decoration: none; }
   .btn-download.visible { display: flex; }
-
-  /* Progress */
-  .progress-wrap {
-    display: none;
-    flex-direction: column;
-    gap: 10px;
-  }
-
+  .progress-wrap { display: none; flex-direction: column; gap: .5rem; margin-bottom: 1rem; }
   .progress-wrap.visible { display: flex; }
-
-  .progress-label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-  }
-
-  .progress-status { color: var(--muted); font-family: 'DM Mono', monospace; }
-  .progress-pct { color: var(--accent); font-family: 'DM Mono', monospace; font-weight: 500; }
-
-  .progress-bar {
-    height: 4px;
-    background: var(--surface2);
-    border-radius: 100px;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    border-radius: 100px;
-    width: 0%;
-    transition: width 0.4s ease;
-  }
-
-  /* Result */
-  .result-info {
-    display: none;
-    background: rgba(67,233,123,0.06);
-    border: 1px solid rgba(67,233,123,0.2);
-    border-radius: 12px;
-    padding: 16px 20px;
-    margin-bottom: 16px;
-    font-size: 13px;
-    color: var(--accent3);
-    font-family: 'DM Mono', monospace;
-  }
-
+  .progress-label { display: flex; justify-content: space-between; font-size: .8rem; }
+  .progress-status { color: var(--muted); }
+  .progress-pct { color: var(--accent); font-weight: 600; }
+  .progress-bar { height: 6px; border-radius: 100px; background: var(--field); overflow: hidden; }
+  .progress-fill { width: 0; height: 100%; border-radius: 100px; background: var(--accent); transition: width .4s; }
+  .result-info { display: none; margin-bottom: 1rem; padding: .9rem 1rem; border: 1px solid rgba(63,185,80,.3); border-radius: 10px; background: rgba(63,185,80,.08); color: var(--ok); font-size: .85rem; }
   .result-info.visible { display: block; }
-
-  /* Toast */
-  .toast {
-    position: fixed;
-    bottom: 32px;
-    right: 32px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 20px;
-    font-size: 13px;
-    max-width: 320px;
-    transform: translateY(20px);
-    opacity: 0;
-    transition: all 0.3s;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.error { border-color: rgba(255,101,132,0.4); color: var(--accent2); }
-  .toast.success { border-color: rgba(67,233,123,0.4); color: var(--accent3); }
-
-  /* Divider */
-  .divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 24px 0;
-  }
-
-  /* Tabs */
-  .input-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    background: var(--surface2);
-    border-radius: 12px;
-    padding: 4px;
-  }
-  .input-tab {
-    flex: 1;
-    background: transparent;
-    border: none;
-    border-radius: 9px;
-    color: var(--muted);
-    cursor: pointer;
-    font-family: 'Syne', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 9px 16px;
-    transition: all 0.2s;
-  }
-  .input-tab.active {
-    background: var(--surface);
-    color: var(--text);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  }
-  .input-tab:not(.active):hover { color: var(--text); }
-
-  /* Collate option */
-  .collate-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 10px;
-  }
-
-  .collate-option {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    padding: 13px 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .collate-option:hover { border-color: rgba(108,99,255,0.4); }
-
-  .collate-option.active {
-    border-color: var(--accent);
-    background: rgba(108,99,255,0.08);
-  }
-
-  .collate-option input[type="radio"] {
-    accent-color: var(--accent);
-    width: 16px; height: 16px;
-    margin-top: 2px;
-    flex-shrink: 0;
-    cursor: pointer;
-  }
-
-  .collate-option-title {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: none;
-    letter-spacing: normal;
-    font-family: 'Syne', sans-serif;
-    color: var(--text);
-  }
-
-  .collate-option-pattern {
-    font-size: 11px;
-    font-weight: 400;
-    text-transform: none;
-    letter-spacing: 0.03em;
-    font-family: 'DM Mono', monospace;
-    color: var(--accent3);
-    margin-top: 3px;
-  }
-
-  /* CSV upload zone */
-  .csv-upload-zone {
-    border: 2px dashed var(--border);
-    border-radius: 14px;
-    padding: 28px 24px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    margin-bottom: 14px;
-  }
-  .csv-upload-zone:hover, .csv-upload-zone.dragover {
-    border-color: var(--accent);
-    background: rgba(108,99,255,0.04);
-  }
-
-  /* CSV info box */
-  .csv-info-box {
-    background: rgba(108,99,255,0.06);
-    border: 1px solid rgba(108,99,255,0.2);
-    border-radius: 12px;
-    padding: 14px 18px;
-    margin-bottom: 16px;
-  }
-  .csv-info-title { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #a89fff; }
-  .csv-info-body  { font-size: 11px; color: var(--muted); line-height: 1.7; }
-  .csv-info-body code {
-    background: rgba(108,99,255,0.15);
-    border-radius: 4px;
-    padding: 1px 6px;
-    font-family: 'DM Mono', monospace;
-    color: #c4bfff;
-  }
-
-  /* CSV preview table */
-  .csv-preview { margin-top: 4px; }
-  .csv-preview-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--accent3);
-    font-family: 'DM Mono', monospace;
-    margin-bottom: 10px;
-  }
-  .csv-table-wrap {
-    overflow-x: auto;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    max-height: 260px;
-    overflow-y: auto;
-  }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  thead th {
-    background: var(--surface2);
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 9px 14px;
-    text-align: left;
-    position: sticky; top: 0;
-  }
-  tbody tr { border-top: 1px solid var(--border); transition: background 0.15s; }
-  tbody tr:hover { background: rgba(108,99,255,0.05); }
-  tbody td { padding: 8px 14px; font-family: 'DM Mono', monospace; }
-  td.td-page { color: var(--text); font-weight: 500; }
+  .divider { margin: 1.25rem 0; border: none; border-top: 1px solid var(--border); }
+  .toast { position: fixed; right: 24px; bottom: 24px; z-index: 100; max-width: 320px; padding: .8rem 1.1rem; border: 1px solid var(--border); border-radius: 10px; background: #111827; color: var(--text); font-size: .85rem; opacity: 0; transform: translateY(20px); transition: .3s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.error { border-color: rgba(255,107,107,.5); color: var(--bad); }
+  .toast.success { border-color: rgba(63,185,80,.5); color: var(--ok); }
+  .input-tabs { display: flex; gap: 6px; margin-bottom: 1.1rem; padding: 4px; border-radius: 10px; background: var(--field); }
+  .input-tab { flex: 1; padding: .55rem 1rem; border: none; border-radius: 8px; background: transparent; color: var(--muted); font-weight: 600; cursor: pointer; }
+  .input-tab.active { background: var(--accent); color: #0b1220; }
+  .collate-options { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-top: .6rem; }
+  .collate-option { display: flex; align-items: flex-start; gap: .6rem; padding: .7rem .9rem; border: 1.5px solid var(--border); border-radius: 10px; background: var(--field); text-transform: none; letter-spacing: normal; cursor: pointer; }
+  .collate-option.active { border-color: var(--accent); background: rgba(91,192,255,.08); }
+  .collate-option input { width: 16px; height: 16px; margin-top: 2px; accent-color: var(--accent); flex-shrink: 0; }
+  .collate-option-title { font-size: .85rem; font-weight: 700; color: var(--text); }
+  .collate-option-pattern { margin-top: 3px; font-family: ui-monospace, monospace; font-size: .75rem; font-weight: 400; color: var(--ok); }
+  .csv-info-box { margin-bottom: 1rem; padding: .8rem 1rem; border: 1px solid rgba(91,192,255,.25); border-radius: 10px; background: rgba(91,192,255,.06); }
+  .csv-info-title { margin-bottom: 6px; font-size: .8rem; font-weight: 700; color: var(--accent); }
+  .csv-info-body { font-size: .75rem; line-height: 1.7; color: var(--muted); }
+  .csv-info-body code { padding: 1px 6px; border-radius: 4px; background: rgba(91,192,255,.15); color: var(--text); }
+  .csv-preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .6rem; font-size: .8rem; font-weight: 700; color: var(--ok); }
+  .csv-table-wrap { max-height: 260px; overflow: auto; border: 1px solid var(--border); border-radius: 10px; }
+  .dup-wrap table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+  .dup-wrap thead th { position: sticky; top: 0; padding: .55rem .9rem; background: #111827; color: var(--muted); font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; text-align: left; }
+  .dup-wrap tbody tr { border-top: 1px solid var(--border); }
+  .dup-wrap tbody td { padding: .5rem .9rem; }
+  td.td-page { color: var(--text); font-weight: 600; }
   td.td-copy { color: var(--accent); }
   td.td-copy.zero { color: var(--muted); }
-  td.td-seq  { color: var(--accent3); font-size: 11px; letter-spacing: 0.05em; }
-
-  .csv-sequence {
-    margin-top: 12px;
-    background: var(--surface2);
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    line-height: 1.8;
-    word-break: break-all;
-  }
-  .csv-sequence strong { color: var(--accent3); display: block; margin-bottom: 4px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
-
-  /* Responsive */
+  td.td-seq { color: var(--ok); font-size: .75rem; }
+  .csv-sequence { margin-top: .8rem; padding: .8rem 1rem; border-radius: 10px; background: var(--field); font-size: .75rem; line-height: 1.8; color: var(--muted); word-break: break-all; }
+  .csv-sequence strong { display: block; margin-bottom: 4px; font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ok); }
   @media (max-width: 540px) {
     .config-row { grid-template-columns: 1fr 1fr; }
     .delete-row { grid-column: span 2; justify-self: end; width: 36px; height: 36px; }
-    .card { padding: 20px; }
     .collate-options { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
-
-<div class="container">
-
-  <header>
-    <div class="badge">PDF Tool</div>
-    <h1>
-      <span class="word1">Duplicate</span><br>
-      <span class="word2">Pages</span>
-    </h1>
-    <p class="subtitle">Duplikat halaman tertentu dari PDF kamu dengan mudah & cepat</p>
+  <header class="app-header">
+    <h1>📄 PDF Page Tools</h1>
+    <button id="sidebarToggle" class="app-header-toggle" type="button" aria-label="Buka atau tutup sidebar" aria-expanded="true">
+      ☰
+    </button>
   </header>
+
+  <div class="app-shell">
+    <aside id="sidebar" class="app-sidebar">
+      <div class="app-sidebar-header">Tools</div>
+      <nav class="app-sidebar-nav">
+        <a href="../index.html" class="app-nav-item">
+          <span class="app-nav-icon">🏠</span>
+          <span>Beranda</span>
+        </a>
+
+        <a href="../layout-a3.html" class="app-nav-item">
+          <span class="app-nav-icon">📐</span>
+          <span>Layout A3+</span>
+        </a>
+
+        <a href="../harga-potong.html" class="app-nav-item">
+          <span class="app-nav-icon">💰</span>
+          <span>Harga Potong</span>
+        </a>
+
+        <a href="../adjust-size.html" class="app-nav-item">
+          <span class="app-nav-icon">🔧</span>
+          <span>Adjust Size</span>
+        </a>
+
+        <a href="../buku/buku.html" class="app-nav-item">
+          <span class="app-nav-icon">📘</span>
+          <span>Estimasi Buku</span>
+        </a>
+
+        <a href="../indoor-outdoor/indoor-outdoor.html" class="app-nav-item">
+          <span class="app-nav-icon">🖼️</span>
+          <span>Indoor/Outdoor</span>
+        </a>
+
+        <a href="index-shuffle.html" class="app-nav-item active">
+          <span class="app-nav-icon">📄</span>
+          <span>PDF Tools</span>
+        </a>
+
+        <a href="../penawaran/penawaran.html" class="app-nav-item">
+          <span class="app-nav-icon">📋</span>
+          <span>Penawaran Harga</span>
+        </a>
+
+        <a href="../pengiriman.html" class="app-nav-item">
+          <span class="app-nav-icon">🚚</span>
+          <span>Pengiriman</span>
+        </a>
+
+        <a href="../mockup.html" class="app-nav-item">
+          <span class="app-nav-icon">🎨</span>
+          <span>Mockup</span>
+        </a>
+
+      </nav>
+
+      <div class="app-sidebar-footer">APS Ciputat v2.0</div>
+    </aside>
+
+    <div id="overlay" class="app-overlay"></div>
+
+    <main class="app-main">
+      <div class="app-content">
+        <div class="page-header">
+          <h2 class="page-title">Duplicate Pages</h2>
+          <p class="page-subtitle">Duplikat halaman tertentu dari PDF dengan mudah dan cepat</p>
+        </div>
+
+        <div class="dup-wrap">
 
   <div class="steps-flow">
     <div class="step-pill active" id="step1">
@@ -793,11 +195,11 @@
   </div>
 
   <!-- Card 1: Upload -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-icon purple">📄</div>
+  <div class="panel dup-card">
+    <div class="panel-header">
+      <div class="panel-icon">📄</div>
       <div>
-        <div class="card-title">Upload File PDF</div>
+        <div class="panel-title">Upload File PDF</div>
         <div class="card-desc">Pilih atau drag & drop file PDF kamu</div>
       </div>
     </div>
@@ -830,11 +232,11 @@
   </div>
 
   <!-- Card 2: Config -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-icon pink">⚙️</div>
+  <div class="panel dup-card">
+    <div class="panel-header">
+      <div class="panel-icon">⚙️</div>
       <div>
-        <div class="card-title">Atur Halaman yang Diduplikat</div>
+        <div class="panel-title">Atur Halaman yang Diduplikat</div>
         <div class="card-desc">Input manual atau import dari file CSV / TXT</div>
       </div>
     </div>
@@ -909,11 +311,11 @@
   </div>
 
   <!-- Card 3: Process & Download -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-icon green">🚀</div>
+  <div class="panel dup-card">
+    <div class="panel-header">
+      <div class="panel-icon">🚀</div>
       <div>
-        <div class="card-title">Proses & Download</div>
+        <div class="panel-title">Proses & Download</div>
         <div class="card-desc">PDF hasil duplikasi siap didownload</div>
       </div>
     </div>
@@ -928,18 +330,21 @@
 
     <div class="result-info" id="resultInfo"></div>
 
-    <button class="btn-process" id="processBtn" disabled>
+    <button class="btn btn-primary btn-process" id="processBtn" disabled>
       <span>⚡</span> Proses PDF Sekarang
     </button>
 
     <hr class="divider" id="downloadDivider" style="display:none">
 
-    <a class="btn-download" id="downloadBtn" download="hasil-duplikasi.pdf">
+    <a class="btn btn-primary btn-download" id="downloadBtn" download="hasil-duplikasi.pdf">
       <span>⬇️</span> Download Hasil PDF
     </a>
   </div>
 
 </div>
+      </div>
+    </main>
+  </div>
 
 <div class="toast" id="toast"></div>
 
@@ -1394,5 +799,6 @@
   }
   function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 </script>
+<script src="../assets/sidebar.js"></script>
 </body>
 </html>

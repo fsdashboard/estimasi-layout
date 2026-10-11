@@ -3,165 +3,260 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF Page Tools</title>
   <link rel="shortcut icon" href="../logo/favicon.png" />
-  <title>Shuffle Pages</title>
-
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
+  <link rel="stylesheet" href="../assets/app-theme.css" />
   <style>
-    body {
-      background-color: #bf8149;
-      background-image:
-        linear-gradient(#ededed 1px, transparent 1px),
-        linear-gradient(90deg, #ededed 1px, transparent 1px);
-      background-size: 32px 32px;
-    }
-    .modal-enter { opacity: 0; transform: scale(1); transition: opacity 0.6s ease, transform 0.6s ease; }
-    .modal-show  { opacity: 1; transform: scale(1); }
-    .modal-hide  { opacity: 0; transform: scale(1); }
-    .rotate-box { font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .rotate-row { display:flex; gap:6px; align-items:center; justify-content:center; }
-    .rotate-row label { display:flex; gap:4px; align-items:center; }
-
-    input[type="checkbox"] { width: 16px; height: 16px; appearance: auto !important; -webkit-appearance: auto !important; transform: none !important; margin: 0 4px; }
-
-    table.border { border-collapse: collapse; }
-    table.border td, table.border th { border: 1px solid #e5e7eb; }
-    .w-fit { max-width: 95vw; }
-
-    .sidebar-submenu { background: #2d3748; }
-    .sidebar-submenu a.active { background: #1f2937; color: #fff; }
-    .sidebar-parent.active { background: #111827; color: #fff; }
     .hidden { display: none !important; }
+    .pdf-wrap { max-width: calc(440px + 640px + 1.25rem); margin: 0 auto; }
+    .tab-row { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-start; margin-bottom: 1rem; }
+    .tab-row .btn { display: inline-flex; align-items: center; text-decoration: none; }
+    .note { margin-top: 0.5rem; font-size: 0.85rem; color: var(--muted); }
+    .text-ok { color: #3fb950; }
+    .text-err { color: #ff6b6b; }
+    .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+
+    /* input (kiri) + hasil (kanan) */
+    .pdf-layout { display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 640px); gap: 1.25rem; justify-content: center; align-items: start; }
+    .pdf-layout.eq { align-items: stretch; }
+    .pdf-layout .panel { margin: 0; }
+    .pdf-layout .panel-header { display: flex; align-items: center; }
+    .btn-reset { margin-left: auto; padding: 0.35rem 0.8rem; font-size: 0.8rem; }
+    .fgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem 0.75rem; }
+    .fgrid .form-group { margin: 0; }
+    .fgrid .form-label { display: block; margin: 0 0 0.3rem; font-size: 0.85rem; }
+    .span2 { grid-column: 1 / -1; }
+    .hint { margin: 0 0 0.75rem; font-size: 0.85rem; color: var(--muted); }
+    .warn { margin-bottom: 0.75rem; padding: 0.75rem 0.9rem; border: 1px solid rgba(255, 107, 107, 0.4); border-radius: 10px; background: rgba(255, 107, 107, 0.08); color: #ff8a8a; font-size: 0.85rem; }
+
+    .check-row { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 0.75rem; cursor: pointer; color: var(--text); font-size: 0.9rem; }
+    .check-row input, .rotate-box input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
+    .slide-wrap { overflow-x: auto; margin-top: 1rem; color: var(--text); }
+    .slide-wrap:first-child { margin-top: 0; }
+    .slide-table { width: 100%; margin-top: 0.5rem; border-collapse: collapse; text-align: center; }
+    .slide-cell { padding: 0.35rem; border: 1px solid var(--border); vertical-align: top; background: rgba(17, 24, 39, 0.9); color: var(--text); }
+    .rotate-box { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; }
+    .rotate-row { display: flex; gap: 6px; align-items: center; justify-content: center; }
+    .rotate-row label { display: flex; gap: 4px; align-items: center; font-size: 0.75rem; color: var(--muted); cursor: pointer; }
+    .gabungan-box { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-top: 1rem; padding: 1rem; border: 1px solid var(--border); border-radius: 10px; background: rgba(17, 24, 39, 0.9); color: var(--text); word-break: break-word; }
+    .gabungan-box:first-child { margin-top: 0; }
+
+    @media (max-width: 1000px) { .pdf-layout { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .fgrid { grid-template-columns: 1fr; } }
   </style>
 </head>
+<body>
+  <header class="app-header">
+    <h1>📄 PDF Page Tools</h1>
+    <button id="sidebarToggle" class="app-header-toggle" type="button" aria-label="Buka atau tutup sidebar" aria-expanded="true">
+      ☰
+    </button>
+  </header>
 
-<body class="bg-gray-100 text-gray-800">
+  <div class="app-shell">
+    <aside id="sidebar" class="app-sidebar">
+      <div class="app-sidebar-header">Tools</div>
+      <nav class="app-sidebar-nav">
+        <a href="../index.html" class="app-nav-item">
+          <span class="app-nav-icon">🏠</span>
+          <span>Beranda</span>
+        </a>
 
-<button id="toggleSidebar" class="md:hidden text-white text-2xl p-4 fixed z-50 bg-gray-800 top-0 left-0">☰</button>
-<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 md:hidden" onclick="tutupSidebar()"></div>
+        <a href="../layout-a3.html" class="app-nav-item">
+          <span class="app-nav-icon">📐</span>
+          <span>Layout A3+</span>
+        </a>
 
-<div class="flex h-screen">
+        <a href="../harga-potong.html" class="app-nav-item">
+          <span class="app-nav-icon">💰</span>
+          <span>Harga Potong</span>
+        </a>
 
-  <aside id="sidebar" class="w-64 bg-gray-800 text-white flex flex-col fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50 md:relative">
-    <div class="p-4 text-xl font-bold border-b border-gray-700">Estimasi Online</div>
-    <nav class="flex-1 p-4 space-y-2 text-sm">
-        <a href="/estimasi-layout/index.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🏠 Halaman Utama</a>
-        <a href="/estimasi-layout/harga-potong.html" class="block p-2 font-semibold rounded hover:bg-gray-700">💰 Harga Potong (A3+)</a>
-        <a href="/estimasi-layout/layout-a3.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📐 Layout A3+</a>
-        <a href="/estimasi-layout/buku/buku.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">📘 Buku</a>
-        <a href="/estimasi-layout/indoor-outdoor/indoor-outdoor.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🖼️ Indoor/Outdoor</a>
-        <a href="/estimasi-layout/adjust-size.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🔧 Adjust Size</a>
-        <a href="/estimasi-layout/PDF Page Tools/index-shuffle.html" class="block p-2 font-semibold rounded hover:bg-gray-700 bg-gray-900">📄 PDF Page Tools</a>
-        <a href="/estimasi-layout/penawaran/penawaran.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">💰 Penawaran</a>
-        <a href="/estimasi-layout/pengiriman.html" class="block p-2 font-semibold rounded hover:bg-gray-700  ">🚚 Pengiriman</a>
-        <a href="/estimasi-layout/mockup.html" class="block p-2 font-semibold rounded hover:bg-gray-700">🎨 mockup</a>
-    </nav>
-  </aside>
+        <a href="../adjust-size.html" class="app-nav-item">
+          <span class="app-nav-icon">🔧</span>
+          <span>Adjust Size</span>
+        </a>
 
-  <main class="flex-1 p-6 overflow-y-auto w-full">
-    <h1 class="text-2xl font-bold mb-4 text-blue-700">Shuffle Pages</h1>
+        <a href="../buku/buku.html" class="app-nav-item">
+          <span class="app-nav-icon">📘</span>
+          <span>Estimasi Buku</span>
+        </a>
 
-    <div class="bg-white rounded-lg shadow p-6 w-full max-w-3xl mx-auto">
-      <div class="flex space-x-2 mb-4">
-       <button id="btn1" class="px-4 py-2 bg-gray-300 text-gray-700 rounded">Shuffle Pages</button>
-       <button id="btn2" class="px-4 py-2 bg-gray-300 text-gray-700 rounded">Organize Pages</button>
+        <a href="../indoor-outdoor/indoor-outdoor.html" class="app-nav-item">
+          <span class="app-nav-icon">🖼️</span>
+          <span>Indoor/Outdoor</span>
+        </a>
 
-       <a href="duplicate.html"
-          target="_blank"
-          class="px-4 py-2 bg-gray-300 text-gray-700 rounded">
-          Duplicate Pages
-       </a>
-</div>
+        <a href="index-shuffle.html" class="app-nav-item active">
+          <span class="app-nav-icon">📄</span>
+          <span>PDF Tools</span>
+        </a>
 
-      <div id="konten" class="bg-gray-50 p-4 rounded shadow min-h-[200px]">
-        Form akan muncul di sini setelah kamu memilih menu...
+        <a href="../penawaran/penawaran.html" class="app-nav-item">
+          <span class="app-nav-icon">📋</span>
+          <span>Penawaran Harga</span>
+        </a>
+
+        <a href="../pengiriman.html" class="app-nav-item">
+          <span class="app-nav-icon">🚚</span>
+          <span>Pengiriman</span>
+        </a>
+
+        <a href="../mockup.html" class="app-nav-item">
+          <span class="app-nav-icon">🎨</span>
+          <span>Mockup</span>
+        </a>
+
+      </nav>
+
+      <div class="app-sidebar-footer">APS Ciputat v2.0</div>
+    </aside>
+
+    <div id="overlay" class="app-overlay"></div>
+
+    <main class="app-main">
+      <div class="app-content">
+        <div class="page-header">
+          <h2 class="page-title">PDF Page Tools</h2>
+          <p class="page-subtitle">Shuffle, organize, dan duplikat halaman PDF</p>
+        </div>
+
+        <div class="pdf-wrap">
+          <div class="tab-row">
+            <button id="btn1" class="btn btn-secondary" type="button">Shuffle Pages</button>
+            <button id="btn2" class="btn btn-secondary" type="button">Organize Pages</button>
+            <a href="duplicate.html" class="btn btn-secondary">Duplicate Pages</a>
+          </div>
+
+          <div id="konten">
+            <p class="note">Memuat form…</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="customAlert" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="alertTitle">Peringatan</div>
+      </div>
+      <div class="modal-body" id="alertMessage"></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="tutupAlert()">Oke</button>
       </div>
     </div>
-  </main>
-</div>
+  </div>
 
-<script>
-/* ===== SIDEBAR ===== */
-const toggleSidebar = document.getElementById("toggleSidebar");
-const sidebar = document.getElementById("sidebar");
-const overlay = document.getElementById("overlay");
+  <script>
+    let currentKonten = 1;
+    const val = (id) => (document.getElementById(id)?.value || '').trim();
 
-toggleSidebar.addEventListener("click", () => {
-  sidebar.classList.toggle("-translate-x-full");
-  overlay.classList.toggle("hidden");
-});
-function tutupSidebar() {
-  sidebar.classList.add("-translate-x-full");
-  overlay.classList.add("hidden");
-}
+    // fungsi yang sudah ada di shuffle.js / organize.js (tidak diubah)
+    const KONTEN = {
+      1: {
+        html: 'shuffle.html', js: 'shuffle.js',
+        fn: () => buatAcuan(),
+        lengkap: () => val('isiHalaman') !== '' && val('baris') !== '' && val('kolom') !== '' &&
+                       ['1 Sisi', '2 Sisi'].includes(val('slide')),
+        kosong: () => { const o = document.getElementById('output'); if (o) o.innerHTML = ''; }
+      },
+      2: {
+        html: 'organize.html', js: 'organize.js',
+        fn: () => generateOrganize(),
+        lengkap: () => val('batas') !== '' && val('kelipatan') !== '',
+        kosong: () => {
+          const h = document.getElementById('hasilOrganize'); if (h) h.value = '';
+          const w = document.getElementById('warningOrganize'); if (w) w.classList.add('hidden');
+        }
+      }
+    };
 
-/* ===== DYNAMIC KONTEN ===== */
-function initSelect2() {
-  if (!window.$ || !$('#bahan').length) return;
-  $('#bahan').select2({ width:'100%', placeholder:'Cari jenis bahan', allowClear:true });
-}
+    /* ===== HASIL OTOMATIS ===== */
+    // Jalankan fungsi yang ada. Peringatan (alert / modal) dialihkan ke panel hasil
+    // supaya tidak muncul pop-up saat user masih mengetik.
+    function autoHitung() {
+      const cfg = KONTEN[currentKonten];
+      const empty = document.getElementById('pdf-empty');
+      const warn = document.getElementById('pdf-warn');
+      if (!empty || !warn) return;
 
-function tampilkanKonten(n) {
-  const kontenDiv = document.getElementById("konten");
-  const btn1 = document.getElementById("btn1");
-  const btn2 = document.getElementById("btn2");
+      warn.classList.add('hidden');
 
-  // Reset warna tombol
-  btn1.classList.remove("bg-blue-500","text-white");
-  btn1.classList.add("bg-gray-300","text-gray-700");
-  btn2.classList.remove("bg-blue-500","text-white");
-  btn2.classList.add("bg-gray-300","text-gray-700");
-
-  // Set tombol aktif
-  if(n===1){btn1.classList.remove("bg-gray-300","text-gray-700"); btn1.classList.add("bg-blue-500","text-white");}
-  else{btn2.classList.remove("bg-gray-300","text-gray-700"); btn2.classList.add("bg-blue-500","text-white");}
-
-  let htmlFile = (n===1) ? "shuffle.html" : "organize.html";
-  let jsFile = (n===1) ? "shuffle.js" : "organize.js";
-
-  // HAPUS SCRIPT LAMA DAN KONTEN
-  const oldScript = document.getElementById("dynamicScript");
-  if(oldScript) oldScript.remove();
-  kontenDiv.innerHTML = "<p class='text-gray-500'>Memuat konten...</p>";
-
-  fetch(htmlFile)
-    .then(res => res.text())
-    .then(html=>{
-      kontenDiv.innerHTML = html;
-
-      // Tambahkan JS baru
-      if(jsFile){
-        const script = document.createElement("script");
-        script.src = jsFile;
-        script.id = "dynamicScript";
-        document.body.appendChild(script);
+      // input belum lengkap -> kosongkan hasil tanpa peringatan
+      if (!cfg.lengkap()) {
+        cfg.kosong();
+        empty.classList.remove('hidden');
+        return;
       }
 
-      setTimeout(initSelect2,50); // re-init select2 jika ada
-    })
-    .catch(()=>{ kontenDiv.innerHTML="<p class='text-red-600'>Gagal memuat konten.</p>"; });
-}
+      let msg = '';
+      const origAlert = window.alert;
+      const origShow = window.showAlert;
+      window.alert = (m) => { msg = m; };
+      window.showAlert = (m) => { msg = m; };
+      try {
+        cfg.fn();
+      } catch (e) {
+        cfg.kosong();
+        empty.classList.remove('hidden');
+        return;
+      } finally {
+        window.alert = origAlert;
+        window.showAlert = origShow;
+      }
 
-/* ===== tombol menu ===== */
-document.getElementById("btn1").addEventListener("click", ()=>tampilkanKonten(1));
-document.getElementById("btn2").addEventListener("click", ()=>tampilkanKonten(2));
+      empty.classList.add('hidden');
+      if (msg) {
+        cfg.kosong();
+        warn.textContent = msg;
+        warn.classList.remove('hidden');
+      }
+    }
 
-</script>
+    function pasangAuto() {
+      document.querySelectorAll('#konten input:not([readonly]), #konten select').forEach(el => {
+        el.addEventListener('input', autoHitung);
+        el.addEventListener('change', autoHitung);
+      });
+    }
 
-<!-- Modal Alert -->
-<div id="customAlert" class="fixed inset-0 bg-black bg-opacity-30 hidden flex items-center justify-center z-50">
-  <div id="alertBox" class="bg-white rounded-lg p-6 w-80 max-w-full transform modal-enter">
-    <h3 id="alertTitle" class="text-lg font-bold mb-2">BERHASIL!</h3>
-    <p id="alertMessage" class="text-gray-700"></p>
-    <div class="mt-4 text-right">
-      <button onclick="tutupAlert()" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Tutup</button>
-    </div>
-  </div>
-</div>
+    /* ===== DYNAMIC KONTEN ===== */
+    function tampilkanKonten(n) {
+      const kontenDiv = document.getElementById("konten");
+      currentKonten = n;
 
+      [["btn1", 1], ["btn2", 2]].forEach(([id, i]) => {
+        const b = document.getElementById(id);
+        b.classList.toggle("btn-primary", i === n);
+        b.classList.toggle("btn-secondary", i !== n);
+      });
+
+      const cfg = KONTEN[n];
+
+      const oldScript = document.getElementById("dynamicScript");
+      if (oldScript) oldScript.remove();
+
+      fetch(cfg.html)
+        .then(res => res.text())
+        .then(html => {
+          kontenDiv.innerHTML = html;
+          pasangAuto();
+
+          const script = document.createElement("script");
+          script.src = cfg.js;
+          script.id = "dynamicScript";
+          script.onload = () => autoHitung();
+          document.body.appendChild(script);
+        })
+        .catch(() => { kontenDiv.innerHTML = "<p class='note text-err'>Gagal memuat konten.</p>"; });
+    }
+
+    document.getElementById("btn1").addEventListener("click", () => tampilkanKonten(1));
+    document.getElementById("btn2").addEventListener("click", () => tampilkanKonten(2));
+  </script>
+
+  <script src="../assets/sidebar.js"></script>
+  <script>tampilkanKonten(1);</script>
 </body>
 </html>
-
-

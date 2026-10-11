@@ -1,88 +1,255 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" href="logo/favicon.png" />
+  <meta name="description" content="Dashboard estimasi online" />
   <title>Estimasi Online</title>
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-997FPEHPXT"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+  <link rel="shortcut icon" href="logo/favicon.png" />
+  <link rel="stylesheet" href="assets/app-theme.css" />
+  <style>
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.1rem;
+    }
 
-    gtag('config', 'G-997FPEHPXT');
-  </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-<style>
-  body {
-    background-color: #bf8149;
-    background-image:
-      linear-gradient(#ededed 1px, transparent 1px),
-      linear-gradient(90deg, #ededed 1px, transparent 1px);
-    background-size: 32px 32px;
-  }
-</style>
+    .tool-card {
+      position: relative;
+      display: block;
+      overflow: hidden;
+      padding: 1.3rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(17,24,39,0.9), rgba(27,36,51,0.9));
+      color: var(--text);
+      transition: 0.2s ease;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+      box-shadow: 0 12px 28px rgba(91, 192, 255, 0.16);
+    }
+
+    .tool-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(91, 192, 255, 0.2), transparent 35%);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .tool-card:hover::before {
+      opacity: 1;
+    }
+
+    .tool-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .tool-icon {
+      font-size: 2rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .tool-title {
+      margin-bottom: 0.4rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .tool-description {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .stats-box {
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(17,24,39,0.9);
+      text-align: center;
+    }
+
+    .stats-value {
+      margin-bottom: 0.3rem;
+      color: var(--accent);
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .stats-label {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <header class="bg-blue-600 text-white p-4 shadow">
-    <h1 class="text-xl font-bold">Estimasi Online</h1>
-    <p class="text-sm">Silakan pilih fitur estimasi yang ingin digunakan.</p>
+<body>
+  <header class="app-header">
+    <h1>⚡ Estimasi Online</h1>
+    <button id="sidebarToggle" class="app-header-toggle" type="button" aria-label="Buka atau tutup sidebar" aria-expanded="true">
+      ☰
+    </button>
   </header>
 
-  <main class="p-6">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Menu Box -->
-      <a href="/estimasi-layout/harga-potong.html" class="block p-5 bg-white rounded-xl shadow hover:shadow-lg transition">
-        <h2 class="text-lg font-bold mb-1">Harga Potong (A3+)</h2>
-        <p class="text-sm text-gray-600">Hitung harga potong secara efisien.</p>
-      </a>
+  <div class="app-shell">
+    <aside id="sidebar" class="app-sidebar">
+      <div class="app-sidebar-header">Tools</div>
+      <nav class="app-sidebar-nav">
+        <a href="index.html" class="app-nav-item active">
+          <span class="app-nav-icon">🏠</span>
+          <span>Beranda</span>
+        </a>
 
-      <a href="/estimasi-layout/layout-a3.html" class="block p-5 bg-white rounded-xl shadow hover:shadow-lg transition">
-        <h2 class="text-lg font-bold mb-1">Layout A3+</h2>
-        <p class="text-sm text-gray-600">Hitung dan susun layout cetak A3+ secara efisien.</p>
-      </a>
+        <a href="layout-a3.html" class="app-nav-item">
+          <span class="app-nav-icon">📐</span>
+          <span>Layout A3+</span>
+        </a>
 
-      <a href="/estimasi-layout/buku/buku.html" class="block p-5 bg-white rounded-xl shadow hover:shadow-lg transition">
-        <h2 class="text-lg font-bold mb-1">Estimasi Buku</h2>
-        <p class="text-sm text-gray-600">Estimasi perhitungan Soft Cover, Booklet, dan Spiral.</p>
-      </a>
+        <a href="harga-potong.html" class="app-nav-item">
+          <span class="app-nav-icon">💰</span>
+          <span>Harga Potong</span>
+        </a>
 
-      <a href="/estimasi-layout/indoor-outdoor/indoor-outdoor.html" class="block p-5 bg-white rounded-xl shadow hover:shadow-lg transition">
-        <h2 class="text-lg font-bold mb-1">Indoor/Ourdoor</h2>
-        <p class="text-sm text-gray-600">Estimasi hitung kebutuhan cetak indoor/outdoor.</p>
-      </a>
+        <a href="adjust-size.html" class="app-nav-item">
+          <span class="app-nav-icon">🔧</span>
+          <span>Adjust Size</span>
+        </a>
 
-      <a href="/estimasi-layout/adjust-size.html" class="block p-5 bg-white rounded-xl shadow hover:shadow-lg transition">
-        <h2 class="text-lg font-bold mb-1">Adjust Size</h2>
-        <p class="text-sm text-gray-600">Atur ukuran file atau dokumen sesuai kebutuhan cetak.</p>
-      </a>
+        <a href="buku/buku.html" class="app-nav-item">
+          <span class="app-nav-icon">📘</span>
+          <span>Estimasi Buku</span>
+        </a>
 
-      <a href="/estimasi-layout/PDF Page Tools/index-shuffle.html" class="block p-5 bg-white rounded-xl shadow hover:shadow-lg transition">
-        <h2 class="text-lg font-bold mb-1">PDF Page Tools</h2>
-        <p class="text-sm text-gray-600">Kelola dan atur halaman PDF untuk kebutuhan cetak.</p>
-      </a>
+        <a href="indoor-outdoor/indoor-outdoor.html" class="app-nav-item">
+          <span class="app-nav-icon">🖼️</span>
+          <span>Indoor/Outdoor</span>
+        </a>
 
-      <a href="/estimasi-layout/penawaran/penawaran.html" class="block p-5 bg-white rounded-xl shadow hover:shadow-lg transition">
-        <h2 class="text-lg font-bold mb-1">Penawaran Harga</h2>
-        <p class="text-sm text-gray-600">Buat dokumen penawaran harga otomatis dan cepat.</p>
-      </a>
+        <a href="PDF Page Tools/index-shuffle.html" class="app-nav-item">
+          <span class="app-nav-icon">📄</span>
+          <span>PDF Tools</span>
+        </a>
 
-      <a href="/estimasi-layout/pengiriman.html" class="block p-5 bg-white rounded-xl shadow hover:shadow-lg transition">
-        <h2 class="text-lg font-bold mb-1">Pengiriman</h2>
-        <p class="text-sm text-gray-600">Input data untuk stiker label pengiriman.</p>
-      </a>
+        <a href="penawaran/penawaran.html" class="app-nav-item">
+          <span class="app-nav-icon">📋</span>
+          <span>Penawaran Harga</span>
+        </a>
 
-      <a href="/estimasi-layout/mockup.html" class="block p-5 bg-white rounded-xl shadow hover:shadow-lg transition">
-        <h2 class="text-lg font-bold mb-1">Mockup</h2>
-        <p class="text-sm text-gray-600">kumpulan mockup untuk kebutuhan cetak.</p>
-      </a>
-    </div>
-  </main>
+        <a href="pengiriman.html" class="app-nav-item">
+          <span class="app-nav-icon">🚚</span>
+          <span>Pengiriman</span>
+        </a>
 
-  <footer class="text-center text-sm text-gray-500 mt-10 pb-6">
-   APS Ciputat | Estimasi Online
-  </footer>
+        <a href="mockup.html" class="app-nav-item">
+          <span class="app-nav-icon">🎨</span>
+          <span>Mockup</span>
+        </a>
+      </nav>
+
+      <div class="app-sidebar-footer">APS Ciputat v2.0</div>
+    </aside>
+
+    <div id="overlay" class="app-overlay"></div>
+
+    <main class="app-main">
+      <div class="app-content">
+        <div class="page-header">
+          <h2 class="page-title">📊 Dashboard Estimasi</h2>
+          <p class="page-subtitle">Pilih tool sesuai kebutuhan Anda</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stats-box">
+            <div class="stats-value">9</div>
+            <div class="stats-label">Tools Tersedia</div>
+          </div>
+
+          <div class="stats-box">
+            <div class="stats-value">∞</div>
+            <div class="stats-label">Kalkulasi Unlimited</div>
+          </div>
+
+          <div class="stats-box">
+            <div class="stats-value">✓</div>
+            <div class="stats-label">Status Ready</div>
+          </div>
+        </div>
+
+        <div class="tool-grid">
+          <a href="layout-a3.html" class="tool-card">
+            <div class="tool-icon">📐</div>
+            <div class="tool-title">Layout A3+</div>
+            <div class="tool-description">Hitung dan susun layout cetak A3+ dengan cepat</div>
+          </a>
+
+          <a href="harga-potong.html" class="tool-card">
+            <div class="tool-icon">💰</div>
+            <div class="tool-title">Harga Potong</div>
+            <div class="tool-description">Estimasi biaya potong berdasarkan kategori ukuran</div>
+          </a>
+
+          <a href="adjust-size.html" class="tool-card">
+            <div class="tool-icon">🔧</div>
+            <div class="tool-title">Adjust Size</div>
+            <div class="tool-description">Atur ukuran file dan dokumen sesuai kebutuhan cetak</div>
+          </a>
+
+          <a href="buku/buku.html" class="tool-card">
+            <div class="tool-icon">📘</div>
+            <div class="tool-title">Estimasi Buku</div>
+            <div class="tool-description">Hitung soft cover, booklet, dan spiral</div>
+          </a>
+
+          <a href="indoor-outdoor/indoor-outdoor.html" class="tool-card">
+            <div class="tool-icon">🖼️</div>
+            <div class="tool-title">Indoor/Outdoor</div>
+            <div class="tool-description">Estimasi kebutuhan cetak indoor/outdoor</div>
+          </a>
+
+          <a href="PDF Page Tools/index-shuffle.html" class="tool-card">
+            <div class="tool-icon">📄</div>
+            <div class="tool-title">PDF Page Tools</div>
+            <div class="tool-description">Kelola dan atur halaman PDF dengan mudah</div>
+          </a>
+
+          <a href="penawaran/penawaran.html" class="tool-card">
+            <div class="tool-icon">📋</div>
+            <div class="tool-title">Penawaran Harga</div>
+            <div class="tool-description">Buat dokumen penawaran otomatis</div>
+          </a>
+
+          <a href="pengiriman.html" class="tool-card">
+            <div class="tool-icon">🚚</div>
+            <div class="tool-title">Pengiriman</div>
+            <div class="tool-description">Input data stiker label pengiriman</div>
+          </a>
+
+          <a href="mockup.html" class="tool-card">
+            <div class="tool-icon">🎨</div>
+            <div class="tool-title">Mockup</div>
+            <div class="tool-description">Koleksi mockup untuk kebutuhan cetak</div>
+          </a>
+
+          
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/sidebar.js"></script>
 </body>
 </html>

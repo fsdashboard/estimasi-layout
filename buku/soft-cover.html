@@ -1,103 +1,99 @@
-﻿
-<div id="form-softcover" class="form-buku">
-  <h3 class="font-bold mb-2">Estimasi Buku - Soft Cover</h3>
-
-  <table class="mb-4 w-[400px]">
-    <tr>
-      <td class="pr-2 py-2 whitespace-nowrap">Jumlah Halaman:</td>
-      <td><input type="number" id="softcover-halaman" class="ml-2 p-1 border rounded w-full"/></td>
-    </tr>
-    <tr>
-      <td class="pr-2 py-2 whitespace-nowrap">Jumlah Cetak:</td>
-      <td><input type="number" id="softcover-cetak" class="ml-2 p-1 border rounded w-full"/></td>
-    </tr>
-    <tr>
-      <td class="pr-2 py-2 whitespace-nowrap">Ukuran Jadi:</td>
-      <td>
-        <select id="preset-ukuran" class="ml-2 p-1 border rounded w-full">
-          <option value="">-- Pilih Ukuran --</option>
-          <option value="A3">A3 (29.7x42 cm)</option>
-          <option value="A4">A4 (21x29.7 cm)</option>
-          <option value="A5">A5 (14.8x21 cm)</option>
-          <option value="A6">A6 (10.5x14.8 cm)</option>
-          <option value="A7">A7 (7.4x10.5 cm)</option>
-          <option value="custom">Custom Size</option>
-        </select>
-      </td>
-    </tr>
-    <tr id="custom-size-row" class="hidden">
-      <td class="pr-2 py-2 whitespace-nowrap">Ukuran Jadi (cm):</td>
-      <td>
-        <div class="flex ml-2 w-full">
-          <input type="number" placeholder="Panjang" id="softcover-panjang" class="p-1 border rounded w-1/2 mr-1"/>
-          <span class="flex items-center px-1">x</span>
-          <input type="number" placeholder="Lebar" id="softcover-lebar" class="p-1 border rounded w-1/2 ml-1"/>
-        </div>
-        <div id="preview-orientasi" class="text-center text-sm text-gray-500 mt-1 italic">Orientasi: -</div>
-      </td>
-    </tr>
-    <tr>
-      <td class="pr-2 py-2 whitespace-nowrap">Sided Print-Isi:</td>
-      <td>
-        <select id="softcover-sisi-isi" class="ml-2 p-1 border rounded w-full">
-          <option value="">-- Pilih --</option>
-          <option value="1">1 Sisi</option>
-          <option value="2">2 Sisi</option>
-        </select>
-      </td>
-    </tr>
-    <tr>
-      <td class="pr-2 py-2 whitespace-nowrap">Bahan Kertas Isi:</td>
-      <td>
-        <select id="softcover-bahan-isi" class="ml-2 p-1 border rounded w-full">
-          <option value="">-- Pilih Kertas --</option>
-          <option value="BOOK PAPER">BOOK PAPER</option>
-          <option value="HVS 75 gsm">HVS 75 gsm</option>
-          <option value="HVS 80 gsm">HVS 80 gsm</option>
-          <option value="HVS 100 gsm">HVS 100 gsm</option>
-          <option value="AP 120 gsm">AP 120 gsm</option>
-          <option value="AP 150 gsm">AP 150 gsm</option>
-          <option value="MP 120 gsm">MP 120 gsm</option>
-          <option value="MP 150 gsm">MP 150 gsm</option>
-          <option value="AC 210 gsm">AC 210 gsm</option>
-          <option value="AC 230 gsm">AC 230 gsm</option>
-          <option value="AC 260 gsm">AC 260 gsm</option>
-          <option value="AC 310 gsm">AC 310 gsm</option>
-          <option value="AC 400 gsm">AC 400 gsm</option>
-        </select>
-      </td>
-    </tr>
-      <tr>
-    <td class="pr-2 py-2 whitespace-nowrap">Media Cetak:</td>
-    <td>
-      <select id="softcover-media-cetak" class="ml-2 p-1 border rounded w-full">
-        <option value="A3+">A3+</option>
-        <option value="A3">A3</option>
-        <option value="A4">A4</option>
-      </select>
-    </td>
-    </tr>
-    <tbody id="output-softcover" class="hidden">
-    <tr>
-      <td id="label-totalA3" class="pr-2 py-2 whitespace-nowrap">Total dalam 1 A3+:</td>
-      <td>
-      <input type="text" id="softcover-totalA3" class="ml-2 p-1 border rounded w-full bg-gray-100" readonly />
-      </td>
-    </tr>
-
-      <tr>
-        <td class="pr-2 py-2 whitespace-nowrap">Jumlah Lembar Cetak Isi:</td>
-        <td><input type="text" id="softcover-lembar-isi" class="ml-2 p-1 border rounded w-full bg-gray-100" readonly /></td>
-      </tr>
-      <tr>
-        <td class="pr-2 py-2 whitespace-nowrap">Ketebalan Punggung:</td>
-        <td><input type="text" id="softcover-punggung" class="ml-2 p-1 border rounded w-full bg-gray-100" readonly /></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="mt-4">
-    <button onclick="hitungSoftCover()" class="px-4 py-2 bg-blue-600 text-white rounded">Hitung</button>
-    <button onclick="resetSoftcoverForm()" class="ml-2 px-4 py-2 bg-gray-500 text-white rounded">Reset</button>
+<!-- soft-cover.html : fragment -->
+<div class="buku-layout">
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-icon">📘</div>
+    <div class="panel-title">Input Soft Cover</div>
+    <button type="button" class="btn btn-secondary btn-reset" onclick="resetSoftcoverForm(); autoHitung();">Reset</button>
   </div>
+<div class="fgrid">
+  <div class="form-group">
+    <label class="form-label">Jumlah Halaman</label>
+    <input type="number" id="softcover-halaman" class="form-input" />
+  </div>
+  <div class="form-group">
+    <label class="form-label">Jumlah Cetak</label>
+    <input type="number" id="softcover-cetak" class="form-input" />
+  </div>
+  <div class="form-group">
+    <label class="form-label">Ukuran Jadi</label>
+    <select id="preset-ukuran" class="form-select">
+      <option value="">-- Pilih Ukuran --</option>
+      <option value="A3">A3 (29.7x42 cm)</option>
+      <option value="A4">A4 (21x29.7 cm)</option>
+      <option value="A5">A5 (14.8x21 cm)</option>
+      <option value="A6">A6 (10.5x14.8 cm)</option>
+      <option value="A7">A7 (7.4x10.5 cm)</option>
+      <option value="custom">Custom Size</option>
+    </select>
+  </div>
+  <div class="form-group span3 hidden" id="custom-size-row">
+    <label class="form-label">Ukuran Jadi (cm)</label>
+    <div class="two-col">
+      <input type="number" placeholder="Panjang" id="softcover-panjang" class="form-input" />
+      <span class="sep">x</span>
+      <input type="number" placeholder="Lebar" id="softcover-lebar" class="form-input" />
+    </div>
+    <div id="preview-orientasi" class="orient">Orientasi: -</div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Sided Print-Isi</label>
+    <select id="softcover-sisi-isi" class="form-select">
+      <option value="">-- Pilih --</option>
+      <option value="1">1 Sisi</option>
+      <option value="2">2 Sisi</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Bahan Kertas Isi</label>
+    <select id="softcover-bahan-isi" class="form-select">
+      <option value="">-- Pilih Kertas --</option>
+      <option value="BOOK PAPER">BOOK PAPER</option>
+      <option value="HVS 75 gsm">HVS 75 gsm</option>
+      <option value="HVS 80 gsm">HVS 80 gsm</option>
+      <option value="HVS 100 gsm">HVS 100 gsm</option>
+      <option value="AP 120 gsm">AP 120 gsm</option>
+      <option value="AP 150 gsm">AP 150 gsm</option>
+      <option value="MP 120 gsm">MP 120 gsm</option>
+      <option value="MP 150 gsm">MP 150 gsm</option>
+      <option value="AC 210 gsm">AC 210 gsm</option>
+      <option value="AC 230 gsm">AC 230 gsm</option>
+      <option value="AC 260 gsm">AC 260 gsm</option>
+      <option value="AC 310 gsm">AC 310 gsm</option>
+      <option value="AC 400 gsm">AC 400 gsm</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Media Cetak</label>
+    <select id="softcover-media-cetak" class="form-select">
+      <option value="A3+">A3+</option>
+      <option value="A3">A3</option>
+      <option value="A4">A4</option>
+    </select>
+  </div>
+</div>
+</div>
+
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-icon">📐</div>
+    <div class="panel-title">Hasil</div>
+  </div>
+  <p id="buku-empty" class="hint">Isi data di sebelah kiri, hasil muncul otomatis.</p>
+  <div id="buku-warn" class="warn hidden"></div>
+  <div id="output-softcover" class="hidden">
+    <div class="res-row">
+      <label class="res-label" id="label-totalA3">Total dalam 1 A3+</label>
+      <input type="text" id="softcover-totalA3" readonly class="res-val" />
+    </div>
+    <div class="res-row">
+      <label class="res-label">Jumlah Lembar Cetak Isi</label>
+      <input type="text" id="softcover-lembar-isi" readonly class="res-val" />
+    </div>
+    <div class="res-row">
+      <label class="res-label">Ketebalan Punggung</label>
+      <input type="text" id="softcover-punggung" readonly class="res-val" />
+    </div>
+  </div>
+</div>
 </div>
