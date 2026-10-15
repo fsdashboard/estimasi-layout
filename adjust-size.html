@@ -124,6 +124,18 @@
       display: flex;
     }
 
+    .file-meta-text {
+      min-width: 0;
+    }
+
+    .file-info {
+      display: block;
+      margin-top: 0.15rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      word-break: normal;
+    }
+
     /* kartu hasil */
     .result-box {
       margin-bottom: 0.6rem;
@@ -273,7 +285,7 @@
                 <div class="upload-icon">📁</div>
                 <div class="upload-text">
                   <strong>Klik atau drag file ke sini</strong>
-                  <span>PNG, JPG, PDF · ukuran awal terisi otomatis</span>
+                  <span>PNG, JPG, PDF · ukuran asli dibaca otomatis</span>
                 </div>
               </div>
 
@@ -286,7 +298,10 @@
               />
 
               <div class="file-meta" id="fileMeta">
-                <span id="fileName">—</span>
+                <div class="file-meta-text">
+                  <span id="fileName">—</span>
+                  <span id="fileInfo" class="file-info"></span>
+                </div>
                 <span style="cursor:pointer; color:#ff6b6b; font-weight:700;" onclick="removeFile()">✕</span>
               </div>
             </div>
@@ -391,7 +406,215 @@
       }
     }
 
-    function processUpload(file) {
+    // ==== BACA UKURAN ASLI FILE (file hanya dibaca, tidak diubah / diunggah) ====
+    const DPI_DEFAULT = 72; // dipakai hanya jika file tidak menyimpan DPI (sama seperti Photoshop)
+
+    function rapikan(angka) {
+      return String(parseFloat(angka.toFixed(4)));
+    }
+
+    function teksDpi(n) {
+      return Number.isInteger(n) ? String(n) : n.toFixed(1);
+    }
+
+    function isiUkuranAwal(wCm, hCm) {
+      document.getElementById("awalPanjang").value = rapikan(wCm);
+      document.getElementById("awalLebar").value = rapikan(hCm);
+    }
+
+    function teksAscii(dv, pos, len) {
+      let t = "";
+      for (let i = 0; i < len && pos + i < dv.byteLength; i++) t += String.fromCharCode(dv.getUint8(pos + i));
+      return t;
+    }
+
+    // pembulatan ke angka bulat bila selisihnya sangat kecil (mis. PNG 299.9994 -> 300)
+    function snapDpi(v) {
+      const r = Math.round(v);
+      return Math.abs(v - r) < 0.05 ? r : v;
+    }
+
+    function dpiValid(x, y) {
+      return x > 1 && y > 1 && x < 100000 && y < 100000 ? { x: snapDpi(x), y: snapDpi(y) } : null;
+    }
+
+    // PNG: chunk pHYs (piksel per meter)
+    function dpiPng(dv) {
+      let p = 8;
+      while (p + 12 <= dv.byteLength) {
+        const len = dv.getUint32(p);
+        const type = teksAscii(dv, p + 4, 4);
+        if (type === "pHYs") {
+          const x = dv.getUint32(p + 8);
+          const y = dv.getUint32(p + 12);
+          const unit = dv.getUint8(p + 16);
+          return unit === 1 ? dpiValid(x * 0.0254, y * 0.0254) : null;
+        }
+        if (type === "IDAT" || type === "IEND") break;
+        p += 12 + len;
+      }
+      return null;
+    }
+
+    // JPEG: EXIF (XResolution / YResolution / ResolutionUnit)
+    function dpiExif(dv, base, end) {
+      const little = dv.getUint16(base) === 0x4949;
+      const u16 = (o) => dv.getUint16(base + o, little);
+      const u32 = (o) => dv.getUint32(base + o, little);
+      if (u16(2) !== 0x002A) return null;
+      const ifd = u32(4);
+      const count = u16(ifd);
+      let xr = null, yr = null, unit = 2;
+      for (let i = 0; i < count; i++) {
+        const e = ifd + 2 + i * 12;
+        if (base + e + 12 > end) break;
+        const tag = u16(e);
+        if (tag === 0x011A || tag === 0x011B) {
+          const off = u32(e + 8);
+          const nilai = u32(off) / (u32(off + 4) || 1);
+          if (tag === 0x011A) xr = nilai; else yr = nilai;
+        } else if (tag === 0x0128) {
+          unit = u16(e + 8);
+        }
+      }
+      if (!xr || !yr) return null;
+      return unit === 3 ? dpiValid(xr * 2.54, yr * 2.54) : dpiValid(xr, yr);
+    }
+
+    // JPEG: Photoshop resource 0x03ED (resolusi yang disimpan Photoshop)
+    function dpiPhotoshop(dv, pos, end) {
+      let p = pos;
+      while (p + 12 <= end) {
+        if (teksAscii(dv, p, 4) !== "8BIM") break;
+        const id = dv.getUint16(p + 4);
+        const namaLen = dv.getUint8(p + 6);
+        let q = p + 7 + namaLen;
+        if ((namaLen + 1) % 2 === 1) q += 1;
+        const size = dv.getUint32(q);
+        q += 4;
+        if (id === 0x03ED) {
+          let x = dv.getUint32(q) / 65536;
+          let y = dv.getUint32(q + 8) / 65536;
+          if (dv.getUint16(q + 4) === 2) x *= 2.54;
+          if (dv.getUint16(q + 12) === 2) y *= 2.54;
+          return dpiValid(x, y);
+        }
+        p = q + size + (size % 2);
+      }
+      return null;
+    }
+
+    function dpiJpeg(dv) {
+      let p = 2, jfif = null, exif = null, psd = null;
+      while (p + 4 <= dv.byteLength) {
+        if (dv.getUint8(p) !== 0xFF) break;
+        const marker = dv.getUint8(p + 1);
+        if (marker === 0xFF) { p += 1; continue; }
+        if (marker === 0xDA || marker === 0xD9) break;
+        const len = dv.getUint16(p + 2);
+        const seg = p + 4;
+        const end = p + 2 + len;
+        if (marker === 0xE0 && teksAscii(dv, seg, 5) === "JFIF\0") {
+          const unit = dv.getUint8(seg + 7);
+          const x = dv.getUint16(seg + 8);
+          const y = dv.getUint16(seg + 10);
+          if (unit === 1) jfif = dpiValid(x, y);
+          else if (unit === 2) jfif = dpiValid(x * 2.54, y * 2.54);
+        } else if (marker === 0xE1 && teksAscii(dv, seg, 6) === "Exif\0\0") {
+          try { exif = dpiExif(dv, seg + 6, end); } catch (e) { /* abaikan */ }
+        } else if (marker === 0xED && teksAscii(dv, seg, 14) === "Photoshop 3.0\0") {
+          try { psd = dpiPhotoshop(dv, seg + 14, end); } catch (e) { /* abaikan */ }
+        }
+        p = end;
+      }
+      return psd || exif || jfif;
+    }
+
+    function bacaDpiGambar(buf) {
+      const dv = new DataView(buf);
+      if (dv.byteLength > 8 && dv.getUint32(0) === 0x89504E47) return dpiPng(dv);
+      if (dv.byteLength > 4 && dv.getUint16(0) === 0xFFD8) return dpiJpeg(dv);
+      return null;
+    }
+
+    function bacaUkuranGambar(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error("File tidak bisa dibaca."));
+        reader.onload = () => {
+          const dpi = bacaDpiGambar(reader.result);
+          const url = URL.createObjectURL(file);
+          const img = new Image();
+
+          img.onload = function () {
+            URL.revokeObjectURL(url);
+            const w = img.naturalWidth;
+            const h = img.naturalHeight;
+            const dpiX = dpi ? dpi.x : DPI_DEFAULT;
+            const dpiY = dpi ? dpi.y : DPI_DEFAULT;
+            isiUkuranAwal((w * 2.54) / dpiX, (h * 2.54) / dpiY);
+
+            const dpiTeks = dpi
+              ? (Math.abs(dpi.x - dpi.y) < 0.01 ? teksDpi(dpi.x) : teksDpi(dpi.x) + " x " + teksDpi(dpi.y)) + " DPI"
+              : "DPI tidak ada di file, dihitung " + DPI_DEFAULT + " DPI";
+            resolve(w + " x " + h + " px · " + dpiTeks);
+          };
+
+          img.onerror = function () {
+            URL.revokeObjectURL(url);
+            reject(new Error("Gagal membaca file gambar."));
+          };
+
+          img.src = url;
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    // PDF: ukuran halaman pertama dibaca dengan pdf.js (dimuat saat pertama dibutuhkan)
+    const PDFJS_VERSION = "3.11.174";
+    let pdfjsPromise = null;
+
+    function muatPdfJs() {
+      if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+      if (!pdfjsPromise) {
+        pdfjsPromise = new Promise((resolve, reject) => {
+          const base = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/" + PDFJS_VERSION + "/";
+          const script = document.createElement("script");
+          script.src = base + "pdf.min.js";
+          script.onload = () => {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = base + "pdf.worker.min.js";
+            resolve(window.pdfjsLib);
+          };
+          script.onerror = () => {
+            pdfjsPromise = null;
+            reject(new Error("Pustaka pembaca PDF gagal dimuat. Periksa koneksi internet."));
+          };
+          document.head.appendChild(script);
+        });
+      }
+      return pdfjsPromise;
+    }
+
+    async function bacaUkuranPdf(file) {
+      const pdfjsLib = await muatPdfJs();
+      const data = new Uint8Array(await file.arrayBuffer());
+      const pdf = await pdfjsLib.getDocument({ data }).promise;
+      try {
+        const page = await pdf.getPage(1);
+        const unit = page.userUnit || 1;
+        const vp = page.getViewport({ scale: 1 }); // 1 satuan = 1 point (sudah memperhitungkan rotasi halaman)
+        const wPt = vp.width * unit;
+        const hPt = vp.height * unit;
+        isiUkuranAwal((wPt * 2.54) / 72, (hPt * 2.54) / 72);
+        return "PDF · halaman 1 dari " + pdf.numPages + " · " + wPt.toFixed(1) + " x " + hPt.toFixed(1) + " pt";
+      } finally {
+        pdf.destroy();
+      }
+    }
+    // ==== AKHIR BACA UKURAN ASLI FILE ====
+
+    async function processUpload(file) {
       const ext = file.name.split(".").pop().toLowerCase();
 
       if (!["png", "jpg", "jpeg", "pdf"].includes(ext)) {
@@ -400,41 +623,23 @@
       }
 
       document.getElementById("fileName").textContent = file.name;
+      document.getElementById("fileInfo").textContent = "Membaca ukuran file…";
       document.getElementById("fileMeta").classList.add("show");
 
-      if (ext === "pdf") {
-        document.getElementById("awalPanjang").value = "21.00";
-        document.getElementById("awalLebar").value = "29.70";
+      try {
+        const info = ext === "pdf" ? await bacaUkuranPdf(file) : await bacaUkuranGambar(file);
+        document.getElementById("fileInfo").textContent = info;
         hitungAdjustSize();
-        return;
+      } catch (err) {
+        document.getElementById("fileInfo").textContent = "Ukuran tidak terbaca, isi manual.";
+        showAlert(err.message || "Gagal membaca ukuran file.");
       }
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-
-        img.onload = function () {
-          const dpiUsed = 96;
-          const wCm = (img.width * 2.54) / dpiUsed;
-          const hCm = (img.height * 2.54) / dpiUsed;
-          document.getElementById("awalPanjang").value = wCm.toFixed(2);
-          document.getElementById("awalLebar").value = hCm.toFixed(2);
-          hitungAdjustSize();
-        };
-
-        img.onerror = function () {
-          showAlert("Gagal membaca file gambar.");
-        };
-
-        img.src = event.target.result;
-      };
-
-      reader.readAsDataURL(file);
     }
 
     function removeFile() {
       document.getElementById("fileInput").value = "";
       document.getElementById("fileName").textContent = "—";
+      document.getElementById("fileInfo").textContent = "";
       document.getElementById("fileMeta").classList.remove("show");
     }
 
