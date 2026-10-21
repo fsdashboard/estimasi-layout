@@ -154,57 +154,20 @@
   </div>
 
   <script>
-    const kategoriList = {
-      "A3/A4": [
-        { max: 5, harga: 0 },
-        { max: 10, harga: 5000 },
-        { max: 50, harga: 10000 },
-        { max: 100, harga: 15000 },
-        { max: 200, harga: 20000 },
-        { max: 300, harga: 25000 },
-        { max: Infinity, harga: 30000 }
-      ],
-      "A5/A6": [
-        { max: 5, harga: 0 },
-        { max: 10, harga: 5000 },
-        { max: 30, harga: 10000 },
-        { max: 50, harga: 15000 },
-        { max: 100, harga: 20000 },
-        { max: 200, harga: 25000 },
-        { max: 300, harga: 30000 },
-        { max: Infinity, harga: 35000 }
-      ],
-      "1 A3+ = 9 - 15 PCS": [
-        { max: 5, harga: "1000/LBR" },
-        { max: 10, harga: 10000 },
-        { max: 30, harga: 20000 },
-        { max: 50, harga: 35000 },
-        { max: 100, harga: 40000 },
-        { max: 200, harga: 50000 },
-        { max: 300, harga: 60000 },
-        { max: Infinity, harga: 70000 }
-      ],
-      "1 A3+ = 16 - 25 PCS": [
-        { max: 5, harga: "3000/LBR" },
-        { max: 10, harga: 15000 },
-        { max: 30, harga: 25000 },
-        { max: 50, harga: 35000 },
-        { max: 100, harga: 45000 },
-        { max: 200, harga: 55000 },
-        { max: 300, harga: 65000 },
-        { max: Infinity, harga: 75000 }
-      ],
-      "1 A3+ = 26 - 50 PCS": [
-        { max: 5, harga: "4000/LBR" },
-        { max: 10, harga: 20000 },
-        { max: 30, harga: 30000 },
-        { max: 50, harga: 40000 },
-        { max: 100, harga: 50000 },
-        { max: 200, harga: 60000 },
-        { max: 300, harga: 70000 },
-        { max: Infinity, harga: 80000 }
-      ]
-    };
+    // GANTI dengan URL Worker kamu setelah deploy
+    const API_URL = "https://super-id-api.fsandria166.workers.dev";
+
+    // Hanya nama kategori (tanpa harga). Harga ada di server.
+    const KATEGORI = [
+      "A3/A4",
+      "A5/A6",
+      "1 A3+ = 9 - 15 PCS",
+      "1 A3+ = 16 - 25 PCS",
+      "1 A3+ = 26 - 50 PCS"
+    ];
+
+    let timer = null;
+    let reqId = 0;
 
     function tambahBaris() {
       const tbody = document.getElementById("tabelInput");
@@ -215,7 +178,7 @@
         <td>
           <select class="table-input kategori">
             <option value="">-- Pilih --</option>
-            ${Object.keys(kategoriList).map(k => `<option value="${k}">${k}</option>`).join("")}
+            ${KATEGORI.map(k => `<option value="${k}">${k}</option>`).join("")}
           </select>
         </td>
         <td class="harga">Rp 0</td>
@@ -233,39 +196,54 @@
     }
 
     function resetSemua() {
+      reqId++;
+      clearTimeout(timer);
       document.getElementById("tabelInput").innerHTML = "";
       document.getElementById("totalHarga").textContent = "Rp 0";
     }
 
+    // Debounce: tunggu 300 ms setelah user berhenti mengetik
     function hitungSemua() {
-      const rows = document.querySelectorAll("#tabelInput tr");
-      let total = 0;
+      reqId++;
+      clearTimeout(timer);
+      timer = setTimeout(kirimHitung, 300);
+    }
 
-      rows.forEach(row => {
-        const jumlah = parseInt(row.querySelector(".jumlah").value);
-        const kategori = row.querySelector(".kategori").value;
-        const cellHarga = row.querySelector(".harga");
+    async function kirimHitung() {
+      const myId = reqId;
+      const rows = Array.from(document.querySelectorAll("#tabelInput tr"));
+      const totalEl = document.getElementById("totalHarga");
 
-        if (!jumlah || !kategori) {
-          cellHarga.textContent = "Rp 0";
-          return;
-        }
+      if (!rows.length) {
+        totalEl.textContent = "Rp 0";
+        return;
+      }
 
-        const tarif = kategoriList[kategori].find(item => jumlah <= item.max);
-        let harga = 0;
+      const items = rows.map(row => ({
+        jumlah: parseInt(row.querySelector(".jumlah").value) || 0,
+        kategori: row.querySelector(".kategori").value
+      }));
 
-        if (typeof tarif.harga === "string" && tarif.harga.includes("/LBR")) {
-          const perLembar = parseInt(tarif.harga);
-          harga = perLembar * jumlah;
-        } else {
-          harga = tarif.harga;
-        }
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items })
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
 
-        total += harga;
-        cellHarga.textContent = "Rp " + harga.toLocaleString();
-      });
+        // Abaikan respons lama kalau user sudah mengubah input lagi
+        if (myId !== reqId) return;
 
-      document.getElementById("totalHarga").textContent = "Rp " + total.toLocaleString();
+        rows.forEach((row, i) => {
+          row.querySelector(".harga").textContent = "Rp " + data.harga[i].toLocaleString();
+        });
+        totalEl.textContent = "Rp " + data.total.toLocaleString();
+      } catch (err) {
+        if (myId !== reqId) return;
+        totalEl.textContent = "Gagal terhubung ke server";
+      }
     }
   </script>
 
