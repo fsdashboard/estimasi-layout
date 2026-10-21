@@ -31,7 +31,6 @@
       box-shadow: 0 0 0 3px rgba(91, 192, 255, 0.1);
     }
 
-    /* ===== Kartu compact (seperti layout-a3-CONTOH) ===== */
     .panel-compact {
       width: fit-content;
       min-width: min(560px, 100%);
@@ -154,10 +153,8 @@
   </div>
 
   <script>
-    // GANTI dengan URL Worker kamu setelah deploy
     const API_URL = "https://super-id-api.fsandria166.workers.dev";
 
-    // Hanya nama kategori (tanpa harga). Harga ada di server.
     const KATEGORI = [
       "A3/A4",
       "A5/A6",
@@ -202,10 +199,16 @@
       document.getElementById("totalHarga").textContent = "Rp 0";
     }
 
-    // Debounce: tunggu 300 ms setelah user berhenti mengetik
     function hitungSemua() {
       reqId++;
       clearTimeout(timer);
+
+      document.querySelectorAll("#tabelInput .harga").forEach(el => {
+        el.textContent = "…";
+      });
+
+      document.getElementById("totalHarga").textContent = "Menghitung ulang…";
+
       timer = setTimeout(kirimHitung, 300);
     }
 
@@ -233,7 +236,6 @@
         if (!res.ok) throw new Error("HTTP " + res.status);
         const data = await res.json();
 
-        // Abaikan respons lama kalau user sudah mengubah input lagi
         if (myId !== reqId) return;
 
         rows.forEach((row, i) => {
@@ -242,7 +244,7 @@
         totalEl.textContent = "Rp " + data.total.toLocaleString();
       } catch (err) {
         if (myId !== reqId) return;
-        totalEl.textContent = "Gagal terhubung ke server";
+        totalEl.textContent = "Gagal memuat";
       }
     }
   </script>
