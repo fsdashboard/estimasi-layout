@@ -244,6 +244,9 @@
         totalEl.textContent = "Rp " + data.total.toLocaleString();
       } catch (err) {
         if (myId !== reqId) return;
+        rows.forEach(row => {
+          row.querySelector(".harga").textContent = "-";
+        });
         totalEl.textContent = "Gagal memuat";
       }
     }
